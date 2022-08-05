@@ -1,9 +1,9 @@
-<table>
-  {% for landlord in landlords %}
-    <tr>
-      <td><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></td>
-      <td>{{landlord.address}}</td>
-      <td>{{landlord.property_count}}</td>
-    </tr>
-  {% endfor %}
-</table>
+<strong>Landlord Name: </strong>{{landlord.name}}</br>
+<strong>Landlord Address: </strong>{{landlord.address}}</br>
+<strong>Landlord Location: </strong>{{landlord.location}}</br>
+<strong>Properties:</strong></br>
+<ul>
+{% for property in properties %}
+  <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
+{% endfor %}
+</ul>

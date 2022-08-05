@@ -1,0 +1,46 @@
+
+<html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/landlord.css') }}">
+  <script>
+    function myFunction() {
+      // Declare variables
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("llInput");
+      filter = input.value.toUpperCase();
+      table = document.getElementById("llTable");
+      tr = table.getElementsByTagName("tr");
+
+      // Loop through all table rows, and hide those who don't match the search query
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[0];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+          } else {
+            tr[i].style.display = "none";
+          }
+        }
+      }
+    }
+</script>
+</head>
+<body>
+<input type="text" id="llInput" onkeyup="myFunction()" placeholder="Search for landlords..">
+
+<table id ="llTable">
+  <tr class="header">
+    <td>Landlord</td>
+    <td>Address</td>
+    <td>Property Count</td>
+  </tr>
+  {% for landlord in landlords %}
+    <tr>
+      <td><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></td>
+      <td>{{landlord.address}}</td>
+    </tr>
+  {% endfor %}
+</table>
+</body>
+</html>
