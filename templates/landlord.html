@@ -1,0 +1,9 @@
+<table>
+  {% for landlord in landlords %}
+    <tr>
+      <td><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></td>
+      <td>{{landlord.address}}</td>
+      <td>{{landlord.property_count}}</td>
+    </tr>
+  {% endfor %}
+</table>
