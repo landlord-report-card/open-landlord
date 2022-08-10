@@ -1,4 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Albany Open Landlord{% endblock %}
+{% block content %}
 <strong>Property Address: </strong>{{property.address}}</br>
 <strong>Parcel ID: </strong>{{property.parcel_id}}</br>
 <strong>Service Call Count: </strong>{{property.service_call_count}}</br>
 <strong>Property Type: </strong>{{property.property_type}}</br>
+{% endblock %}
