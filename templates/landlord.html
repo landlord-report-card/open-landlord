@@ -1,6 +1,30 @@
 {% extends "base.html" %}
 {% block title %}Albany Open Landlord{% endblock %}
 {% block content %}
+<!-- Custom styles for this template -->
+<link href="/static/css/landlord.css" rel="stylesheet">
+<div class="col-sm-6">
+        <div class="rating-block">
+          <h4>Overall Landlord Score</h4>
+          <h2 class="bold padding-bottom-7">4.3 <small>/ 5</small></h2>
+          <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
+            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
+            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+</br>
 <strong>Landlord Name: </strong>{{landlord.name}}</br>
 <strong>Landlord Address: </strong>{{landlord.address}}</br>
 <strong>Landlord Location: </strong>{{landlord.location}}</br>
