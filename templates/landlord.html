@@ -28,7 +28,13 @@
 <strong>Landlord Name: </strong>{{landlord.name}}</br>
 <strong>Landlord Address: </strong>{{landlord.address}}</br>
 <strong>Landlord Location: </strong>{{landlord.location}}</br>
-<strong>Landlord Properties Owned: </strong>{{landlord.property_count}}</br>
+<strong>Properties Owned: </strong>{{landlord.property_count}}</br>
+<strong>Total Code Violations : </strong>{{landlord.code_violations_count}}</br>
+<strong>Total Service Calls : </strong>{{landlord.service_call_count}}</br>
+<strong>Total Tenant Complaints : </strong>{{landlord.tenant_complaints}}</br>
+<strong>Total Health Violations : </strong>{{landlord.health_violation_count}}</br>
+<strong>Total Rental Registry Count : </strong>{{landlord.rental_registry_count}}</br>
+<strong>Total Rental Code Cases : </strong>{{landlord.rental_code_cases}}</br>
 <strong>Properties:</strong></br>
 <ul>
 {% for property in properties %}
