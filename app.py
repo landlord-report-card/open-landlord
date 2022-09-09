@@ -46,9 +46,9 @@ def get_net_std_devs(stats, landlord):
 def calculate_landlord_score(stats, landlord):
     std_devs = get_net_std_devs(stats, landlord)
 
-    if std_devs <= 2:
+    if std_devs <= -2:
         return {"grade":"F", "color":PROGRESS_RED}
-    elif std_devs <= 1:
+    elif std_devs <= -1:
         return {"grade":"D", "color":PROGRESS_ORANGE}
     elif std_devs >= 2:
         return {"grade":"A", "color":PROGRESS_DARK_GREEN}
