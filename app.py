@@ -93,7 +93,7 @@ def get_letter_grade_and_color(value):
     if remainder > (2.0/3.0):
         modifier = "+"
     else:
-        modifer = ""
+        modifier = ""
 
     # No modifiers for F or A
     if letter == "F" or letter == "A":
