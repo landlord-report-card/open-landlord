@@ -29,20 +29,15 @@ class Property(db.Model):
     service_call_count = db.Column(db.Integer)
     tenant_complaints = db.Column(db.Integer)
     health_violation_count = db.Column(db.Integer)
-    eviction_probability = db.Column(db.Float)
     court_case_count = db.Column(db.Integer)
-    deferred_maintenance_probability = db.Column(db.Float)
     owner_occupied = db.Column(db.String(250))
-    rental_registry_count = db.Column(db.Integer)
     inspection_count = db.Column(db.Integer)
-    rental_code_cases = db.Column(db.Integer)
     code_violations_count = db.Column(db.Integer)
-    rent_plan_probability = db.Column(db.Float)
     is_business = db.Column(db.String(250))
     public_owner = db.Column(db.String(250))
     business_entity_type = db.Column(db.String(250))
-    housing_instability_probability = db.Column(db.Float)
-
+    current_use = db.Column(db.String(250))
+    police_incidents_count = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Property %r>' % self.address

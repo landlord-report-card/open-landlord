@@ -3,38 +3,107 @@
 {% block content %}
 <!-- Custom styles for this template -->
 <link href="/static/css/landlord.css" rel="stylesheet">
-<div class="col-sm-6">
-        <div class="rating-block">
-          <h4>Overall Landlord Score</h4>
-          <h2 class="bold padding-bottom-7">4.3 <small>/ 5</small></h2>
-          <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
-            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
-            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="btn btn-warning btn-sm" aria-label="Left Align">
-            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
-            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-          </button>
-          <button type="button" class="btn btn-default btn-grey btn-sm" aria-label="Left Align">
-            <span class="glyphicon glyphicon-star" aria-hidden="true"></span>
-          </button>
+
+<center>
+<h3>{{landlord.name}}</h3>
+{{landlord.address}}
+</center>
+<br>
+<center>
+<div class="col-xl-3 col-sm-6 col-12 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between px-md-1">
+          <div>
+            <h4>Overall Landlord Score</h4>
+            <h1 class="display-1" style="color: #{{landlord_score.color}}">{{landlord_score.grade}}</h1>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-map-signs text-danger fa-3x"></i>
+          </div>
         </div>
       </div>
+    </div>
+  </div>
+</center>
+
+<div class="row">
+  <div class="col-xl-3 col-sm-6 col-12 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between px-md-1">
+          <div>
+            <h6>Tenant Complaints</h6>
+            <h3 style="color: #{{stats.tenant_complaints_color}}">{{landlord.tenant_complaints}}</h3>
+            <p class="mb-0">City Average: {{stats.average_tenant_complaints|round(1)}} </p> Std Dev: {{stats.tenant_complaints_std_dev}}</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-map-signs text-danger fa-3x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between px-md-1">
+          <div>
+            <h6>Properties Owned</h6>
+            <h3 style="color: #{{stats.property_count_color}}">{{landlord.property_count}}</h3>
+            <p class="mb-0">City Average: {{stats.average_property_count|round(1)}}</p>Std Dev: {{stats.property_count_std_dev}}</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-map-signs text-danger fa-3x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between px-md-1">
+          <div>
+            <h6>Code Violations</h6>
+            <h3 style="color: #{{stats.code_violations_color}}">{{landlord.code_violations}}</h3>
+            <p class="mb-0">City Average: {{stats.average_code_violations|round(1)}}</p>Std Dev: {{stats.code_violations_std_dev}}</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-map-signs text-danger fa-3x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between px-md-1">
+          <div>
+            <h6>Landlord/Tenant Police Calls</h6>
+            <h3 style="color: #{{stats.police_incidents_color}}">{{landlord.police_incidents}}</h3>
+            <p class="mb-0">City Average: {{stats.average_police_incidents|round(1)}}</p>Std Dev: {{stats.police_incidents_std_dev}}</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-map-signs text-danger fa-3x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </br>
 <strong>Landlord Name: </strong>{{landlord.name}}</br>
 <strong>Landlord Address: </strong>{{landlord.address}}</br>
 <strong>Landlord Location: </strong>{{landlord.location}}</br>
 <strong>Properties Owned: </strong>{{landlord.property_count}}</br>
-<strong>Total Code Violations : </strong>{{landlord.code_violations_count}}</br>
+<strong>Total Code Violations : </strong>{{landlord.code_violations}}</br>
 <strong>Total Service Calls : </strong>{{landlord.service_call_count}}</br>
 <strong>Total Tenant Complaints : </strong>{{landlord.tenant_complaints}}</br>
 <strong>Total Health Violations : </strong>{{landlord.health_violation_count}}</br>
-<strong>Total Rental Registry Count : </strong>{{landlord.rental_registry_count}}</br>
-<strong>Total Rental Code Cases : </strong>{{landlord.rental_code_cases}}</br>
 <strong>Properties:</strong></br>
 <ul>
 {% for property in properties %}

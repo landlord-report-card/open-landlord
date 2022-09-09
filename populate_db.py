@@ -9,27 +9,22 @@ COLUMN_LIST = [
     {"csv_column": "Tenant Complaint - Count by Source", "db_column": "tenant_complaints", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Health Violation - Count", "db_column": "health_violation_count", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Owner_1", "db_column": "name", "column_type":"STRING", "is_owner_col": True},
-    {"csv_column": "Eviction Probability", "db_column": "eviction_probability", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Court Case", "db_column": "court_case_count", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Calls for Service - Count", "db_column": "service_call_count", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Deferred Maintenance Probability", "db_column": "deferred_maintenance_probability", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Zip Code", "db_column": "zip_code", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Public Owner", "db_column": "public_owner", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Address", "db_column": "address", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Housing Instability Probability", "db_column": "housing_instability_probability", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Code Violations - Count", "db_column": "code_violations_count", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Owner Occupied", "db_column": "owner_occupied", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Rental Code Cases", "db_column": "rental_code_cases", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Rental Registry - Count by Rental Units & Status", "db_column": "rental_registry_count", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "OwnAddr_1", "db_column": "address", "column_type":"STRING", "is_owner_col": True},
     {"csv_column": "Is Business", "db_column": "is_business", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Business Entity Type", "db_column": "business_entity_type", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Owner Property Count", "db_column": "property_count", "column_type":"STRING", "is_owner_col": True},
-    {"csv_column": "Rent Plan Probability", "db_column": "rent_plan_probability", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Inspection - Count", "db_column": "inspection_count", "column_type":"STRING", "is_owner_col": False},
     {"csv_column": "Owner Location", "db_column": "location", "column_type":"STRING", "is_owner_col": True},
+    {"csv_column": "Current Use", "db_column": "current_use", "column_type":"STRING", "is_owner_col": False},
+    {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE", "db_column": "police_incidents_count", "column_type":"STRING", "is_owner_col": False},
 ]
-
 
 filename = sys.argv[1]
 
@@ -79,7 +74,7 @@ with app.app_context():
     landlords = {}
     # For convenience, we process all landlords first, store their IDs, then process properties
     with open(filename, 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
+        reader = csv.DictReader(csvfile, delimiter ='\t')
         for row in reader:
             process_landlord(row, landlords, db)
     db.session.flush()
@@ -87,7 +82,7 @@ with app.app_context():
     print(landlords)
 
     with open(filename, 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
+        reader = csv.DictReader(csvfile, delimiter ='\t')
         for row in reader:
             process_property(row, landlords, db)
 
