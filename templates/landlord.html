@@ -36,8 +36,8 @@
             <h6>Tenant Complaints</h6>
             <h3 style="color: #{{stats.tenant_complaints_color}}">{{stats.tenant_complaints_grade}}</h3>
             <p class="mb-0">Total Tenant Complaints: {{landlord.tenant_complaints_total}} </p>
-            <p class="mb-0">Tenant Complaints Per Building: {{landlord.tenant_complaints|round(1)}} </p>
-            <p class="mb-0">City Average: {{stats.average_tenant_complaints|round(1)}} </p>
+            <p class="mb-0">Tenant Complaints Per Unit: {{landlord.tenant_complaints|round(1)}} </p>
+            <p class="mb-0">City Average: {{stats.average_tenant_complaints|round(2)}} </p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -51,9 +51,9 @@
       <div class="card-body">
         <div class="d-flex justify-content-between px-md-1">
           <div>
-            <h6>Buildings Owned</h6>
+            <h6>Rental Units Owned</h6>
             <h3 style="color: #{{stats.property_count_color}}">{{stats.property_count_grade}}</h3>
-            <p class="mb-0">Total Buildings Owned: {{landlord.property_count}} </p>
+            <p class="mb-0">Total Units Owned: {{landlord.property_count}} </p>
             <p class="mb-0">City Average: {{stats.average_property_count|round(1)}}</p>
           </div>
           <div class="align-self-center">
@@ -71,7 +71,7 @@
             <h6>Code Violations</h6>
             <h3 style="color: #{{stats.code_violations_color}}">{{stats.code_violations_grade}}</h3>
             <p class="mb-0">Total Code Violations: {{landlord.code_violations_total}} </p>
-            <p class="mb-0">Code Violations Per Building: {{landlord.code_violations|round(1)}} </p>
+            <p class="mb-0">Code Violations Per Unit: {{landlord.code_violations|round(1)}} </p>
             <p class="mb-0">City Average: {{stats.average_code_violations|round(1)}}</p>
           </div>
           <div class="align-self-center">
@@ -89,8 +89,8 @@
             <h6>Landlord/Tenant Police Incidents</h6>
             <h3 style="color: #{{stats.police_incidents_color}}">{{stats.police_incidents_grade}}</h3>
             <p class="mb-0">Total Landlord/Tenant Police Incidents: {{landlord.police_incidents_total}} </p>
-            <p class="mb-0">Police Incidents Per Building: {{landlord.police_incidents|round(1)}} </p>
-            <p class="mb-0">City Average: {{stats.average_police_incidents|round(1)}}</p>
+            <p class="mb-0">Police Incidents Per Unit: {{landlord.police_incidents|round(1)}} </p>
+            <p class="mb-0">City Average: {{stats.average_police_incidents|round(2)}}</p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -103,7 +103,7 @@
 
 
 </br>
-<strong>Properties:</strong></br>
+<strong>All Properties Owned By {{landlord.name}}:</strong></br>
 <ul>
 {% for property in properties %}
   <li><a href="/property/{{property.id}}">{{property.address}}</a></li>

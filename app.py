@@ -4,6 +4,8 @@ from models import db, Landlord, Property
 from forms import LandlordSearchForm
 from decimal import Decimal
 import os
+import math
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['LANDLORD_DATABASE_URI']
@@ -12,17 +14,17 @@ db.init_app(app)
 
 GRADE_COLORS = {
   'A': "2cba00",
-  'B': "a3ff00",
-  'C': "fff400",
+  'B': "2cba00",
+  'C': "ffa700",
   'D': "ffa700",
   'F': "ff0000",
 }
 
-PROGRESS_RED = "ff0000"
-PROGRESS_ORANGE = "ffa700"
-PROGRESS_YELLOW = "fff400"
-PROGRESS_LIGHT_GREEN = "a3ff00"
-PROGRESS_DARK_GREEN = "2cba00"
+GRADE_A = {"grade":"A", "value":4, "color":GRADE_COLORS["A"]}
+GRADE_B = {"grade":"B", "value":3, "color":GRADE_COLORS["B"]}
+GRADE_C = {"grade":"C", "value":2, "color":GRADE_COLORS["C"]}
+GRADE_D = {"grade":"D", "value":1, "color":GRADE_COLORS["D"]}
+GRADE_F = {"grade":"F", "value":0, "color":GRADE_COLORS["F"]}
 
 
 GRADE_COMPONENTS = [
@@ -43,8 +45,12 @@ def add_grade_and_color(stats, landlord):
         grade_and_color = get_stats_grade_and_color(landlord[component],
                                                     stats["average_{}".format(component)], 
                                                     stats["{}_std_dev".format(component)])
+        # Hard code one property owned to be an A
+        if component == "property_count" and landlord[component] == 1:
+            grade_and_color = GRADE_A
         stats["{}_color".format(component)] = grade_and_color["color"]
         stats["{}_grade".format(component)] = grade_and_color["grade"]
+        stats["{}_grade_value".format(component)] = grade_and_color["value"]
 
 
 def replace_none_with_zero(some_dict):
@@ -55,36 +61,60 @@ def get_std_devs(value, average, std_dev):
     return (average - value) / std_dev
 
 
-def get_net_std_devs(stats, landlord):
-    total = 0
-    for component in GRADE_COMPONENTS:
-        total = total + get_std_devs(landlord[component], 
-                                     stats["average_{}".format(component)], 
-                                     stats["{}_std_dev".format(component)])
-    return total
-
-
 def get_grade_and_color_from_std_devs(std_devs):
     if std_devs <= -2:
-        return {"grade":"F", "color":GRADE_COLORS["F"]}
+        return GRADE_F
     elif std_devs <= -1:
-        return {"grade":"D", "color":GRADE_COLORS["D"]}
+        return GRADE_D
     elif std_devs >= 2:
-        return {"grade":"A", "color":GRADE_COLORS["A"]}
+        return GRADE_A
     elif std_devs >= 1:
-        return {"grade":"B", "color":GRADE_COLORS["B"]}
+        return GRADE_B
     else:
-        return {"grade":"C", "color":GRADE_COLORS["C"]}
+        return GRADE_C
 
 
-def calculate_landlord_score(stats, landlord):
-    std_devs = get_net_std_devs(stats, landlord)
-    return get_grade_and_color_from_std_devs(std_devs)
+def get_letter_grade_and_color(value):
+    base = math.floor(value)
+    if base == 0:
+        letter = "F"
+    elif base == 1:
+        letter = "D"
+    elif base == 2:
+        letter = "C"
+    elif base == 3:
+        letter = "B"
+    else:
+        letter = "A"
+
+    remainder = value - base
+    if remainder < (1.0/3.0):
+        modifier = "-"
+    if remainder > (2.0/3.0):
+        modifier = "+"
+    else:
+        modifer = ""
+
+    # No modifiers for F or A
+    if letter == "F" or letter == "A":
+        modifier = ""
+
+    return {"grade": "{}{}".format(letter, modifier), "color":GRADE_COLORS[letter]}
+
+def calculate_landlord_score(stats):
+    total_score = 0
+    for component in GRADE_COMPONENTS:
+        total_score = total_score + stats["{}_grade_value".format(component)]
+
+    grade_score = float(total_score) / len(GRADE_COMPONENTS) 
+
+    return get_letter_grade_and_color(grade_score)
+
 
 
 def get_stats_grade_and_color(value, average, std_dev):
-    if value is 0:
-        return {"grade":"A", "color":GRADE_COLORS["A"]}
+    if value == 0:
+        return GRADE_A
 
     std_devs = get_std_devs(value, average, std_dev)
     grade_and_color = get_grade_and_color_from_std_devs(std_devs)
@@ -167,7 +197,7 @@ def landlord(id):
     landlord = replace_none_with_zero(landlord)
 
     add_grade_and_color(stats, landlord)
-    landlord_score = calculate_landlord_score(stats, landlord)
+    landlord_score = calculate_landlord_score(stats)
 
     return render_template('landlord.html', landlord=landlord, properties=properties, 
         stats=stats, landlord_score=landlord_score)
