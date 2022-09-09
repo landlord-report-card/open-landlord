@@ -90,7 +90,7 @@ def get_letter_grade_and_color(value):
     remainder = value - base
     if remainder < (1.0/3.0):
         modifier = "-"
-    if remainder > (2.0/3.0):
+    elif remainder > (2.0/3.0):
         modifier = "+"
     else:
         modifier = ""
