@@ -206,4 +206,5 @@ def landlord(id):
 @app.route('/property/<id>')
 def property(id):
     property = Property.query.filter_by(id=id).first()
-    return render_template('property.html', property=property)
+    landlord = Landlord.query.filter_by(id=property.owner_id).first()
+    return render_template('property.html', property=property, landlord=landlord)

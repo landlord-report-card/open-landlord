@@ -2,12 +2,16 @@
 {% block title %}Albany Open Landlord{% endblock %}
 {% block content %}
 <strong>Property Address: </strong>{{property.address}}</br>
+<strong>Owner: </strong><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></br>
+<strong>Current Use: </strong>{{property.current_use}}</br>
+<strong>Business Entity Type: </strong>{{property.business_entity_type}}</br>
+<strong>Owner Occupied: </strong>{{property.owner_occupied}}</br>
 <strong>Parcel ID: </strong>{{property.parcel_id}}</br>
-<strong>Service Call Count: </strong>{{property.service_call_count}}</br>
 <strong>Property Type: </strong>{{property.property_type}}</br>
 <strong>Tenant Complaints: </strong>{{property.tenant_complaints}}</br>
-<strong>Health Violation Count: </strong>{{property.health_violation_count}}</br>
 <strong>Code Violations Count: </strong>{{property.code_violations_count}}</br>
+<strong>Police Incidents Count: </strong>{{property.police_incidents_count}}</br>
+<strong>Health Violation Count: </strong>{{property.health_violation_count}}</br>
 
 {% endblock %}
 
