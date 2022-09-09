@@ -34,8 +34,10 @@
         <div class="d-flex justify-content-between px-md-1">
           <div>
             <h6>Tenant Complaints</h6>
-            <h3 style="color: #{{stats.tenant_complaints_color}}">{{landlord.tenant_complaints}}</h3>
-            <p class="mb-0">City Average: {{stats.average_tenant_complaints|round(1)}} </p> Std Dev: {{stats.tenant_complaints_std_dev}}</p>
+            <h3 style="color: #{{stats.tenant_complaints_color}}">{{stats.tenant_complaints_grade}}</h3>
+            <p class="mb-0">Total Tenant Complaints: {{landlord.tenant_complaints_total}} </p>
+            <p class="mb-0">Tenant Complaints Per Building: {{landlord.tenant_complaints|round(1)}} </p>
+            <p class="mb-0">City Average: {{stats.average_tenant_complaints|round(1)}} </p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -49,9 +51,10 @@
       <div class="card-body">
         <div class="d-flex justify-content-between px-md-1">
           <div>
-            <h6>Properties Owned</h6>
-            <h3 style="color: #{{stats.property_count_color}}">{{landlord.property_count}}</h3>
-            <p class="mb-0">City Average: {{stats.average_property_count|round(1)}}</p>Std Dev: {{stats.property_count_std_dev}}</p>
+            <h6>Buildings Owned</h6>
+            <h3 style="color: #{{stats.property_count_color}}">{{stats.property_count_grade}}</h3>
+            <p class="mb-0">Total Buildings Owned: {{landlord.property_count}} </p>
+            <p class="mb-0">City Average: {{stats.average_property_count|round(1)}}</p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -66,8 +69,10 @@
         <div class="d-flex justify-content-between px-md-1">
           <div>
             <h6>Code Violations</h6>
-            <h3 style="color: #{{stats.code_violations_color}}">{{landlord.code_violations}}</h3>
-            <p class="mb-0">City Average: {{stats.average_code_violations|round(1)}}</p>Std Dev: {{stats.code_violations_std_dev}}</p>
+            <h3 style="color: #{{stats.code_violations_color}}">{{stats.code_violations_grade}}</h3>
+            <p class="mb-0">Total Code Violations: {{landlord.code_violations_total}} </p>
+            <p class="mb-0">Code Violations Per Building: {{landlord.code_violations|round(1)}} </p>
+            <p class="mb-0">City Average: {{stats.average_code_violations|round(1)}}</p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -81,9 +86,11 @@
       <div class="card-body">
         <div class="d-flex justify-content-between px-md-1">
           <div>
-            <h6>Landlord/Tenant Police Calls</h6>
-            <h3 style="color: #{{stats.police_incidents_color}}">{{landlord.police_incidents}}</h3>
-            <p class="mb-0">City Average: {{stats.average_police_incidents|round(1)}}</p>Std Dev: {{stats.police_incidents_std_dev}}</p>
+            <h6>Landlord/Tenant Police Incidents</h6>
+            <h3 style="color: #{{stats.police_incidents_color}}">{{stats.police_incidents_grade}}</h3>
+            <p class="mb-0">Total Landlord/Tenant Police Incidents: {{landlord.police_incidents_total}} </p>
+            <p class="mb-0">Police Incidents Per Building: {{landlord.police_incidents|round(1)}} </p>
+            <p class="mb-0">City Average: {{stats.average_police_incidents|round(1)}}</p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -96,14 +103,6 @@
 
 
 </br>
-<strong>Landlord Name: </strong>{{landlord.name}}</br>
-<strong>Landlord Address: </strong>{{landlord.address}}</br>
-<strong>Landlord Location: </strong>{{landlord.location}}</br>
-<strong>Properties Owned: </strong>{{landlord.property_count}}</br>
-<strong>Total Code Violations : </strong>{{landlord.code_violations}}</br>
-<strong>Total Service Calls : </strong>{{landlord.service_call_count}}</br>
-<strong>Total Tenant Complaints : </strong>{{landlord.tenant_complaints}}</br>
-<strong>Total Health Violations : </strong>{{landlord.health_violation_count}}</br>
 <strong>Properties:</strong></br>
 <ul>
 {% for property in properties %}
