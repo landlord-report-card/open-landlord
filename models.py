@@ -38,8 +38,13 @@ class Property(db.Model):
     business_entity_type = db.Column(db.String(250))
     current_use = db.Column(db.String(250))
     police_incidents_count = db.Column(db.Integer)
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+
 
     def __repr__(self):
         return '<Property %r>' % self.address
 
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 

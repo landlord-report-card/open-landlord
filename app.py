@@ -4,6 +4,7 @@ from models import db, Landlord, Property
 from forms import LandlordSearchForm
 from decimal import Decimal
 import os
+import sys
 import math
 
 
@@ -20,6 +21,14 @@ GRADE_COLORS = {
   'F': "ff0000",
 }
 
+
+LANDLORD_SIZES = [
+    (10, {"size": "Very Large (More than 10 properties owned)", "color": "ff0000"}),
+    (4, {"size": "Large (Between 5 and 10 properties owned)", "color": "ff0000"}),
+    (1, {"size": "Medium (Between 1 and 4 properties owned)", "color": "ffa700"}),
+    (0, {"size": "Small (One property owned)", "color": "2cba00"}),
+]
+
 GRADE_A = {"grade":"A", "value":4, "color":GRADE_COLORS["A"]}
 GRADE_B = {"grade":"B", "value":3, "color":GRADE_COLORS["B"]}
 GRADE_C = {"grade":"C", "value":2, "color":GRADE_COLORS["C"]}
@@ -28,7 +37,6 @@ GRADE_F = {"grade":"F", "value":0, "color":GRADE_COLORS["F"]}
 
 
 GRADE_COMPONENTS = [
-    "property_count",
     "tenant_complaints",
     "code_violations",
     "police_incidents",
@@ -45,9 +53,7 @@ def add_grade_and_color(stats, landlord):
         grade_and_color = get_stats_grade_and_color(landlord[component],
                                                     stats["average_{}".format(component)], 
                                                     stats["{}_std_dev".format(component)])
-        # Hard code one property owned to be an A
-        if component == "property_count" and landlord[component] == 1:
-            grade_and_color = GRADE_A
+
         stats["{}_color".format(component)] = grade_and_color["color"]
         stats["{}_grade".format(component)] = grade_and_color["grade"]
         stats["{}_grade_value".format(component)] = grade_and_color["value"]
@@ -178,6 +184,25 @@ def search_results(search):
     return render_template('index.html', results=results, form=search)
 
 
+# This function sets the property count to whichever is higher between the reported property count and the properties associated
+def adjust_landlord_property_count(landlord, properties):
+    properties_associated = len(properties)
+    if properties_associated > landlord["property_count"]:
+        landlord["property_count"] = properties_associated
+
+    return landlord
+
+
+def add_landlord_size(landlord):
+    for (size, attributes) in LANDLORD_SIZES:
+        if landlord["property_count"] > size:
+            landlord["size"] = attributes["size"]
+            landlord["size_color"] = attributes["color"]
+            break
+
+    return landlord
+
+
 @app.route('/landlord/<id>')
 def landlord(id):
     group_by_properties = (Landlord.name, Landlord.address, Landlord.location, Landlord.property_count)
@@ -191,15 +216,21 @@ def landlord(id):
         func.sum(Property.police_incidents_count).label('police_incidents_total'), 
         *group_by_properties).join(Property, Landlord.id==Property.owner_id).group_by(*group_by_properties).first()
 
-    landlord = add_scaled_landlord_stats(dict(landlord))
-    properties = Property.query.filter_by(owner_id=id)
+    landlord = dict(landlord)
 
+    properties_list = []
+    for prop in Property.query.filter_by(owner_id=id):
+        properties_list.append(prop.as_dict())
+
+    landlord = adjust_landlord_property_count(landlord, properties_list)
+    landlord = add_scaled_landlord_stats(landlord)
+    landlord = add_landlord_size(landlord)
     landlord = replace_none_with_zero(landlord)
 
     add_grade_and_color(stats, landlord)
     landlord_score = calculate_landlord_score(stats)
 
-    return render_template('landlord.html', landlord=landlord, properties=properties, 
+    return render_template('landlord.html', landlord=landlord, properties=properties_list, 
         stats=stats, landlord_score=landlord_score)
 
 
