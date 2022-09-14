@@ -4,7 +4,6 @@ from models import db, Landlord, Property
 from forms import LandlordSearchForm
 from decimal import Decimal
 import os
-import sys
 import math
 
 
