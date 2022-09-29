@@ -1,7 +1,10 @@
 import sys
 import csv
+import argparse
 from models import db, Landlord, Property
+from address import AddressParser, Address
 from app import app
+
 
 
 COLUMN_LIST = [
@@ -26,8 +29,6 @@ COLUMN_LIST = [
     {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE", "db_column": "police_incidents_count", "column_type":"STRING", "is_owner_col": False},
 ]
 
-filename = sys.argv[1]
-
 
 def process_property(row, landlords, db):
     # Hack to ignore "address unknown"
@@ -44,11 +45,6 @@ def process_property(row, landlords, db):
 
     # Include mapping to landlord table
     property_dict["owner_id"] = landlords[row["Owner_1"]]
-    # print(landlords[row["Owner_1"]])
-
-    # if "parcel_id" not in property_dict:
-    #     print(property_dict)
-    #     print(row)
 
     if property_dict["parcel_id"] is not None:
         property_obj = Property(**property_dict)
@@ -69,32 +65,92 @@ def process_landlord(row, landlords, db):
     landlords[row["Owner_1"]] = landlord_obj.id
 
 
-with app.app_context():
-    db.create_all()
-    landlords = {}
-    # For convenience, we process all landlords first, store their IDs, then process properties
-    with open(filename, 'r') as csvfile:
-        reader = csv.DictReader(csvfile, delimiter ='\t')
-        for row in reader:
-            process_landlord(row, landlords, db)
-    db.session.flush()
+def add_property_group_column(filename):
+    with app.app_context():
+        with open(filename, 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                landlord = Landlord.query.filter_by(name=row["name"]).first()
+                if landlord is None:
+                    print("Missing property with name {}".format(row["name"]))
+                    continue
+                landlord.group_id = row["group_id"]
 
-    print(landlords)
-
-    with open(filename, 'r') as csvfile:
-        reader = csv.DictReader(csvfile, delimiter ='\t')
-        for row in reader:
-            process_property(row, landlords, db)
+        db.session.commit()
 
 
-    db.session.commit()
+def populate_empty_db(filename):
+    with app.app_context():
+        db.create_all()
+        landlords = {}
+        # For convenience, we process all landlords first, store their IDs, then process properties
+        with open(filename, 'r') as csvfile:
+            reader = csv.DictReader(csvfile, delimiter ='\t')
+            for row in reader:
+                process_landlord(row, landlords, db)
+        db.session.flush()
+
+        with open(filename, 'r') as csvfile:
+            reader = csv.DictReader(csvfile, delimiter ='\t')
+            for row in reader:
+                process_property(row, landlords, db)
 
 
+        db.session.commit()
 
-# with app.app_context():
-#     db.create_all()
-# l1 = Landlord(name='Joe Smith', address='Fifth Avenue, New York, NY', location="In State", property_count=3, service_call_count=5)
-# l2 = Landlord(name='Bob Jones', address='Second Avenue, Albany, NY', location="In Albany", property_count=1, service_call_count=8)
-# l3 = Landlord(name='Mike Smith', address='Third Avenue, New York, NY', location="In State", property_count=12, service_call_count=2)
-# db.session.add(guest)
-# db.session.commit()
+
+def generate_parsed_address_columns():
+    with app.app_context():
+        ap = AddressParser()
+        properties = Property.query.all()
+
+        for prop in properties:
+            parsed_address = ap.parse_address(prop.address)
+            prop.street_name = parsed_address.street
+            prop.house_number  = parsed_address.house_number
+
+        db.session.commit()
+
+
+# Removes ROP Code Violations
+def generate_code_violations_columns(filename):
+    with app.app_context():
+        # For convenience, we process all landlords first, store their IDs, then process properties
+        with open(filename, 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                prop = Property.query.filter_by(parcel_id=row["Parcel ID"]).first()
+                if prop is None:
+                    print("Missing property with address {}".format(row["Address"]))
+                    continue
+                total_violations = 0
+                rop_violations = 0
+                if row["Code Violations - Count"]:
+                    total_violations = int(row["Code Violations - Count"])
+                if row["Code Violations - Count - ROP"]:
+                    rop_violations = int(row["Code Violations - Count - ROP"])
+                code_violations_count = total_violations - rop_violations
+                print("Address {} violations {}".format(row["Address"], code_violations_count))
+                prop.code_violations_count = code_violations_count
+        db.session.commit()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Database Population Helper Scripts')
+
+    parser.add_argument('--group', action='store_true', help='Adds the property group column from a spreadsheet')
+    parser.add_argument('--populate', action='store_true', help='Does initial population from a spreadsheet to an empty DB')
+    parser.add_argument('--generate', action='store_true', help='Generates parsed address columns')
+    parser.add_argument('--rop', action='store_true', help='Generates ROP violations count')
+    parser.add_argument('--filename', type=str, help='Filename to import from')
+
+    args = parser.parse_args()
+
+    if args.group:
+        add_property_group_column(args.filename)
+    elif args.populate:
+        populate_empty_db(args.filename)
+    elif args.generate:
+        generate_parsed_address_columns()
+    elif args.rop:
+        generate_code_violations_columns(args.filename)

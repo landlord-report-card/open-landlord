@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Albany Open Landlord{% endblock %}
+{% block title %}{{landlord.name}}{% endblock %}
 {% block content %}
 <!-- Custom styles for this template -->
 <link href="/static/css/landlord.css" rel="stylesheet">
@@ -12,7 +12,14 @@
 <center>
 <h3>{{landlord.name}}</h3>
 {{landlord.address}}</br>
-Landlord Size: <text style="color: #{{landlord.size_color}}">{{landlord.size}}</text>
+Landlord Size: <text style="color: #{{landlord.size_color}}">{{landlord.size}}</text></br>
+{% if aliases|length > 0 %}
+Associated Landlords: 
+  {% for alias in aliases %}
+    {{alias}}
+    {{ "," if not loop.last else "" }}
+  {% endfor %}
+{% endif %}
 </center>
 <br>
 <center>
@@ -40,10 +47,10 @@ Landlord Size: <text style="color: #{{landlord.size_color}}">{{landlord.size}}</
         <div class="d-flex justify-content-between px-md-1">
           <div>
             <h6>Tenant Complaints</h6>
-            <h3 style="color: #{{stats.tenant_complaints_color}}">{{stats.tenant_complaints_grade}}</h3>
-            <p class="mb-0">Total Tenant Complaints: {{landlord.tenant_complaints_total}} </p>
-            <p class="mb-0">Tenant Complaints Per Property: {{landlord.tenant_complaints|round(1)}} </p>
-            <p class="mb-0">City Average: {{stats.average_tenant_complaints|round(2)}} </p>
+            <h3 style="color: #{{landlord_stats.tenant_complaints_color}}">{{landlord_stats.tenant_complaints_grade}}</h3>
+            <p class="mb-0">Total Tenant Complaints: {{landlord_stats.tenant_complaints_total}} </p>
+            <p class="mb-0">Tenant Complaints Per Property: {{landlord_stats.tenant_complaints|round(1)}} </p>
+            <p class="mb-0">City Average: {{city_average_stats.average_tenant_complaints|round(2)}} </p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -58,10 +65,10 @@ Landlord Size: <text style="color: #{{landlord.size_color}}">{{landlord.size}}</
         <div class="d-flex justify-content-between px-md-1">
           <div>
             <h6>Code Violations</h6>
-            <h3 style="color: #{{stats.code_violations_color}}">{{stats.code_violations_grade}}</h3>
-            <p class="mb-0">Total Code Violations: {{landlord.code_violations_total}} </p>
-            <p class="mb-0">Code Violations Per Property: {{landlord.code_violations|round(1)}} </p>
-            <p class="mb-0">City Average: {{stats.average_code_violations|round(1)}}</p>
+            <h3 style="color: #{{landlord_stats.code_violations_color}}">{{landlord_stats.code_violations_grade}}</h3>
+            <p class="mb-0">Total Code Violations: {{landlord_stats.code_violations_total}} </p>
+            <p class="mb-0">Code Violations Per Property: {{landlord_stats.code_violations|round(1)}} </p>
+            <p class="mb-0">City Average: {{city_average_stats.average_code_violations|round(1)}}</p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -76,10 +83,10 @@ Landlord Size: <text style="color: #{{landlord.size_color}}">{{landlord.size}}</
         <div class="d-flex justify-content-between px-md-1">
           <div>
             <h6>Landlord/Tenant Police Incidents</h6>
-            <h3 style="color: #{{stats.police_incidents_color}}">{{stats.police_incidents_grade}}</h3>
-            <p class="mb-0">Total Landlord/Tenant Police Incidents: {{landlord.police_incidents_total}} </p>
-            <p class="mb-0">Police Incidents Per Property: {{landlord.police_incidents|round(1)}} </p>
-            <p class="mb-0">City Average: {{stats.average_police_incidents|round(2)}}</p>
+            <h3 style="color: #{{landlord_stats.police_incidents_color}}">{{landlord_stats.police_incidents_grade}}</h3>
+            <p class="mb-0">Total Landlord/Tenant Police Incidents: {{landlord_stats.police_incidents_total}} </p>
+            <p class="mb-0">Police Incidents Per Property: {{landlord_stats.police_incidents|round(1)}} </p>
+            <p class="mb-0">City Average: {{city_average_stats.average_police_incidents|round(2)}}</p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
@@ -97,20 +104,34 @@ Landlord Size: <text style="color: #{{landlord.size_color}}">{{landlord.size}}</
 
 
 
-<strong>All Properties Owned By {{landlord.name}}:</strong></br>
+<strong>Properties Owned By {{landlord.name}}:</strong></br>
 <ul>
 {% for property in properties %}
+  {% if property.owner_id == landlord.id %}
   <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
+  {%endif%}
 {% endfor %}
 </ul>
 
 </br>
+
+<strong>Additional Properties Associated with {{landlord.name}}:</strong></br>
+<ul>
+{% for property in properties %}
+  {% if property.owner_id != landlord.id %}
+  <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
+  {%endif%}
+{% endfor %}
+</ul>
+
+</br>
+
 <div id="map"></div>
 
 
 <script type="text/javascript">
     var properties_json = {{ properties | tojson }}
-</script>
+ </script>
 <script type="text/javascript" src="/static/js/landlord.js"></script>
 
 {% endblock %}

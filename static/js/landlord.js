@@ -29,6 +29,7 @@ for (var i = 0; i < properties_json.length; i++) {
     }
 }
 
+
 var group = L.featureGroup(markers).addTo(map);
 
 setTimeout(function () {

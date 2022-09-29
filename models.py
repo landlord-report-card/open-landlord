@@ -11,10 +11,14 @@ class Landlord(db.Model):
     address = db.Column(db.String(250))
     location = db.Column(db.String(250))
     property_count = db.Column(db.Integer)
+    group_id = db.Column(db.String(50))
 
 
     def __repr__(self):
         return '<Landlord %r>' % self.name
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 
 class Property(db.Model):
@@ -22,6 +26,8 @@ class Property(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     parcel_id = db.Column(db.String(250), nullable=False)
     address = db.Column(db.String(250), nullable=False)
+    house_number = db.Column(db.Integer)
+    street_name = db.Column(db.String(250))
     zip_code = db.Column(db.String(10))
     property_type = db.Column(db.String(250))
     owner_id = db.Column(db.Integer, db.ForeignKey("landlord.id"))
@@ -40,7 +46,9 @@ class Property(db.Model):
     police_incidents_count = db.Column(db.Integer)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
-
+    # TODO: GroupID is duplicated here: should only exist with Landlord
+    group_id = db.Column(db.String(50))
+    
 
     def __repr__(self):
         return '<Property %r>' % self.address

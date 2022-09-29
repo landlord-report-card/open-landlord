@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Albany Open Landlord{% endblock %}
+{% block title %}{{property.address}}{% endblock %}
 {% block content %}
 <strong>Property Address: </strong>{{property.address}}</br>
 <strong>Owner: </strong><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></br>
