@@ -3,7 +3,7 @@ from models import db, Landlord, Property
 from sqlalchemy.sql import func
 from sqlalchemy import or_
 from num2words import num2words
-from address import AddressParser, Address
+import usaddress
 import re
 import constants
 import math
@@ -221,14 +221,23 @@ def get_autocomplete_prompts():
     return autocomplete_prompts
 
 
+def get_address_dict(parsed_address_tuple_list):
+    address_dict = {}
+    for value, field in parsed_address_tuple_list:
+        address_dict[field] = value
+    return address_dict
+
+
 def get_address_filter_criteria(search_string):
-    ap = AddressParser()
     search_string = utils.replace_ordinals(search_string)
-    parsed_address = ap.parse_address(search_string)
-    if parsed_address.house_number:
-        filter_criteria = Property.house_number.ilike("{}".format(parsed_address.house_number)) & Property.address.ilike("%{}%".format(parsed_address.street))
+    parsed_address_tuple_list = usaddress.parse(search_string)
+    parsed_address = get_address_dict(parsed_address_tuple_list)
+    if "AddressNumber" in parsed_address and "StreetName" in parsed_address:
+        filter_criteria = Property.house_number.ilike("{}".format(parsed_address["AddressNumber"])) & Property.address.ilike("%{}%".format(parsed_address["StreetName"]))
+    elif "StreetName" in parsed_address:
+        filter_criteria = Property.address.ilike("%{}%".format(parsed_address["StreetName"]))
     else:
-        filter_criteria = Property.address.ilike("%{}%".format(parsed_address.street))
+        filter_criteria = Property.address.ilike("%{}%".format(search_string))
 
     return filter_criteria
 
