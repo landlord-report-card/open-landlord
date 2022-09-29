@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect
-from models import db
+from models import db, Landlord, Property
 from forms import LandlordSearchForm
 import os
 import utils
