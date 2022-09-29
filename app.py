@@ -46,5 +46,5 @@ def property(id):
 
 
 @app.route('/faq/')
-def index():
+def faq():
     return render_template('faq.html')
