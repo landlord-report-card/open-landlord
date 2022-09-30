@@ -1,6 +1,14 @@
 {% extends "base.html" %}
 {% block title %}{{property.address}}{% endblock %}
 {% block content %}
+<link href="/static/css/landlord.css" rel="stylesheet">
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+   integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+   crossorigin=""/>
+ <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+   crossorigin=""></script>
+
 <strong>Property Address: </strong>{{property.address}}</br>
 <strong>Owner: </strong><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></br>
 <strong>Current Use: </strong>{{property.current_use}}</br>
@@ -12,6 +20,15 @@
 <strong>Code Violations Count: </strong>{{property.code_violations_count}}</br>
 <strong>Police Incidents Count: </strong>{{property.police_incidents_count}}</br>
 <strong>Health Violation Count: </strong>{{property.health_violation_count}}</br>
+
+
+<div id="map"></div>
+
+
+<script type="text/javascript">
+    var property_json = {{ property | tojson }}
+</script>
+<script type="text/javascript" src="/static/js/property.js"></script>
 
 {% endblock %}
 

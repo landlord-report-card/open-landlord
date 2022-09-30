@@ -42,7 +42,7 @@ def landlord(id):
 def property(id):
     property = Property.query.filter_by(id=id).first()
     landlord = Landlord.query.filter_by(id=property.owner_id).first()
-    return render_template('property.html', property=property, landlord=landlord)
+    return render_template('property.html', property=property.as_dict(), landlord=landlord.as_dict())
 
 
 @app.route('/faq/')
