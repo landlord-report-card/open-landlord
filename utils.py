@@ -60,6 +60,7 @@ def get_landlord_stats(landlord_id, properties_list, city_average_stats):
     landlord_stats = dict(landlord_stats)
     landlord_stats = add_scaled_landlord_stats(landlord_stats, len(properties_list))
     landlord_stats = add_grade_and_color(landlord_stats, city_average_stats)
+    landlord_stats = replace_none_with_zero(landlord_stats)
 
     return landlord_stats
 
@@ -88,6 +89,8 @@ def replace_none_with_zero(some_dict):
 
 
 def get_std_devs(value, average, std_dev):
+    if value is None:
+        value = Decimal(0)
     return (average - value) / std_dev
 
 
@@ -143,7 +146,7 @@ def calculate_landlord_score(stats):
 
 
 def get_stats_grade_and_color(value, average, std_dev):
-    if value == 0:
+    if value == 0 or value is None:
         return constants.GRADE_A
 
     std_devs = get_std_devs(value, average, std_dev)
