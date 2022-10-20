@@ -7,6 +7,8 @@ The web application uses the Flask framework, which is as Python-language framew
 ## Data
 The application uses publicly-available data to seed the database. Currently, it depends on tenant complaints, code violations, and landlord/tenant police incidents as provided by the City of Albany. While the database holds additional data, only these fields are used in the scoring process.
 
+The database is populated and updated using the populate_db.py script within the repo. It assumes that the data uses the CSV format of exports that is currently used by the Tolemi Building Blocks software used by Albany, but could be modified to be populated with data in another format or from another source.
+
 ## Developing and Running Locally
 If you'd like to develop or contribute changes, the first step is likely to get a version of the app running locally. Steps:
 
