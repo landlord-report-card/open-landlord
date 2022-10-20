@@ -286,14 +286,9 @@ def perform_search(text):
     return results
 
 
-def has_unsafe_unfit(landlord_id):
+def get_unsafe_unfit_properties(landlord_id):
     landlords = get_all_landlords(landlord_id)
     landlord_ids = [landlord.id for landlord in landlords]
-    query = Property.query.filter(Property.owner_id.in_(landlord_ids)).with_entities(
-        func.sum(Property.unsafe_unfit_count).label('total_unsafe_unfit_count')).first()
-
-    if query["total_unsafe_unfit_count"] > 0:
-        return True
-    return False
+    return Property.query.filter(Property.owner_id.in_(landlord_ids)).filter(Property.unsafe_unfit_count > 0).all()
 
 
