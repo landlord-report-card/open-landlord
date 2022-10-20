@@ -31,6 +31,24 @@ COLUMN_LIST = [
 ]
 
 
+def populate_evictions(filename):
+    with app.app_context():
+        with open(filename, 'r') as csvfile:
+            reader = csv.DictReader(csvfile, delimiter ='\t')
+            for row in reader:
+                # Try matching on Landlord Name first, then Building Blocks Entity Name
+                landlord = Landlord.query.filter(Landlord.name.ilike(row["Landlord Name"])).first()
+                if landlord is None:
+                    landlord = Landlord.query.filter(Landlord.name.ilike(row["Building Blocks Entity Name"])).first()
+                if landlord is None:
+                    print("Unable to find Landlord {}".format(row["Landlord Name"]))
+                    continue
+                landlord.eviction_count = row["# of new filings, Q3"]
+
+        db.session.commit()
+
+
+
 def add_property_group_column(filename):
     with app.app_context():
         with open(filename, 'r') as csvfile:
@@ -209,6 +227,7 @@ if __name__ == '__main__':
     parser.add_argument('--populate', action='store_true', help='Does initial population from a spreadsheet to an empty DB')
     parser.add_argument('--generate', action='store_true', help='Generates parsed address columns')
     parser.add_argument('--rop', action='store_true', help='Generates ROP violations count')
+    parser.add_argument('--evictions', action='store_true', help='Populates evictions from Evictions TSV')
     parser.add_argument('--filename', type=str, help='Filename to import from')
 
     args = parser.parse_args()
@@ -221,5 +240,7 @@ if __name__ == '__main__':
         update_database(args.filename)
     elif args.generate:
         generate_parsed_address_columns()
+    elif args.evictions:
+        populate_evictions(args.filename)
     elif args.rop:
         generate_code_violations_columns(args.filename)

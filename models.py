@@ -11,6 +11,7 @@ class Landlord(db.Model):
     address = db.Column(db.String(250))
     location = db.Column(db.String(250))
     property_count = db.Column(db.Integer)
+    eviction_count = db.Column(db.Integer)
     group_id = db.Column(db.String(50))
 
 

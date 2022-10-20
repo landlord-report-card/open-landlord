@@ -33,9 +33,10 @@ def landlord(id):
     city_average_stats = utils.get_city_average_stats()
     landlord_stats = utils.get_landlord_stats(id, properties_list, city_average_stats)
     landlord_score = utils.calculate_landlord_score(landlord_stats)
+    has_unsafe_unfit = utils.has_unsafe_unfit(id)
 
     return render_template('landlord.html', landlord=landlord, properties=properties_list, landlord_stats=landlord_stats, 
-        city_average_stats=city_average_stats, landlord_score=landlord_score, aliases=aliases)
+        city_average_stats=city_average_stats, landlord_score=landlord_score, aliases=aliases, has_unsafe_unfit=has_unsafe_unfit)
 
 
 @app.route('/property/<id>')
@@ -48,3 +49,8 @@ def property(id):
 @app.route('/faq/')
 def faq():
     return render_template('faq.html')
+
+
+@app.route('/about/')
+def about():
+    return render_template('about.html')

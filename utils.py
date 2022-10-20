@@ -37,6 +37,15 @@ def get_all_aliases(landlord_id):
     return aliases
 
 
+def get_all_evictions(landlord_id):
+    landlords = get_all_landlords(landlord_id)
+    landlord_ids = [landlord.id for landlord in landlords]
+    evictions_query = Landlord.query.filter(Landlord.id.in_(landlord_ids)).with_entities(
+        func.sum(Landlord.eviction_count).label('total_eviction_count')).first()
+
+    return evictions_query["total_eviction_count"]
+
+
 def get_all_properties(landlord_id):
     landlords = get_all_landlords(landlord_id)
     landlord_ids = [landlord.id for landlord in landlords]
@@ -58,6 +67,7 @@ def get_landlord_stats(landlord_id, properties_list, city_average_stats):
             func.sum(Property.police_incidents_count).label('police_incidents_total')).first()
 
     landlord_stats = dict(landlord_stats)
+    landlord_stats["eviction_count_total"] = get_all_evictions(landlord_id)
     landlord_stats = add_scaled_landlord_stats(landlord_stats, len(properties_list))
     landlord_stats = add_grade_and_color(landlord_stats, city_average_stats)
     landlord_stats = replace_none_with_zero(landlord_stats)
@@ -136,10 +146,18 @@ def get_letter_grade_and_color(value):
 
 def calculate_landlord_score(stats):
     total_score = 0
+    has_failing_grade = False
     for component in constants.GRADE_COMPONENTS:
-        total_score = total_score + stats["{}_grade_value".format(component)]
+        component_score = stats["{}_grade_value".format(component)]
+        total_score = total_score + component_score
+        if component_score < 2:
+            has_failing_grade = True
 
-    grade_score = float(total_score) / len(constants.GRADE_COMPONENTS) 
+    grade_score = float(total_score) / len(constants.GRADE_COMPONENTS)
+
+    # If there is a failing component (e.g. a D or F), then the max overall grade should be C
+    if has_failing_grade and grade_score >= 3.0:
+        grade_score = 2.5
 
     return get_letter_grade_and_color(grade_score)
 
@@ -166,7 +184,7 @@ def add_scaled_landlord_stats(stats, property_count):
 
 
 def get_city_average_stats():
-    stats_row = Landlord.query.with_entities(
+    property_stats_row = Property.query.with_entities(
         func.avg(Property.tenant_complaints).label('average_tenant_complaints'),
         func.avg(Property.code_violations_count).label('average_code_violations'),
         func.avg(Property.police_incidents_count).label('average_police_incidents'),
@@ -175,8 +193,19 @@ def get_city_average_stats():
         func.stddev(Property.police_incidents_count).label('police_incidents_std_dev'),
     ).first()
 
-    stats = dict(stats_row)
-    return stats
+    landlord_stats_row = Landlord.query.with_entities(
+        func.avg(Landlord.eviction_count).label('average_eviction_count'),
+        # Note: This is a workaround, not a bug. We can't calculate standard deviation in the same way here, because
+        # we don't have per property eviction data. So we use the citywide average as our "standard deviation", because
+        # it will assign a D to anyone worse than citywide average, and F to anyone double citywide average.
+        func.avg(Landlord.eviction_count).label('eviction_count_std_dev'),
+    ).first()
+
+    property_stats = dict(property_stats_row)
+    landlord_stats = dict(landlord_stats_row)
+    property_stats.update(landlord_stats)
+
+    return property_stats
 
 
 # This function sets the property count to whichever is higher between the reported property count and the properties associated
@@ -255,3 +284,16 @@ def perform_search(text):
 
     results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).add_columns(Landlord.name).order_by(Property.address)
     return results
+
+
+def has_unsafe_unfit(landlord_id):
+    landlords = get_all_landlords(landlord_id)
+    landlord_ids = [landlord.id for landlord in landlords]
+    query = Property.query.filter(Property.owner_id.in_(landlord_ids)).with_entities(
+        func.sum(Property.unsafe_unfit_count).label('total_unsafe_unfit_count')).first()
+
+    if query["total_unsafe_unfit_count"] > 0:
+        return True
+    return False
+
+
