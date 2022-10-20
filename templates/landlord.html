@@ -23,7 +23,7 @@ Associated Landlords:
 {% if unsafe_unfit_list|length > 0 %}
 </br>
 <div class="alert alert-danger" role="alert">
-<strong>Warning:</strong> This landlord has had a property deemed unsafe or unfit for habitability by the City of Albany within the past year. </br>You may wish to contact the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a>
+<strong>Warning:</strong> This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year. </br>You may wish to contact the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a>
 </br><strong>Impacted Properties:</strong>
   {% for property in unsafe_unfit_list %}
     <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
