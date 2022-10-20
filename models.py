@@ -46,6 +46,7 @@ class Property(db.Model):
     police_incidents_count = db.Column(db.Integer)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
+    unsafe_unfit_count = db.Column(db.Integer)
     # TODO: GroupID is duplicated here: should only exist with Landlord
     group_id = db.Column(db.String(50))
     

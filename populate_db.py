@@ -4,26 +4,30 @@ import argparse
 from models import db, Landlord, Property
 from address import AddressParser, Address
 from app import app
+from sqlalchemy import types
 
-CODE_VIOLATIONS_TOTAL_COUNT_COLUMN = "Code Violations - Count - In the last 24 months" 
-CODE_VIOLATIONS_ROP_COUNT_COLUMN = "Code Violations - Count - ROP - In the last 24 months"
+
+CODE_VIOLATIONS_TOTAL_COUNT_COLUMN = "Code Violations - Count - In the last 12 months" 
+CODE_VIOLATIONS_ROP_COUNT_COLUMN = "Code Violations - Count - ROP - In the last 12 months"
+
 
 COLUMN_LIST = [
-    {"csv_column": "Parcel ID", "db_column": "parcel_id", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Tenant Complaint - Count by Source - In the last 24 months", "db_column": "tenant_complaints", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Owner_1", "db_column": "name", "column_type":"STRING", "is_owner_col": True},
-    {"csv_column": "Zip Code", "db_column": "zip_code", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Public Owner", "db_column": "public_owner", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Address", "db_column": "address", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": CODE_VIOLATIONS_TOTAL_COUNT_COLUMN, "db_column": "code_violations_count", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Owner Occupied", "db_column": "owner_occupied", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "OwnAddr_1", "db_column": "address", "column_type":"STRING", "is_owner_col": True},
-    {"csv_column": "Is Business", "db_column": "is_business", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Business Entity Type", "db_column": "business_entity_type", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Owner Property Count", "db_column": "property_count", "column_type":"STRING", "is_owner_col": True},
-    {"csv_column": "Owner Location", "db_column": "location", "column_type":"STRING", "is_owner_col": True},
-    {"csv_column": "Current Use", "db_column": "current_use", "column_type":"STRING", "is_owner_col": False},
-    {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 24 months", "db_column": "police_incidents_count", "column_type":"STRING", "is_owner_col": False},
+    {"csv_column": "Parcel ID", "db_column": "parcel_id", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": "Tenant Complaint - Count by Source - In the last 12 months", "db_column": "tenant_complaints", "column_type":types.Integer, "is_owner_col": False},
+    {"csv_column": "Owner_1", "db_column": "name", "column_type":types.String, "is_owner_col": True},
+    {"csv_column": "Zip Code", "db_column": "zip_code", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": "Public Owner", "db_column": "public_owner", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": "Address", "db_column": "address", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": CODE_VIOLATIONS_TOTAL_COUNT_COLUMN, "db_column": "code_violations_count", "column_type":types.Integer, "is_owner_col": False},
+    {"csv_column": "Owner Occupied", "db_column": "owner_occupied", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": "OwnAddr_1", "db_column": "address", "column_type":types.String, "is_owner_col": True},
+    {"csv_column": "Is Business", "db_column": "is_business", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": "Business Entity Type", "db_column": "business_entity_type", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": "Owner Property Count", "db_column": "property_count", "column_type":types.Integer, "is_owner_col": True},
+    {"csv_column": "Owner Location", "db_column": "location", "column_type":types.String, "is_owner_col": True},
+    {"csv_column": "Current Use", "db_column": "current_use", "column_type":types.String, "is_owner_col": False},
+    {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 12 months", "db_column": "police_incidents_count", "column_type":types.Integer, "is_owner_col": False},
+    {"csv_column": "Unsafe & Unfit Buildings - In the last 12 months", "db_column": "unsafe_unfit_count", "column_type":types.Integer, "is_owner_col": False},
 ]
 
 
@@ -141,6 +145,8 @@ def get_clean_value(row, column_obj):
     clean_value = None if row[column_obj["csv_column"]] == "" else row[column_obj["csv_column"]]
     if column_obj["db_column"] == "code_violations_count":
         clean_value = get_adjusted_code_violations(row)
+    if column_obj["column_type"] == types.Integer:
+        clean_value = 0 if clean_value is None else clean_value 
     return clean_value
 
 
