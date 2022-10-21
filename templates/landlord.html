@@ -28,34 +28,34 @@ crossorigin=""></script>
 {% endif %}
 
 
-<div class="container">
+<div class="container font-typewriter">
   <div class="row">
 <div class="col">
   <div class="card">
     <div class="card-body">
       <div class="d-flex justify-content-between px-md-1">
         <div class="container">
-          <div class="row">
-            <h1>Landlord Report Card</h1>
+          <div class="row text-center">
+            <h1 class="font-handwritten text-center">{{landlord.name}}</h1>
+            <h5>Landlord Report Card</h5>
           </div>
           <div class="row">
             <div class="col-sm-7">
               <div class="container">
-                <div class="row text-center" >
-                  <div class="col-sm-8"><h2>{{landlord.name}}</h2>
-                  <strong>Address: </strong>{{landlord.address}}</br>
-<strong>Landlord Size:</strong> <text style="color: #{{landlord.size_color}}">{{landlord.size}}</text></br>
+                <div class="row text-left" >
+                  <div class="col-sm-8">
+                  <strong>Address: </strong><text class="font-handwritten">{{landlord.address}}</text></br>
+<strong>Landlord Size:</strong> <text class="font-handwritten" style="color: #{{landlord.size_color}}">{{landlord.size}}</text></br>
  {% if aliases|length > 0 %}
-    <strong>Associated Landlords: </strong>
+    <strong>Associated Landlords: </strong> <text class="font-handwritten">
     {% for alias in aliases %}
     {{alias}}
     {{ "," if not loop.last else "" }}
     {% endfor %}
     {% endif %}
-
+</text>
                   </div>
-                  <div class="col-sm-4"> <h1 class="display-1" style="color: #{{landlord_score.color}} ;font-family: 'Schoolbell', cursive;
-">{{landlord_score.grade}}</h1>
+                  <div class="col-sm-4 text-center"><h1 class="display-1 font-handwritten" style="color: #{{landlord_score.color}} ">{{landlord_score.grade}}</h1>
               <h5>Overall Grade</h5>
 </div>
                 </div>
@@ -77,7 +77,7 @@ crossorigin=""></script>
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingOne">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-                      Tenant Complaints<text style="color: #{{landlord_stats.tenant_complaints_color}}">{{landlord_stats.tenant_complaints_grade}}</text>
+                      Tenant Complaints:&nbsp;<span class="font-handwritten" style="color: #{{landlord_stats.tenant_complaints_color}}">{{landlord_stats.tenant_complaints_grade}}</span>
                     </button>
                   </h2>
                   <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
@@ -93,7 +93,7 @@ crossorigin=""></script>
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingTwo">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                      Code Violations<text style="color: #{{landlord_stats.code_violations_color}}">{{landlord_stats.code_violations_grade}}</text>
+                      Code Violations:&nbsp;<text class="font-handwritten" style="color: #{{landlord_stats.code_violations_color}}">{{landlord_stats.code_violations_grade}}</text>
                     </button>
                   </h2>
                   <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
@@ -107,7 +107,7 @@ crossorigin=""></script>
                 <div class="accordion-item">
                   <h2 class="accordion-header" id="headingThree">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                      Landlord/Tenant Police Incidents<text style="color: #{{landlord_stats.police_incidents_color}}">{{landlord_stats.police_incidents_grade}}</text>
+                      Landlord/Tenant Police Incidents:&nbsp;<text class="font-handwritten" style="color: #{{landlord_stats.police_incidents_color}}">{{landlord_stats.police_incidents_grade}}</text>
                     </button>
                   </h2>
                   <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
@@ -122,7 +122,7 @@ crossorigin=""></script>
                <div class="accordion-item">
                 <h2 class="accordion-header" id="headingFour">
                   <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseThree">
-                    Eviction Filings (in Q3 2022)<text style="color: #{{landlord_stats.eviction_count_color}}">{{landlord_stats.eviction_count_grade}}</text>
+                    Eviction Filings (in Q3 2022):&nbsp;<text class="font-handwritten" style="color: #{{landlord_stats.eviction_count_color}}">{{landlord_stats.eviction_count_grade}}</text>
                   </li>
                 </button>
               </h2>

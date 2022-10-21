@@ -4,15 +4,13 @@
 }
 
 
-.card{
+.font-handwritten{
   font-family: 'Schoolbell', cursive;
 }
 
 
-.card h1,h2,h3,h4,h5,h6{
+.font-typewriter{
   font-family: itc-american-typewriter, serif;
-
-
 }
 
 .rating-block{
