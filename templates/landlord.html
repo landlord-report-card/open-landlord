@@ -124,51 +124,24 @@ crossorigin=""></script>
     </div>
   </div>
 </div>
+</div>
+<br>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</br>
-
-
-
-
-
-<strong>Properties Owned By {{landlord.name}}:</strong></br>
-<ul>
-  {% for property in properties %}
-  {% if property.owner_id == landlord.id %}
-  <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
-  {%endif%}
-  {% endfor %}
-</ul>
-
-</br>
-
-<strong>Additional Properties Associated with {{landlord.name}}:</strong></br>
-<ul>
-  {% for property in properties %}
-  {% if property.owner_id != landlord.id %}
-  <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
-  {%endif%}
-  {% endfor %}
-</ul>
-
-</br>
-
-<div id="map"></div>
-
+<div class="container font-typewriter">
+  <div class="row title-row text-center">
+    <div class="col-sm">
+      <h5>Properties Owned By or Associated with {{landlord.name}}:</h5>
+      <ul class="list-group">
+        {% for property in properties %}
+        <li class="list-group-item"><a href="/property/{{property.id}}">{{property.address}}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-sm">
+      <div id="map"></div>
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
   var properties_json = {{ properties | tojson }}
