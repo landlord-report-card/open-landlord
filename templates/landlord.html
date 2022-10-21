@@ -3,127 +3,170 @@
 {% block content %}
 <!-- Custom styles for this template -->
 <link href="/static/css/landlord.css" rel="stylesheet">
- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
-   integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
-   crossorigin=""/>
- <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
-   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
-   crossorigin=""></script>
-<center>
-<h3>{{landlord.name}}</h3>
-{{landlord.address}}</br>
-Landlord Size: <text style="color: #{{landlord.size_color}}">{{landlord.size}}</text></br>
-{% if aliases|length > 0 %}
-Associated Landlords: 
-  {% for alias in aliases %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+crossorigin=""></script>
+
+{% if unsafe_unfit_list|length > 0 %}
+<div class="container">
+
+  <div class="alert alert-danger row" role="alert">
+    <div class="col-sm-8">
+      <h5>Warning</h5> This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year. You may wish to contact the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a>
+    </div>
+    <div class="col-sm-4">
+      <strong>Impacted Properties:</strong>
+      {% for property in unsafe_unfit_list %}
+      <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
+       {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+<div class="container">
+  <div class="row">
+<div class="col">
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex justify-content-between px-md-1">
+        <div class="container">
+          <div class="row">
+            <h1>Landlord Report Card</h1>
+          </div>
+          <div class="row">
+            <div class="col-sm-7">
+              <div class="container">
+                <div class="row text-center" >
+                  <div class="col-sm-8"><h2>{{landlord.name}}</h2>
+                  <strong>Address: </strong>{{landlord.address}}</br>
+<strong>Landlord Size:</strong> <text style="color: #{{landlord.size_color}}">{{landlord.size}}</text></br>
+ {% if aliases|length > 0 %}
+    <strong>Associated Landlords: </strong>
+    {% for alias in aliases %}
     {{alias}}
     {{ "," if not loop.last else "" }}
-  {% endfor %}
-{% endif %}
-{% if unsafe_unfit_list|length > 0 %}
-</br>
-<div class="alert alert-danger" role="alert">
-<strong>Warning:</strong> This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year. </br>You may wish to contact the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a>
-</br><strong>Impacted Properties:</strong>
-  {% for property in unsafe_unfit_list %}
-    <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
-  {% endfor %}
-</div>
-{% endif %}
-</center>
-<br>
-<center>
-<div class="col-xl-3 col-sm-6 col-12 mb-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between px-md-1">
-          <div>
-            <h4>Overall Landlord Score</h4>
-            <h1 class="display-1" style="color: #{{landlord_score.color}}">{{landlord_score.grade}}</h1>
-          </div>
-          <div class="align-self-center">
-            <i class="fas fa-map-signs text-danger fa-3x"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</center>
+    {% endfor %}
+    {% endif %}
 
-<div class="row d-flex justify-content-center">
-  <div class="col-xl-3 col-sm-6 col-12 mb-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between px-md-1">
-          <div>
-            <h6>Tenant Complaints</h6>
-            <h3 style="color: #{{landlord_stats.tenant_complaints_color}}">{{landlord_stats.tenant_complaints_grade}}</h3>
-            <p class="mb-0">Total Tenant Complaints: {{landlord_stats.tenant_complaints_total}} </p>
-            <p class="mb-0">Tenant Complaints Per Property: {{landlord_stats.tenant_complaints|round(2)}} </p>
-            <p class="mb-0">City Average: {{city_average_stats.average_tenant_complaints|round(3)}} </p>
+                  </div>
+                  <div class="col-sm-4"> <h1 class="display-1" style="color: #{{landlord_score.color}} ;font-family: 'Schoolbell', cursive;
+">{{landlord_score.grade}}</h1>
+              <h5>Overall Grade</h5>
+</div>
+                </div>
+
+
+
+              </div>
+               
+              
+             
+
+   
+    
+   
+
+            </div>
+            <div class="col-sm-5">
+              <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                      Tenant Complaints<text style="color: #{{landlord_stats.tenant_complaints_color}}">{{landlord_stats.tenant_complaints_grade}}</text>
+                    </button>
+                  </h2>
+                  <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+
+                      <p class="mb-0">Total Tenant Complaints: {{landlord_stats.tenant_complaints_total}} </p>
+                      <p class="mb-0">Tenant Complaints Per Property: {{landlord_stats.tenant_complaints|round(2)}} </p>
+                      <p class="mb-0">City Average: {{city_average_stats.average_tenant_complaints|round(3)}} </p>
+
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      Code Violations<text style="color: #{{landlord_stats.code_violations_color}}">{{landlord_stats.code_violations_grade}}</text>
+                    </button>
+                  </h2>
+                  <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <p class="mb-0">Total Code Violations: {{landlord_stats.code_violations_total}} </p>
+                      <p class="mb-0">Code Violations Per Property: {{landlord_stats.code_violations|round(2)}} </p>
+                      <p class="mb-0">City Average: {{city_average_stats.average_code_violations|round(3)}}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      Landlord/Tenant Police Incidents<text style="color: #{{landlord_stats.police_incidents_color}}">{{landlord_stats.police_incidents_grade}}</text>
+                    </button>
+                  </h2>
+                  <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                     <p class="mb-0">Total Landlord/Tenant Police Incidents: {{landlord_stats.police_incidents_total}} </p>
+                     <p class="mb-0">Police Incidents Per Property: {{landlord_stats.police_incidents|round(2)}} </p>
+                     <p class="mb-0">City Average: {{city_average_stats.average_police_incidents|round(3)}}</p>
+                   </div>
+                 </div>
+               </div>
+
+               <div class="accordion-item">
+                <h2 class="accordion-header" id="headingFour">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseThree">
+                    Eviction Filings (in Q3 2022)<text style="color: #{{landlord_stats.eviction_count_color}}">{{landlord_stats.eviction_count_grade}}</text>
+                  </li>
+                </button>
+              </h2>
+              <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <p class="mb-0">Total Eviction Filings: {{landlord_stats.eviction_count_total}} </p>
+                  <p class="mb-0">Eviction Filings Per Property: {{landlord_stats.eviction_count|round(2)}} </p>
+                  <p class="mb-0">City Average: {{city_average_stats.average_eviction_count|round(3)}}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="align-self-center">
-            <i class="fas fa-map-signs text-danger fa-3x"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 col-12 mb-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between px-md-1">
-          <div>
-            <h6>Code Violations</h6>
-            <h3 style="color: #{{landlord_stats.code_violations_color}}">{{landlord_stats.code_violations_grade}}</h3>
-            <p class="mb-0">Total Code Violations: {{landlord_stats.code_violations_total}} </p>
-            <p class="mb-0">Code Violations Per Property: {{landlord_stats.code_violations|round(2)}} </p>
-            <p class="mb-0">City Average: {{city_average_stats.average_code_violations|round(3)}}</p>
-          </div>
-          <div class="align-self-center">
-            <i class="fas fa-map-signs text-danger fa-3x"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 col-12 mb-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between px-md-1">
-          <div>
-            <h6>Landlord/Tenant Police Incidents</h6>
-            <h3 style="color: #{{landlord_stats.police_incidents_color}}">{{landlord_stats.police_incidents_grade}}</h3>
-            <p class="mb-0">Total Landlord/Tenant Police Incidents: {{landlord_stats.police_incidents_total}} </p>
-            <p class="mb-0">Police Incidents Per Property: {{landlord_stats.police_incidents|round(2)}} </p>
-            <p class="mb-0">City Average: {{city_average_stats.average_police_incidents|round(3)}}</p>
-          </div>
-          <div class="align-self-center">
-            <i class="fas fa-map-signs text-danger fa-3x"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-xl-3 col-sm-6 col-12 mb-4">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between px-md-1">
-          <div>
-            <h6>Eviction Filings (in Q3 2022)</h6>
-            <h3 style="color: #{{landlord_stats.eviction_count_color}}">{{landlord_stats.eviction_count_grade}}</h3>
-            <p class="mb-0">Total Eviction Filings: {{landlord_stats.eviction_count_total}} </p>
-            <p class="mb-0">Eviction Filings Per Property: {{landlord_stats.eviction_count|round(2)}} </p>
-            <p class="mb-0">City Average: {{city_average_stats.average_eviction_count|round(3)}}</p>
-          </div>
-          <div class="align-self-center">
-            <i class="fas fa-map-signs text-danger fa-3x"></i>
-          </div>
+
+
+
+
+
+
+
+
+
+
         </div>
       </div>
     </div>
   </div>
 </div>
+</div>
+</div>
+</div>
+<div class="row">
+  <div class="col-sm">
+    One of three columns
+  </div>
+  <div class="col-sm">
+    One of three columns
+  </div>
+</div>
+</div>
+
+
+
+
+
 
 
 </br>
@@ -134,22 +177,22 @@ Associated Landlords:
 
 <strong>Properties Owned By {{landlord.name}}:</strong></br>
 <ul>
-{% for property in properties %}
+  {% for property in properties %}
   {% if property.owner_id == landlord.id %}
   <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
   {%endif%}
-{% endfor %}
+  {% endfor %}
 </ul>
 
 </br>
 
 <strong>Additional Properties Associated with {{landlord.name}}:</strong></br>
 <ul>
-{% for property in properties %}
+  {% for property in properties %}
   {% if property.owner_id != landlord.id %}
   <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
   {%endif%}
-{% endfor %}
+  {% endfor %}
 </ul>
 
 </br>
@@ -158,8 +201,8 @@ Associated Landlords:
 
 
 <script type="text/javascript">
-    var properties_json = {{ properties | tojson }}
- </script>
+  var properties_json = {{ properties | tojson }}
+</script>
 <script type="text/javascript" src="/static/js/landlord.js"></script>
 
 {% endblock %}

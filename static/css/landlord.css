@@ -2,6 +2,19 @@
     background-color:#D8D8D8;
   color:#FFF;
 }
+
+
+.card{
+  font-family: 'Schoolbell', cursive;
+}
+
+
+.card h1,h2,h3,h4,h5,h6{
+  font-family: itc-american-typewriter, serif;
+
+
+}
+
 .rating-block{
   background-color:#FAFAFA;
   border:1px solid #EFEFEF;
@@ -41,5 +54,6 @@
 .review-block-description{
   font-size:13px;
 }
+
 
 #map { height: 400px; }
