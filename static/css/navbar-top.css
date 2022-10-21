@@ -10,10 +10,26 @@ body {
   -moz-user-select: none;
   user-select: none;
 }
+.navbar{
+  font-family: dunbar-low, sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.navbar li a{
+      color: white;
+    font-weight: 500;
+    font-size: 1.3rem;
+    letter-spacing: .1rem;
+  }
+
 
 @media (min-width: 768px) {
   .bd-placeholder-img-lg {
     font-size: 3.5rem;
+  }
+   .navbar {
+    flex-direction: column;
   }
 }
 
@@ -56,7 +72,7 @@ body {
 
 
 body {
-  padding-top: 70px;
+  padding-top: 150px;
 }
 .btn-grey{
     background-color:#D8D8D8;
