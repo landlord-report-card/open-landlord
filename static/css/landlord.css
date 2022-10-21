@@ -1,3 +1,71 @@
+
+/* LINED PAPER */
+#text::before {
+ content: "\"";
+}
+#text::after {
+ content: "\"";
+}
+#title::after {
+ content: " said:";
+ font-size: 20px;
+}
+
+
+.card{
+ font-family: Courier, monospace;
+ background-color: white;
+ background: repeating-linear-gradient(white, white 25px, #9198e5 26px, #9198e5 27px);
+ background-position-y: 34px;
+   
+}
+.card header {
+ background: linear-gradient(white, white 33px, pink 35px, pink 36px);
+ height: 36px;
+}
+.card-title {
+ position: relative;
+ left: 10px;
+ top: 8px;
+ font-size: 30px;
+ font-weight: bold;
+}
+.card-text {
+ position: relative;
+ top: 30px;
+ font-size: 18px;
+ margin: 0 20px;
+ line-height: 27px;
+}
+/* gLINED PAPER */
+
+
+.title-label {
+    font-size: 1em;
+}
+
+.grade, .landlord-name{
+  font-size: 2.75em;
+
+}
+
+.grade-value {
+    font-size: 1.5em;
+}
+.landlord-attribute{
+  font-weight: 700;
+}
+
+.accordion {--bs-accordion-bg: transparent;}
+
+.accordion-collapse {
+    background-color: white;
+}
+
+.accordion-button {
+    padding: 0;
+}
+
 .btn-grey{
     background-color:#D8D8D8;
   color:#FFF;
@@ -10,7 +78,7 @@
 
 
 .font-typewriter{
-  font-family: itc-american-typewriter, serif;
+  font-family: Courier, monospace;
 }
 
 .rating-block{
