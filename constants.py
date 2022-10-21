@@ -25,10 +25,12 @@ GRADE_COMPONENTS = [
     "tenant_complaints",
     "code_violations",
     "police_incidents",
+    "eviction_count",
 ]
 
 STATS_TO_SCALE = [
     "tenant_complaints",
     "code_violations",
     "police_incidents",
+    "eviction_count",
 ]

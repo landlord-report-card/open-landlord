@@ -11,6 +11,11 @@
 
 <strong>Property Address: </strong>{{property.address}}</br>
 <strong>Owner: </strong><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></br>
+{% if property.unsafe_unfit_count > 0 %}
+<div class="alert alert-danger" role="alert">
+<strong>Warning:</strong> This property has been deemed unsafe or unfit for habitability by the City of Albany within the past year. </br>You may wish to contact the City of Albany Code Department to determine if this unit is safe to be occupied. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a>
+</div>
+{% endif %}
 <strong>Current Use: </strong>{{property.current_use}}</br>
 <strong>Business Entity Type: </strong>{{property.business_entity_type}}</br>
 <strong>Owner Occupied: </strong>{{property.owner_occupied}}</br>

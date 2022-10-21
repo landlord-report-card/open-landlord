@@ -20,6 +20,16 @@ Associated Landlords:
     {{ "," if not loop.last else "" }}
   {% endfor %}
 {% endif %}
+{% if unsafe_unfit_list|length > 0 %}
+</br>
+<div class="alert alert-danger" role="alert">
+<strong>Warning:</strong> This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year. </br>You may wish to contact the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a>
+</br><strong>Impacted Properties:</strong>
+  {% for property in unsafe_unfit_list %}
+    <li><a href="/property/{{property.id}}">{{property.address}}</a></li>
+  {% endfor %}
+</div>
+{% endif %}
 </center>
 <br>
 <center>
@@ -87,6 +97,24 @@ Associated Landlords:
             <p class="mb-0">Total Landlord/Tenant Police Incidents: {{landlord_stats.police_incidents_total}} </p>
             <p class="mb-0">Police Incidents Per Property: {{landlord_stats.police_incidents|round(2)}} </p>
             <p class="mb-0">City Average: {{city_average_stats.average_police_incidents|round(3)}}</p>
+          </div>
+          <div class="align-self-center">
+            <i class="fas fa-map-signs text-danger fa-3x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-3 col-sm-6 col-12 mb-4">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between px-md-1">
+          <div>
+            <h6>Eviction Filings (in Q3 2022)</h6>
+            <h3 style="color: #{{landlord_stats.eviction_count_color}}">{{landlord_stats.eviction_count_grade}}</h3>
+            <p class="mb-0">Total Eviction Filings: {{landlord_stats.eviction_count_total}} </p>
+            <p class="mb-0">Eviction Filings Per Property: {{landlord_stats.eviction_count|round(2)}} </p>
+            <p class="mb-0">City Average: {{city_average_stats.average_eviction_count|round(3)}}</p>
           </div>
           <div class="align-self-center">
             <i class="fas fa-map-signs text-danger fa-3x"></i>
