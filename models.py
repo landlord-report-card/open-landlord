@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import case
 
 db = SQLAlchemy()
 
@@ -14,12 +16,34 @@ class Landlord(db.Model):
     eviction_count = db.Column(db.Integer)
     group_id = db.Column(db.String(50))
 
+    properties_owned = db.relationship("Property", backref="property_owner")
+
+    @hybrid_property
+    def code_violations(self):
+        return sum(prop.code_violations_count for prop in self.properties)
+
+    @code_violations.expression
+    def code_violations(cls):
+        return select(func.sum(Property.code_violations_count)).\
+                where(Property.owner_id==cls.id).\
+                label('total_code_violations')
+
+
+    @hybrid_property
+    def evictions_per_property(self):
+        return (self.eviction_count / self.property_count) if self.property_count > 0 else None
+
+
+    @evictions_per_property.expression
+    def evictions_per_property(cls):
+        return case([(cls.property_count == 0, None), (cls.property_count > 0, (cls.eviction_count / cls.property_count))])
 
     def __repr__(self):
         return '<Landlord %r>' % self.name
 
     def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 
 class Property(db.Model):
