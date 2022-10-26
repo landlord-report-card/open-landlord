@@ -65,7 +65,7 @@ class Landlord(db.Model):
 
 
 class Property(db.Model):
-    __tablename__ = "property2"
+    __tablename__ = "property"
     id = db.Column(db.Integer, primary_key=True)
     parcel_id = db.Column(db.String(250), nullable=False)
     address = db.Column(db.String(250), nullable=False)
