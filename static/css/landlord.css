@@ -1,5 +1,112 @@
 
-/* LINED PAPER */
+/* Global */
+
+
+
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { 
+  border: 1px solid #0d6efd; 
+  background: #83b5ff 
+  url(images/ui-bg_glass_100_fdf5ce_1x400.png) 50% 50% repeat-x; 
+  font-weight: bold; 
+  color: black; 
+}
+
+
+
+@media (max-width: 575px) {
+  .card{
+    background-position-y:  48px;
+  }
+  .landlord-attribute {
+    line-height: 1.9;
+  }
+  h5.warning {
+    font-size: 1.2rem;
+  }
+  #property-card{
+    min-height: 20rem;
+  }
+}
+
+.main {
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.navbar-brand img {
+  max-width: 300px;
+  height: auto;
+}
+
+.mb-4{
+  margin-bottom: 0;
+}
+
+.navbar-brand  {
+  margin: auto;
+}
+
+.navbar-toggler{
+  margin-right: 1rem;
+}
+
+.navbar li a{
+  color: black;
+  font-weight: 500;
+  font-size: 1.3rem;
+  letter-spacing: .1rem;
+  font-family: 'Courier', monospace;
+}
+
+
+/* Card */
+.card{
+ max-width: 801px;
+ margin-left: auto;
+ margin-right: auto;
+ --bs-card-spacer-x: 0;
+ --bs-card-spacer-y: 0;
+}
+
+.card-body{
+  padding-top: 0;
+}
+
+.card header {
+ background: linear-gradient(white, white 33px, pink 35px, pink 36px);
+ height: 36px;
+}
+
+.card-lines{
+    background: repeating-linear-gradient(white, white 25px, #9198e5 26px, #9198e5 27px);
+    --bs-card-spacer-x: .75rem;
+    min-height: 13rem;
+    margin-left: auto;
+    margin-right: auto;
+    background-position-y: -5px;
+}
+
+.landlord-info{
+  line-height:1.68rem ;
+}
+
+.landlord-grades h2{
+  line-height: 1.1;
+
+}
+
+.grade-value {
+  font-size: 1.5em;
+  margin-left: auto;
+  margin-right: 1rem;
+}
+
+.grade, .landlord-name{
+  font-size: 2rem;
+
+}
+
 #text::before {
  content: "\"";
 }
@@ -11,153 +118,23 @@
  font-size: 20px;
 }
 
-h5.warning {
-    font-family: 'Schoolbell';
-    color: red;
-    font-size: 1.5rem;
-}
-
-.card{
- font-family: Courier, monospace;
- background-color: white;
- background: repeating-linear-gradient(white, white 25px, #9198e5 26px, #9198e5 27px);
- background-position-y: 34px;
-  --bs-card-spacer-x: .75rem;
-  min-height: 20rem;
-  max-width: 801px;
-  margin-left: auto;
-  margin-right: auto;
-
-
-   
-}
-
-#accordionwarning .accordion-body {
-    font-family: 'Courier', monospace;
-
-
-
-}
-
-#accordionwarning .accordion-button::after {
-    margin-left: auto;
-}
-.warning{
-  margin-bottom: 0;
-}
-
- #accordionwarning    .accordion-button:not(.collapsed){
-  background-color: transparent;
- }
-#accordionwarning .accordion-collapse{
-background-color: transparent;
-}
-
-.accordion-button{
-  font-weight: 700;
-}
-
-.accordion-body {
-    font-weight: 100;
-    font-family: 'Schoolbell';
-}
-
-@media (max-width: 575px) {
-      .card{
-    background-position-y:  48px;
-  }
-     .landlord-attribute {
-      line-height: 1.9;
-  }
-  h5.warning {
- 
-    font-size: 1.2rem;
-}
-
-
-}
-
-
-.accordion-button::after{
-  margin: 0;
-}
-
-
-.grade-value {
-    font-size: 1.5em;
-    margin-left: auto;
-    margin-right: 1rem;
-}
-
-.card header {
- background: linear-gradient(white, white 33px, pink 35px, pink 36px);
- height: 36px;
-}
-.card-title {
- position: relative;
- left: 10px;
- top: 8px;
- font-size: 30px;
- font-weight: bold;
-}
-.card-text {
- position: relative;
- top: 30px;
- font-size: 18px;
- margin: 0 20px;
- line-height: 27px;
-}
-/* gLINED PAPER */
-
-
 .title-label {
-    font-size: 1em;
+  font-size: 1em;
 }
 
-.grade, .landlord-name{
-  font-size: 2.75em;
-
-}
-h2{
-line-height: 1.1}
-.card-body{
-  padding-top: 0;
-}
-.grade-value {
-    font-size: 1.5em;
-}
 .landlord-attribute{
   font-weight: 700;
   line-height: 1.7;
 }
 
-.accordion {--bs-accordion-bg: transparent;
---bs-accordion-border-color: none}
-
-.accordion-collapse {
-    background-color: white;
-}
-
-.accordion-button {
-    padding: 0;
-}
-
-.btn-grey{
-    background-color:#D8D8D8;
-  color:#FFF;
-}
-
-
 .font-handwritten{
   font-family: 'Schoolbell', cursive;
 }
 
-
-
-
 .title-row {
-    background-color: white;
-    border-bottom: solid pink;
+  background-color: white;
+  border-bottom: solid pink;
+  --bs-gutter-x: 0;
 }
 
 .font-typewriter{
@@ -181,32 +158,108 @@ line-height: 1.1}
   padding-bottom:7px;
 }
 
-.review-block{
-  background-color:#FAFAFA;
-  border:1px solid #EFEFEF;
-  padding:15px;
-  border-radius:3px;
-  margin-bottom:15px;
+
+/* Warning */
+
+h5.warning {
+  font-family: 'Schoolbell';
+  color: red;
+  font-size: 1.5rem;
 }
-.review-block-name{
-  font-size:12px;
-  margin:10px 0;
-}
-.review-block-date{
-  font-size:12px;
-}
-.review-block-rate{
-  font-size:13px;
-  margin-bottom:15px;
-}
-.review-block-title{
-  font-size:15px;
-  font-weight:700;
-  margin-bottom:10px;
-}
-.review-block-description{
-  font-size:13px;
+.warning{
+  margin-bottom: 0;
 }
 
 
-#map { height: 400px; }
+#accordionwarning .accordion-body {
+  font-family: 'Courier', monospace;
+}
+
+#accordionwarning .accordion-button::after {
+  margin-left: auto;
+}
+
+#accordionwarning .accordion-button:not(.collapsed){
+  background-color: transparent;
+}
+
+#accordionwarning .accordion-collapse{
+  background-color: transparent;
+}
+
+.accordion-button{
+  font-weight: 700;
+}
+
+.accordion-body {
+  font-weight: 100;
+  font-family: 'Schoolbell';
+}
+
+.accordion-button::after{
+  margin: 0;
+}
+
+.accordion {
+  --bs-accordion-bg: transparent;
+  --bs-accordion-border-color: none
+}
+
+.accordion-collapse {
+  background-color: white;
+}
+
+.accordion-button {
+  padding: 0;
+}
+
+
+/* Property Page */
+
+#map {
+  height: 400px; 
+}
+.property-card .card{
+  background-position-y: 23px;
+}
+
+.property-label{
+  font-family: 'Courier', monospace;
+  font-weight: 700;
+
+}
+.property-address{
+  font-size: 1.2rem;
+  font-family: 'Schoolbell', cursive !important;
+
+}
+
+#property-card {
+  line-height: 1.68rem;
+  min-height: 25rem;
+  font-family: 'Schoolbell', cursive;
+  font-weight: 700;
+}
+#property-card .card-lines{
+  min-height: 21rem;
+}
+#property-card span{
+  font-family: 'Courier', monospace;
+}
+
+.property-info {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+#google_translate_element {
+  text-align: center;
+}
+
+
+
+
+
+
+
+
