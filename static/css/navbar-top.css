@@ -2,6 +2,10 @@
 body {
   
 }
+
+#google_translate_element {
+    text-align: center;
+}
 .main {
     max-width: 1000px;
     margin-left: auto;
