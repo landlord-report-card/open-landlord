@@ -16,7 +16,7 @@ class Alias(db.Model):
 
 
 class Landlord(db.Model):
-    __tablename__ = "landlord2"
+    __tablename__ = "landlord"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     address = db.Column(db.String(250))
@@ -62,28 +62,6 @@ class Landlord(db.Model):
             if isinstance(prop, hybrid_property):
                 dict_[key] = getattr(self, key)
         return dict_
-
-
-class Landlord2(db.Model):
-    __tablename__ = "landlord"
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
-    address = db.Column(db.String(250))
-    location = db.Column(db.String(250))
-    property_count = db.Column(db.Integer)
-    eviction_count = db.Column(db.Integer)
-    group_id = db.Column(db.String(50))
-
-    group_properties_owned = db.relationship("Property", backref="group_property_owner", foreign_keys='Property.group_id')
-    properties_owned = db.relationship("Property", backref="property_owner", foreign_keys='Property.owner_id')
-
-
-    def __repr__(self):
-        return '<Landlord %r>' % self.name
-
-    def as_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
 
 
 class Property(db.Model):
