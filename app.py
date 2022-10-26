@@ -1,6 +1,7 @@
 from flask import Flask, render_template, flash, request, redirect
 from flask_marshmallow import Marshmallow
-from models import db, Landlord, Property
+from marshmallow import fields
+from models import db, Landlord, Property, Alias
 from forms import LandlordSearchForm
 import os
 import utils
@@ -13,9 +14,25 @@ db.init_app(app)
 
 
 # Schema API initializations 
-class LandlordSchema(ma.Schema):
+class LandlordSchema(ma.SQLAlchemySchema):
     class Meta:
-        fields = ("name", "address", "property_count")
+        model = Landlord
+        include_fk = True
+        include_relationships = True
+        load_instance = True
+
+    name = ma.auto_field()
+    id = ma.auto_field()
+    address = ma.auto_field()
+    property_count = ma.auto_field()
+    eviction_count = ma.auto_field()
+    eviction_count_per_property = fields.Float(dump_only=True)
+    code_violations_count = ma.auto_field()
+    code_violations_count_per_property = fields.Float(dump_only=True)
+    police_incidents_count = ma.auto_field()
+    police_incidents_count_per_property = fields.Float(dump_only=True)
+    tenant_complaints_count = ma.auto_field()
+    tenant_complaints_count_per_property = fields.Float(dump_only=True)
 
 
 class PropertySchema(ma.Schema):
@@ -23,8 +40,15 @@ class PropertySchema(ma.Schema):
         fields = ("parcel_id", "address", "latitude", "longitude")
 
 
+class AliasSchema(ma.Schema):
+    class Meta:
+        fields = ("name", "landlord_id")
+
+
 LANDLORD_SCHEMA = LandlordSchema()
 LANDLORDS_SCHEMA = LandlordSchema(many=True)
+ALIAS_SCHEMA = AliasSchema()
+ALIASES_SCHEMA = AliasSchema(many=True)
 PROPERTY_SCHEMA = PropertySchema()
 PROPERTIES_SCHEMA = PropertySchema(many=True)
 
@@ -48,7 +72,7 @@ def search_results(search):
 def landlord(id):
     properties_list = utils.get_all_properties_dict(id)
     aliases = utils.get_all_aliases(id)
-    landlord = utils.get_enriched_landlord(id, properties_list)
+    landlord = utils.get_enriched_landlord(id)
     city_average_stats = utils.get_city_average_stats()
     landlord_stats = utils.get_landlord_stats(id, properties_list, city_average_stats)
     landlord_score = utils.calculate_landlord_score(landlord_stats)
@@ -76,9 +100,8 @@ def about():
 
 
 # API Definitions
-def get_biggest_landlords(limit):
-    landlords = Landlord.query.order_by(Landlord.property_count.desc()).limit(limit).all()
-    return landlords
+def get_ranked_landlords(limit, ranking_criteria):
+    return Landlord.query.order_by(ranking_criteria.desc()).limit(limit).all()
 
 
 @app.route('/api/landlords/top/', methods=['GET'])
@@ -87,13 +110,69 @@ def get_top_landlords():
     if request.args.get('max_results'):
         max_results = request.args.get('max_results')
 
-    landlords = get_biggest_landlords(max_results)
+    landlords = []
+
+    if request.args.get('sorting'):
+        sort_method = request.args.get('sorting').lower()
+        if sort_method == "evictions":
+            landlords = get_ranked_landlords(max_results, Landlord.eviction_count_per_property)
+        elif sort_method == "code_violations":
+            landlords = get_ranked_landlords(max_results, Landlord.code_violations_count_per_property)
+        elif sort_method == "complaints":
+            landlords = get_ranked_landlords(max_results, Landlord.tenant_complaints_count_per_property)
+        elif sort_method == "police_calls":
+            landlords = get_ranked_landlords(max_results, Landlord.police_incidents_count_per_property)
+        else:
+            landlords = get_ranked_landlords(max_results, Landlord.property_count) 
+    else:
+        landlords = get_ranked_landlords(max_results, Landlord.property_count) 
+
     return LANDLORDS_SCHEMA.jsonify(landlords)
 
 
 @app.route('/api/landlords/<id>', methods=['GET'])
 def get_landlord(id):
     return LANDLORD_SCHEMA.jsonify(Landlord.query.get(id))
+
+
+@app.route('/api/landlords/<landlord_id>/aliases', methods=['GET'])
+def get_landlord_aliases(landlord_id):
+    aliases = Alias.query.filter_by(landlord_id=landlord_id).all()
+    return ALIASES_SCHEMA.jsonify(aliases)
+
+
+@app.route('/api/landlords/<landlord_id>/grades', methods=['GET'])
+def get_landlord_grades(landlord_id):
+    # Not yet implemented
+    return {}
+
+
+@app.route('/api/landlords/<landlord_id>/properties', methods=['GET'])
+def get_landlord_properties(landlord_id):
+    properties = Property.query.filter_by(owner_id=landlord_id).all()
+    return PROPERTIES_SCHEMA.jsonify(properties)
+
+
+@app.route('/api/landlords/<landlord_id>/unsafe_unfit', methods=['GET'])
+def get_landlord_unsafe_unfit_properties(landlord_id):
+    properties = Property.query.filter(Property.owner_id == landlord_id).filter(Property.unsafe_unfit_count > 0).all()
+    return PROPERTIES_SCHEMA.jsonify(properties)
+
+
+@app.route('/api/stats', methods=['GET'])
+def get_city_stats():
+    stats = utils.get_city_average_stats()
+    return stats
+
+
+@app.route('/api/search', methods=['GET'])
+def get_search_results():
+    if request.args.get('query'):
+        # TODO: Not currently working properly. Need to deserialize property + landlord name
+        print(utils.perform_search(request.args.get('query')).all())
+        return PROPERTIES_SCHEMA.jsonify(utils.perform_search(request.args.get('query')).all())
+    else:
+        return {"results": utils.get_autocomplete_prompts()}
 
 
 @app.route('/api/properties/<id>', methods=['GET'])

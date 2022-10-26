@@ -22,15 +22,10 @@ GRADE_F = {"grade":"F", "value":0, "color":GRADE_COLORS["F"]}
 
 
 GRADE_COMPONENTS = [
-    "tenant_complaints",
-    "code_violations",
-    "police_incidents",
+    "tenant_complaints_count",
+    "code_violations_count",
+    "police_incidents_count",
     "eviction_count",
 ]
 
-STATS_TO_SCALE = [
-    "tenant_complaints",
-    "code_violations",
-    "police_incidents",
-    "eviction_count",
-]
+STATS_TO_SCALE = GRADE_COMPONENTS
