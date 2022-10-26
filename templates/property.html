@@ -1,37 +1,69 @@
 {% extends "base.html" %}
 {% block title %}{{property.address}}{% endblock %}
 {% block content %}
-<link href="/static/css/landlord.css" rel="stylesheet">
- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
-   integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
-   crossorigin=""/>
- <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
-   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
-   crossorigin=""></script>
-<div class="main">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+crossorigin=""></script>
 
-<strong>Property Address: </strong>{{property.address}}</br>
-<strong>Owner: </strong><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></br>
 {% if property.unsafe_unfit_count > 0 %}
-<div class="alert alert-danger" role="alert">
-<strong>Warning:</strong> This property has been deemed unsafe or unfit for habitability by the City of Albany within the past year. </br>You may wish to contact the City of Albany Code Department to determine if this unit is safe to be occupied. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a>
+<div class="alert alert-danger row" role="alert">
+  <div class="accordion" id="accordionwarning">
+    <div class="accordion-item">
+      <h2 class="accordion-header" id="headingtop">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsetop" aria-expanded="false" aria-controls="collapsetop">
+          <h5 class="warning">Warning about this property!</h5> 
+        </button>
+      </h2>
+      <div id="collapsetop" class="accordion-collapse collapse" aria-labelledby="headingtop" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+         <p>This property has been deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
+         <p>Call the City of Albany Code Department to determine if this unit is safe to be occupied. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
 </div>
 {% endif %}
-<strong>Current Use: </strong>{{property.current_use}}</br>
-<strong>Business Entity Type: </strong>{{property.business_entity_type}}</br>
-<strong>Owner Occupied: </strong>{{property.owner_occupied}}</br>
-<strong>Parcel ID: </strong>{{property.parcel_id}}</br>
-<strong>Property Type: </strong>{{property.property_type}}</br>
-<strong>Tenant Complaints: </strong>{{property.tenant_complaints}}</br>
-<strong>Code Violations Count: </strong>{{property.code_violations_count}}</br>
-<strong>Police Incidents Count: </strong>{{property.police_incidents_count}}</br>
-
-
-<div id="map"></div>
-
+<div class="main">
+  <div class="container font-typewriter">
+    <div class="row">
+      <div class="col-sm">
+        <div class="card" id="property-card">
+          <div class="card-body">
+            <div class="row title-row text-center">
+              <div class="col-sm">
+                <span class="property-label">Property Address</span><br>
+                <span class="property-address font-handwritten">{{property.address}}</span>
+              </div>
+            </div>
+            <div class="card-lines">
+              <div class="property-info">
+              <span>Owner: </span><a href="/landlord/{{landlord.id}}">{{landlord.name}}</a></br>
+              <span>Current Use: </span> &nbsp;{{property.current_use}}</br>
+              <span>Business Entity Type: </span>{{property.business_entity_type}}</br>
+              <span>Owner Occupied: </span>{{property.owner_occupied}}</br>
+              <span>Parcel ID: </span>{{property.parcel_id}}</br>
+              <span>Property Type: </span>{{property.property_type}}</br>
+              <span>Tenant Complaints: </span>{{property.tenant_complaints}}</br>
+              <span>Code Violations Count: </span>{{property.code_violations_count}}</br>
+              <span>Police Incidents Count: </span>{{property.police_incidents_count}}</br>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <div id="map"></div>
+      </div>
+    </div>
+  </div>
 </div>
 <script type="text/javascript">
-    var property_json = {{ property | tojson }}
+  var property_json = {{ property | tojson }}
 </script>
 <script type="text/javascript" src="/static/js/property.js"></script>
 
