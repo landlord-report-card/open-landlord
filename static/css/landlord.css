@@ -11,14 +11,84 @@
  font-size: 20px;
 }
 
+h5.warning {
+    font-family: 'Schoolbell';
+    color: red;
+    font-size: 1.5rem;
+}
 
 .card{
  font-family: Courier, monospace;
  background-color: white;
  background: repeating-linear-gradient(white, white 25px, #9198e5 26px, #9198e5 27px);
  background-position-y: 34px;
+  --bs-card-spacer-x: .75rem;
+  min-height: 20rem;
+  max-width: 801px;
+  margin-left: auto;
+  margin-right: auto;
+
+
    
 }
+
+#accordionwarning .accordion-body {
+    font-family: 'Courier', monospace;
+
+
+
+}
+
+#accordionwarning .accordion-button::after {
+    margin-left: auto;
+}
+.warning{
+  margin-bottom: 0;
+}
+
+ #accordionwarning    .accordion-button:not(.collapsed){
+  background-color: transparent;
+ }
+#accordionwarning .accordion-collapse{
+background-color: transparent;
+}
+
+.accordion-button{
+  font-weight: 700;
+}
+
+.accordion-body {
+    font-weight: 100;
+    font-family: 'Schoolbell';
+}
+
+@media (max-width: 575px) {
+      .card{
+    background-position-y:  48px;
+  }
+     .landlord-attribute {
+      line-height: 1.9;
+  }
+  h5.warning {
+ 
+    font-size: 1.2rem;
+}
+
+
+}
+
+
+.accordion-button::after{
+  margin: 0;
+}
+
+
+.grade-value {
+    font-size: 1.5em;
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
 .card header {
  background: linear-gradient(white, white 33px, pink 35px, pink 36px);
  height: 36px;
@@ -48,15 +118,21 @@
   font-size: 2.75em;
 
 }
-
+h2{
+line-height: 1.1}
+.card-body{
+  padding-top: 0;
+}
 .grade-value {
     font-size: 1.5em;
 }
 .landlord-attribute{
   font-weight: 700;
+  line-height: 1.7;
 }
 
-.accordion {--bs-accordion-bg: transparent;}
+.accordion {--bs-accordion-bg: transparent;
+--bs-accordion-border-color: none}
 
 .accordion-collapse {
     background-color: white;
@@ -76,6 +152,13 @@
   font-family: 'Schoolbell', cursive;
 }
 
+
+
+
+.title-row {
+    background-color: white;
+    border-bottom: solid pink;
+}
 
 .font-typewriter{
   font-family: Courier, monospace;

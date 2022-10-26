@@ -31,21 +31,25 @@
     <link href="/static/css/navbar-top.css" rel="stylesheet">
   </head>
   <body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
-     <a class="navbar-brand" href="/">
+    <nav class="navbar navbar-expand-md navbar-light bg-white mb-1s">
+      <a class="navbar-brand d-lg-none d-md-none " href="/">
       <img src="/static/img/logo.png" alt="Albany Landlord Report Card" height="100">
     </a>
+
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mx-auto align-items-end">
+      <ul class="navbar-nav mx-auto align-items-center">
                <li class="nav-item">
-          <a class="nav-link" href="/">Home</a>
+          <a class="nav-link" href="/">Search</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/about/">About</a>
         </li>
+             <a class="navbar-brand  d-none d-lg-block d-md-block" href="/">
+      <img src="/static/img/logo.png" alt="Albany Landlord Report Card" height="100">
+    </a>
         <li class="nav-item">
           <a class="nav-link" href="/faq/">FAQ</a>
         </li>
@@ -57,7 +61,7 @@
   </nav>
 
   <main class="container">
-    <div class="bg-light p-5 rounded">
+    <div class="bg-white p-4 rounded">
       {% block content %}{% endblock %}
     </div>
   </main>
