@@ -1,8 +1,16 @@
 /* Show it's not fixed to the top */
 body {
-  min-height: 75rem;
+  
 }
 
+#google_translate_element {
+    text-align: center;
+}
+.main {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
 .bd-placeholder-img {
   font-size: 1.125rem;
   text-anchor: middle;
@@ -16,11 +24,30 @@ body {
   font-style: normal;
 }
 
+
+.navbar-brand img {
+    max-width: 300px;
+    height: auto;
+  
+}
+.mb-4{
+  margin-bottom: 0;
+}
+.navbar-brand  {
+
+    margin: auto;
+}
+
+.navbar-toggler{
+  margin-right: 1rem;
+}
+
 .navbar li a{
-      color: white;
+      color: black;
     font-weight: 500;
     font-size: 1.3rem;
     letter-spacing: .1rem;
+    font-family: 'Courier', monospace;
   }
 
 
@@ -71,9 +98,7 @@ body {
 }
 
 
-body {
-  padding-top: 150px;
-}
+
 .btn-grey{
     background-color:#D8D8D8;
   color:#FFF;
