@@ -39,7 +39,25 @@ class LandlordSchema(ma.SQLAlchemySchema):
 
 class PropertySchema(ma.Schema):
     class Meta:
-        fields = ("parcel_id", "address", "latitude", "longitude")
+        fields = (
+            "parcel_id", 
+            "address", 
+            "latitude", 
+            "longitude",
+            "id",
+            "property_type",
+            "owner_id",
+            "tenant_complaints",
+            "owner_occupied",
+            "unsafe_unfit_count",
+            "police_incidents_count",
+            "current_use",
+            "business_entity_type",
+            "longitude",
+            "code_violations_count",
+            "owner_occupied",
+            "business_entity_type",
+        )
 
 
 class AliasSchema(ma.Schema):
