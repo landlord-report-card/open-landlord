@@ -1,5 +1,6 @@
-from flask import Flask, render_template, flash, request, redirect
+from flask import Flask, render_template, flash, request, redirect, send_from_directory
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
 from marshmallow import fields
 from models import db, Landlord, Property, Alias
 from forms import LandlordSearchForm
@@ -11,6 +12,7 @@ app = Flask(__name__)
 ma = Marshmallow(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['LANDLORD_DATABASE_URI']
 db.init_app(app)
+CORS(app)
 
 
 # Schema API initializations 
@@ -178,3 +180,4 @@ def get_search_results():
 @app.route('/api/properties/<id>', methods=['GET'])
 def get_property(id):
     return PROPERTY_SCHEMA.jsonify(Property.query.get(id))
+
