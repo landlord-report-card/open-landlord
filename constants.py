@@ -1,3 +1,5 @@
+SEARCH_DEFAULT_MAX_RESULTS = 100
+
 GRADE_COLORS = {
   'A': "2cba00",
   'B': "2cba00",

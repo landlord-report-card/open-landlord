@@ -1,9 +1,10 @@
-from flask import Flask, render_template, flash, request, redirect, send_from_directory
+from flask import Flask, render_template, flash, request, redirect, send_from_directory, jsonify
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from marshmallow import fields
 from models import db, Landlord, Property, Alias
 from forms import LandlordSearchForm
+from constants import SEARCH_DEFAULT_MAX_RESULTS
 import os
 import utils
 
@@ -155,6 +156,18 @@ def get_landlord(id):
     return LANDLORD_SCHEMA.jsonify(Landlord.query.get(id))
 
 
+@app.route('/api/landlords/', methods=['POST'])
+def get_landlords_bulk():
+    response_json = request.get_json()
+    landlord_ids = response_json["ids"] if "ids" in response_json else []
+    landlords = Landlord.query.filter(Landlord.id.in_(landlord_ids)).all()
+    landlord_map = {}
+    for landlord in landlords:
+        landlord_map[landlord.id] = landlord.as_dict()
+
+    return jsonify(landlord_map)
+
+
 @app.route('/api/landlords/<landlord_id>/aliases', methods=['GET'])
 def get_landlord_aliases(landlord_id):
     aliases = Alias.query.filter_by(landlord_id=landlord_id).all()
@@ -163,8 +176,10 @@ def get_landlord_aliases(landlord_id):
 
 @app.route('/api/landlords/<landlord_id>/grades', methods=['GET'])
 def get_landlord_grades(landlord_id):
-    # Not yet implemented
-    return {}
+    landlord = Landlord.query.get(landlord_id).as_dict()
+    stats = utils.get_city_average_stats()
+    grades = utils.add_grade_and_color(landlord, stats)
+    return jsonify(grades)
 
 
 @app.route('/api/landlords/<landlord_id>/properties', methods=['GET'])
@@ -187,13 +202,10 @@ def get_city_stats():
 
 @app.route('/api/search', methods=['GET'])
 def get_search_results():
-    if request.args.get('query'):
-        # TODO: Not currently working properly. Need to deserialize property + landlord name
-        print(utils.perform_search(request.args.get('query')).all())
-        return PROPERTIES_SCHEMA.jsonify(utils.perform_search(request.args.get('query')).all())
-    else:
-        return {"results": utils.get_autocomplete_prompts()}
-
+    max_results = request.args.get('max_results') if request.args.get('max_results') else SEARCH_DEFAULT_MAX_RESULTS
+    search_string = request.args.get('query') if request.args.get('query') else ""
+    return PROPERTIES_SCHEMA.jsonify(utils.perform_search(search_string, max_results).all())
+    
 
 @app.route('/api/properties/<id>', methods=['GET'])
 def get_property(id):

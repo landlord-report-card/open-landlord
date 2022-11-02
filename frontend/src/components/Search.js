@@ -1,25 +1,69 @@
-export default function Search () {
+import {
+  Table,
+  Header,
+  HeaderRow,
+  HeaderCell,
+  Body,
+  Row,
+  Cell,
+} from '@table-library/react-table-library/table';
+import React from "react"
+import axios from "axios"
+
+
+export default function Search() {    
+    const [query, setQuery] = React.useState("") 
+    const [results, setResults] = React.useState([])
+ 
+
+    React.useEffect(() => {
+        axios.get("/api/search?query=" + query).then((response) => {
+          const addressResults = response.data
+          const landlordIds = addressResults.map(a => a.owner_id);
+          axios.post('/api/landlords/', {"ids": landlordIds}).then((response) => {
+              const landlords = response.data
+              const mergedData = addressResults;
+              mergedData.forEach(function (element) {
+                element.landlord = landlords[element.owner_id];
+              });
+              setResults(mergedData)
+          });
+
+      });
+    }, [query]);
+
+    const data = {
+        nodes: results
+    };
+   
     return (
     <div className="main">
     <h1>Find your landlord</h1>
-        <p className="lead">Type in your address or landlord name to find your landlord!</p>
-
-        <form className="d-flex ui-autocomplete-input" role="textbox" method="post" autoComplete="off" aria-autocomplete="list" aria-haspopup="true">
-            <input className="form-control me-2" id="tags" name="search" type="text"/>
-            <button className="btn btn-outline-danger" type="submit">Search</button>
-        </form>
+    <p className="lead">Type in your address or landlord name to find your landlord!</p>
+    <input className="form-control me-2" id="search" type="text" onChange={event => setQuery(event.target.value)} />
     <br />
+    <Table data={data}>
+      {(tableList) => (
+        <>
+            <Header>
+              <HeaderRow>
+                <HeaderCell>Property Address</HeaderCell>
+                <HeaderCell>Owner/Landlord Name</HeaderCell>
+              </HeaderRow>
+            </Header>
 
-    <table className="table">
-      <thead>
-        <tr>
-          <th scope="col">Property Address</th>
-          <th scope="col">Owner/Landlord Name</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
+              <Body>
+                {tableList.map((item) => (
+                  <Row key={item.id} item={item}>
+                    <Cell>{item.address}</Cell>
+                    <Cell><a href={"/landlord/" + item.owner_id}>{item.landlord.name}</a></Cell>
+                  </Row>
+                ))}
+              </Body>
+        </>
+      )}
+    </Table>
     </div>
-    );
+  );
+
 }
