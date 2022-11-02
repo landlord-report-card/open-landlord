@@ -16,14 +16,16 @@ function App() {
 
   return (
     <div>
-      <Navigationbar /> 
-      <Routes>
-        <Route path="/" element={ <Search />}/>
-        <Route path="/about" element={ <About />}/>
-        <Route path="/faq" element={ <Faq />}/>
-        <Route path="/landlord/:id" element={<Landlord />} />
-        <Route path="/property/:id" element={<Property />} />
-      </Routes>
+      <BrowserRouter>
+        <Navigationbar /> 
+        <Routes>
+          <Route path="/" element={ <Search />}/>
+          <Route path="/about" element={ <About />}/>
+          <Route path="/faq" element={ <Faq />}/>
+          <Route path="/landlord/:id" element={<Landlord />} />
+          <Route path="/property/:id" element={<Property />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }

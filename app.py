@@ -179,6 +179,7 @@ def get_landlord_grades(landlord_id):
     landlord = Landlord.query.get(landlord_id).as_dict()
     stats = utils.get_city_average_stats()
     grades = utils.add_grade_and_color(landlord, stats)
+    grades.update(utils.calculate_landlord_score(grades))
     return jsonify(grades)
 
 
