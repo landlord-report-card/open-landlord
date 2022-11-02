@@ -1,7 +1,19 @@
 import { useParams } from 'react-router-dom'
 import axios from "axios"
 import React from "react"
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import { MapContainer, TileLayer, Popup, Marker, useMap } from 'react-leaflet'
 
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 
 
@@ -88,12 +100,44 @@ function GradeDetailColumn(props) {
     )
   }
 
+function MapMarkers(props) {
+    console.log(props.properties);
+    const withoutNullLat = props.properties.filter(v => v.latitude !== null);
+    return (
+      <div>
+        {withoutNullLat.map(({latitude, longitude, id, address, code_violations_count, police_incidents_count, tenant_complaints_count}) => (
+            <Marker position={[
+                latitude, 
+                longitude
+            ]}
+            >
+            <Popup>
+            <p>{address}</p>
+            <p>Code Violations: {code_violations_count}</p>
+            <p>Police Incidents: {police_incidents_count}</p>
+            <p>Tenant Complaints: {tenant_complaints_count}</p>
+            </Popup>
+          </Marker>
+          ))}
+      </div>
+
+    )
+
+}
+
 function MapWidget(props) {
     return (
         <div className="col-sm">
-          <div id="map"></div>
-        </div>
+            <MapContainer center={[42.6526, -73.7762]} zoom={13} scrollWheelZoom={false}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <MapMarkers properties={props.properties}/>
+            </MapContainer>
+      </div>
     )
+ 
   }
 
 
@@ -171,7 +215,7 @@ export default function Landlord () {
         <div className="container font-typewriter">
           <div className="row text-center">
             <PropertyList properties={properties} landlord={landlord} />
-            <MapWidget />
+            <MapWidget properties={properties} />
           </div>
         </div>
         </div>
