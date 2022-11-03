@@ -3,7 +3,6 @@ from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
 from marshmallow import fields
 from models import db, Landlord, Property, Alias
-from forms import LandlordSearchForm
 from constants import SEARCH_DEFAULT_MAX_RESULTS
 import os
 import utils
@@ -74,17 +73,16 @@ PROPERTY_SCHEMA = PropertySchema()
 PROPERTIES_SCHEMA = PropertySchema(many=True)
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    search = LandlordSearchForm(request.form)
-    if request.method == 'POST':
-        return search_results(search)
+@app.route('/')
+def serve():
+    return send_from_directory(app.static_folder, 'index.html')
 
-    return render_template('index.html', form=search, autocomplete_prompts=utils.get_autocomplete_prompts())
+
+@app.errorhandler(404)
+def not_found(e):
+    return app.send_static_file('index.html')
 
 # API Definitions
-def get_ranked_landlords(limit, ranking_criteria):
-    return Landlord.query.order_by(ranking_criteria.desc()).limit(limit).all()
 
 
 @app.route('/api/landlords/top/', methods=['GET'])
@@ -99,17 +97,17 @@ def get_top_landlords():
     if request.args.get('sorting'):
         sort_method = request.args.get('sorting').lower()
         if sort_method == "evictions":
-            landlords = get_ranked_landlords(max_results, Landlord.eviction_count_per_property)
+            landlords = utils.get_ranked_landlords(max_results, Landlord.eviction_count_per_property)
         elif sort_method == "code_violations":
-            landlords = get_ranked_landlords(max_results, Landlord.code_violations_count_per_property)
+            landlords = utils.get_ranked_landlords(max_results, Landlord.code_violations_count_per_property)
         elif sort_method == "complaints":
-            landlords = get_ranked_landlords(max_results, Landlord.tenant_complaints_count_per_property)
+            landlords = utils.get_ranked_landlords(max_results, Landlord.tenant_complaints_count_per_property)
         elif sort_method == "police_calls":
-            landlords = get_ranked_landlords(max_results, Landlord.police_incidents_count_per_property)
+            landlords = utils.get_ranked_landlords(max_results, Landlord.police_incidents_count_per_property)
         else:
-            landlords = get_ranked_landlords(max_results, Landlord.property_count) 
+            landlords = utils.get_ranked_landlords(max_results, Landlord.property_count) 
     else:
-        landlords = get_ranked_landlords(max_results, Landlord.property_count) 
+        landlords = utils.get_ranked_landlords(max_results, Landlord.property_count) 
 
     return LANDLORDS_SCHEMA.jsonify(landlords)
 
@@ -184,3 +182,6 @@ def get_search_results():
 def get_property(id):
     return PROPERTY_SCHEMA.jsonify(Property.query.get(id))
 
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
