@@ -174,21 +174,6 @@ def replace_ordinals(text):
     return text
 
 
-def get_autocomplete_prompts():
-    properties = Property.query.all()
-    landlords = Landlord.query.all()
-
-    autocomplete_prompts = []
-
-    for prop in properties:
-        autocomplete_prompts.append(prop.address)
-
-    for landlord in landlords:
-        autocomplete_prompts.append(landlord.name)
-
-    return autocomplete_prompts
-
-
 def get_address_dict(parsed_address_tuple_list):
     address_dict = {}
     for value, field in parsed_address_tuple_list:
@@ -215,14 +200,17 @@ def get_landlord_filter_criteria(search_string):
     return filter_criteria
 
 
-def perform_search(text):
+def perform_search(text, max_results):
     filter_criteria = get_address_filter_criteria(text) | get_landlord_filter_criteria(text)
 
-    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).add_columns(Landlord.name).order_by(Property.address)
+    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).order_by(Property.address).limit(max_results)
     return results
 
 
 def get_unsafe_unfit_properties(landlord_id):
     return Property.query.filter(Property.owner_id == landlord_id).filter(Property.unsafe_unfit_count > 0).all()
 
+
+def get_ranked_landlords(limit, ranking_criteria):
+    return Landlord.query.order_by(ranking_criteria.desc()).limit(limit).all()
 
