@@ -1,6 +1,6 @@
 
 /* Global */
-
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Schoolbell&display=swap');
 
 
 .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus { 
@@ -259,6 +259,26 @@ h5.warning {
 .leaflet-container {
   width: 100%;
   height: 40vh;
+}
+
+.yellow-grade {
+  color:  #ffa700;
+}
+
+.green-grade {
+  color: #2cba00;
+}
+
+.red-grade {
+  color: #ff0000;
+}
+
+.nav-link { 
+  color: black;
+  font-weight: 500;
+  font-size: 1.3rem;
+  letter-spacing: .1rem;
+  font-family: 'Courier', monospace;
 }
 
 

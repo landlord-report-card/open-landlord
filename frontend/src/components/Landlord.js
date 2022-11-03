@@ -3,6 +3,8 @@ import axios from "axios"
 import React from "react"
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { Accordion } from "react-bootstrap";
+import Alert from 'react-bootstrap/Alert';
 import { MapContainer, TileLayer, Popup, Marker, useMap } from 'react-leaflet'
 
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -15,8 +17,73 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
+const SMALL_LANDLORD = {"sizeDetail": "Small (One property owned)", "gradeClassName": "green-grade"}
+const MEDIUM_LANDLORD = {"sizeDetail": "Medium (Between 1 and 4 properties owned)", "gradeClassName": "yellow-grade"}
+const LARGE_LANDLORD = {"sizeDetail": "Large (Between 5 and 10 properties owned)", "gradeClassName": "red-grade"}
+const XLARGE_LANDLORD = {"sizeDetail": "Very Large (More than 10 properties owned)", "gradeClassName": "red-grade"}
 
 
+function getLandlordSizeInfo(size, feature) {
+    if (size > 10) return XLARGE_LANDLORD[feature];
+    if (size > 4) return LARGE_LANDLORD[feature];
+    if (size > 1) return MEDIUM_LANDLORD[feature];
+    return SMALL_LANDLORD[feature];
+}
+
+function getLandlordSizeClassName(size) {
+    return getLandlordSizeInfo(size, "gradeClassName")
+}
+
+function getLandlordSize(size) {
+    return getLandlordSizeInfo(size, "sizeDetail")
+}
+
+
+function getColorClassName(grade) {
+    const baseGrade = grade.charAt(0)
+    switch(baseGrade) {
+        case "C":
+        case "D":
+            return "yellow-grade";
+        case "F":
+            return "red-grade";
+        default:
+            return "green-grade";
+    } 
+}
+
+
+function UnsafeUnfitProperties(props) {
+    return (
+        <div>
+          {props.unsafeUnfit.map(({address, id}) => (
+            <li className="list-group-item" key={id}><a href={"/property/" + id}>{address}</a></li>
+          ))}
+        </div>
+    )
+}
+
+function UnsafeUnfitWarning(props) {
+    const unsafe_unfit_list = props.unsafeUnfit;
+    if (unsafe_unfit_list.length <= 0) return null;
+    return (
+    <div>
+    <Alert variant="danger">
+    <Accordion>
+      <Accordion.Item eventKey="0">
+        <Accordion.Header><h5 className="warning">Warning about this landlord!</h5></Accordion.Header>
+        <Accordion.Body className="alert-danger">
+          <p>This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
+          <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
+          <strong>Impacted Properties:</strong>
+          <UnsafeUnfitProperties unsafeUnfit={unsafe_unfit_list} />
+        </Accordion.Body>
+      </Accordion.Item>
+    </Accordion>
+    </Alert>
+    </div>
+        )
+}
 function LandlordTitleRow(props) {
     return (
       <div className="row title-row text-center">
@@ -26,7 +93,7 @@ function LandlordTitleRow(props) {
         </div>
         <div className="col-sm">
           <span className="title-label">Grade</span><br />
-          <span className="font-handwritten grade">{props.landlord.grade}</span>
+          <span className={getColorClassName(props.landlord.grade) + " font-handwritten grade"}>{props.landlord.grade}</span>
         </div>        
       </div>
     )
@@ -56,8 +123,8 @@ function LandlordDetailColumn(props) {
         <div className="col-sm landlord-info">
           <span className="landlord-attribute">Address: </span>
           <span className="font-handwritten">{props.landlord.address}</span><br/>
-          <span className="landlord-attribute">Landlord Size:</span> 
-          <span className="font-handwritten">{props.landlord.property_count}</span><br/>
+          <span className="landlord-attribute">Landlord Size: </span> 
+          <span className={getLandlordSizeClassName(props.landlord.property_count) + " font-handwritten"}>{getLandlordSize(props.landlord.property_count)}</span><br/>
           <AliasesBlock aliases={props.aliases}/>
         </div>
     )
@@ -66,19 +133,17 @@ function LandlordDetailColumn(props) {
 
 function GradeDetailWidget(props) {
     return (
-        <div className="accordion-item">
-          <h2 className="accordion-header" id="headingOne">
-            <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-              {props.heading}<span className="font-handwritten grade-value">{props.individual_grade}</span>
-            </button>
-          </h2>
-          <div id="collapseOne" className="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-            <div className="accordion-body">
+        <div>
+        <Accordion>
+          <Accordion.Item eventKey="0">
+            <Accordion.Header>{props.heading}<span className={getColorClassName(props.individual_grade) + " font-handwritten grade-value"}>{props.individual_grade}</span></Accordion.Header>
+            <Accordion.Body>
               <p className="mb-0">{props.heading_total}: {props.total} </p>
-              <p className="mb-0">{props.heading} Per Property: {props.per_property} </p>
-              <p className="mb-0">City Average: {props.city_average} </p>
-            </div>
-          </div>
+              <p className="mb-0">{props.heading} Per Property: {Math.round(props.per_property * 100) / 100} </p>
+              <p className="mb-0">City Average: {Math.round(props.city_average * 100) / 100} </p>
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
         </div>
     )
 }
@@ -101,12 +166,11 @@ function GradeDetailColumn(props) {
   }
 
 function MapMarkers(props) {
-    console.log(props.properties);
     const withoutNullLat = props.properties.filter(v => v.latitude !== null);
     return (
       <div>
         {withoutNullLat.map(({latitude, longitude, id, address, code_violations_count, police_incidents_count, tenant_complaints_count}) => (
-            <Marker position={[
+            <Marker key={id} position={[
                 latitude, 
                 longitude
             ]}
@@ -170,6 +234,7 @@ export default function Landlord () {
     const [aliases, setAliases] = React.useState([])
     const [cityAverageStats, setCityAverageStats] = React.useState({})
     const [properties, setProperties] = React.useState([])
+    const [unsafeUnfit, setUnsafeUnfit] = React.useState([])
 
     React.useEffect(() => {
         axios.get("/api/landlords/" + id + "/grades").then((response) => {
@@ -195,10 +260,17 @@ export default function Landlord () {
         });
       }, []);
 
+    React.useEffect(() => {
+        axios.get("/api/landlords/" + id + "/unsafe_unfit").then((response) => {
+          setUnsafeUnfit(response.data);
+        });
+      }, []);
+
     if (!landlord) return null;
 
     return (
         <div>
+         <UnsafeUnfitWarning unsafeUnfit={unsafeUnfit} />
          <div className="container font-typewriter">
           <div className="card">
             <div className="card-body">
