@@ -274,6 +274,18 @@ h5.warning {
   color: #ff0000;
 }
 
+.transparent-background {
+  background-color: transparent !important;
+}
+/*
+.accordion-collapse {
+  background-color: transparent;
+}*/
+
+/*.accordion-button:not(.collapsed) {
+  background-color: transparent;
+}
+*/
 
 
 

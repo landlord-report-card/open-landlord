@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from "react-router-dom";
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import Container from 'react-bootstrap/Container';
 import Search from './components/Search'
 import About from './components/About'
 import Faq from './components/Faq'
@@ -15,9 +16,10 @@ import './App.css';
 function App() {
 
   return (
-    <div>
+    <>
       <BrowserRouter>
-        <Navigationbar /> 
+        <Navigationbar />
+        <Container>
         <Routes>
           <Route path="/" element={ <Search />}/>
           <Route path="/about" element={ <About />}/>
@@ -25,8 +27,9 @@ function App() {
           <Route path="/landlord/:id" element={<Landlord />} />
           <Route path="/property/:id" element={<Property />} />
         </Routes>
+        </Container>
       </BrowserRouter>
-    </div>
+    </>
   );
 }
 

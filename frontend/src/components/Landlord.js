@@ -76,13 +76,15 @@ function UnsafeUnfitWarning(props) {
     return (
         <Alert variant="danger">
             <Accordion>
-              <Accordion.Item eventKey="0">
+              <Accordion.Item className="bg-color-warning" eventKey="0">
                 <Accordion.Header><h5 className="warning">Warning about this landlord!</h5></Accordion.Header>
-                <Accordion.Body className="alert-danger">
+                <Accordion.Body>
+                  <span className="font-typewriter">
                   <p>This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
                   <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
                   <strong>Impacted Properties:</strong>
                   <UnsafeUnfitProperties unsafeUnfit={unsafe_unfit_list} />
+                  </span>
                 </Accordion.Body>
               </Accordion.Item>
             </Accordion>
