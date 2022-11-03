@@ -18,7 +18,7 @@ function PropertyUnsafeUnfitWarning(props) {
             <Accordion>
               <Accordion.Item className="bg-color-warning" eventKey="0">
                 <Accordion.Header><h5 className="warning">Warning about this property!</h5></Accordion.Header>
-                <Accordion.Body className="alert-danger ">
+                <Accordion.Body className="alert-danger">
                   <span className="font-typewriter">
                   <p>This property has been deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
                   <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
@@ -33,6 +33,7 @@ function PropertyUnsafeUnfitWarning(props) {
 function PropertyInfo(props) {
     return (
         <>
+          <span>Owner: </span> &nbsp;<a href={"/landlord/" + props.property.owner_id}>{props.property.owner.name}</a><br />
           <span>Current Use: </span> &nbsp;{props.property.current_use}<br />
           <span>Business Entity Type: </span>{props.property.business_entity_type}<br />
           <span>Owner Occupied: </span>{props.property.owner_occupied}<br />
@@ -53,9 +54,15 @@ export default function Property () {
 
     React.useEffect(() => {
         axios.get("/api/properties/" + id).then((response) => {
-          setProperty(response.data);
+          const propertyResponse = response.data;
+          axios.get("/api/landlords/" + response.data.owner_id).then((response2) => {
+            propertyResponse["owner"] = response2.data
+            setProperty(propertyResponse);
+          });
         });
       }, []);
+
+    
 
     if (!property) return null;
 
