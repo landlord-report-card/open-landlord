@@ -75,7 +75,7 @@ PROPERTIES_SCHEMA = PropertySchema(many=True)
 
 @app.route('/')
 def serve():
-    return send_from_directory(app.static_folder, 'index.html')
+    return app.send_static_file('index.html')
 
 
 @app.errorhandler(404)
