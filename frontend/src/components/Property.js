@@ -1,6 +1,28 @@
 import { useParams } from 'react-router-dom'
 import axios from "axios"
 import React from "react"
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import { MapWidget } from './Maps';
+
+
+function PropertyInfo(props) {
+    return (
+        <>
+          <span>Current Use: </span> &nbsp;{props.property.current_use}<br />
+          <span>Business Entity Type: </span>{props.property.business_entity_type}<br />
+          <span>Owner Occupied: </span>{props.property.owner_occupied}<br />
+          <span>Parcel ID: </span>{props.property.parcel_id}<br />
+          <span>Property Type: </span>{props.property.property_type}<br />
+          <span>Tenant Complaints: </span>{props.property.tenant_complaints}<br />
+          <span>Code Violations Count: </span>{props.property.code_violations_count}<br />
+          <span>Police Incidents Count: </span>{props.property.police_incidents_count}<br />
+        </>
+    )
+  }
+
 
 export default function Property () {
     let { id } = useParams();
@@ -16,36 +38,28 @@ export default function Property () {
     if (!property) return null;
 
     return (
-        <div className="main">
-          <div className="container font-typewriter">
-            <div className="row">
-              <div className="col-sm">
-                <div className="card" id="property-card">
-                  <div className="card-body">
-                    <div className="row title-row text-center">
-                      <div className="col-sm">
+          <Container className="container font-typewriter">
+            <Row>
+              <Col sm>
+                <Card id="property-card">
+                  <Card.Body>
+                    <Row className="title-row text-center">
+                      <Col sm>
                         <span className="property-label">Property Address</span><br />
                         <span className="property-address font-handwritten">{property.address}</span>
-                      </div>
+                      </Col>
+                    </Row>
+                    <div className="card-lines property-info">
+                      <PropertyInfo property={property}/>
                     </div>
-                    <div className="card-lines">
-                      <div className="property-info">
-                      <span>Current Use: </span> &nbsp;{property.current_use}<br />
-                      <span>Business Entity Type: </span>{property.business_entity_type}<br />
-                      <span>Owner Occupied: </span>{property.owner_occupied}<br />
-                      <span>Parcel ID: </span>{property.parcel_id}<br />
-                      <span>Property Type: </span>{property.property_type}<br />
-                      <span>Tenant Complaints: </span>{property.tenant_complaints}<br />
-                      <span>Code Violations Count: </span>{property.code_violations_count}<br />
-                      <span>Police Incidents Count: </span>{property.police_incidents_count}<br />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col sm>
+                 <MapWidget properties={[property]} />
+              </Col>
+            </Row>
+          </Container>
     );
 }
 

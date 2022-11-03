@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const Navigationbar = () => {
 	return (
 	<Container>
-	    <a class="navbar-brand d-lg-none d-md-none " href="/">
+	    <a className="navbar-brand d-lg-none d-md-none " href="/">
 	    	<img src="/static/img/logo.png" alt="Albany Landlord Report Card" height="100" />
 	  	</a>
 	    <Navbar bg="bg-white" expand="lg">

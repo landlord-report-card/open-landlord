@@ -5,7 +5,14 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Accordion } from "react-bootstrap";
 import Alert from 'react-bootstrap/Alert';
-import { MapContainer, TileLayer, Popup, Marker, useMap } from 'react-leaflet'
+import Card from 'react-bootstrap/Card';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import { MapWidget } from './Maps';
+
+
+
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -17,16 +24,16 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const SMALL_LANDLORD = {"sizeDetail": "Small (One property owned)", "gradeClassName": "green-grade"}
-const MEDIUM_LANDLORD = {"sizeDetail": "Medium (Between 1 and 4 properties owned)", "gradeClassName": "yellow-grade"}
-const LARGE_LANDLORD = {"sizeDetail": "Large (Between 5 and 10 properties owned)", "gradeClassName": "red-grade"}
-const XLARGE_LANDLORD = {"sizeDetail": "Very Large (More than 10 properties owned)", "gradeClassName": "red-grade"}
+const SMALL_LANDLORD = {"maxSize": 1, "sizeDetail": "Small (One property owned)", "gradeClassName": "green-grade"}
+const MEDIUM_LANDLORD = {"maxSize": 4, "sizeDetail": "Medium (Between 1 and 4 properties owned)", "gradeClassName": "yellow-grade"}
+const LARGE_LANDLORD = {"maxSize": 10, "sizeDetail": "Large (Between 5 and 10 properties owned)", "gradeClassName": "red-grade"}
+const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 10 properties owned)", "gradeClassName": "red-grade"}
 
 
 function getLandlordSizeInfo(size, feature) {
-    if (size > 10) return XLARGE_LANDLORD[feature];
-    if (size > 4) return LARGE_LANDLORD[feature];
-    if (size > 1) return MEDIUM_LANDLORD[feature];
+    if (size > LARGE_LANDLORD["maxSize"]) return XLARGE_LANDLORD[feature];
+    if (size > MEDIUM_LANDLORD["maxSize"]) return LARGE_LANDLORD[feature];
+    if (size > SMALL_LANDLORD["maxSize"]) return MEDIUM_LANDLORD[feature];
     return SMALL_LANDLORD[feature];
 }
 
@@ -55,11 +62,11 @@ function getColorClassName(grade) {
 
 function UnsafeUnfitProperties(props) {
     return (
-        <div>
+        <>
           {props.unsafeUnfit.map(({address, id}) => (
             <li className="list-group-item" key={id}><a href={"/property/" + id}>{address}</a></li>
           ))}
-        </div>
+        </>
     )
 }
 
@@ -67,35 +74,35 @@ function UnsafeUnfitWarning(props) {
     const unsafe_unfit_list = props.unsafeUnfit;
     if (unsafe_unfit_list.length <= 0) return null;
     return (
-    <div>
-    <Alert variant="danger">
-    <Accordion>
-      <Accordion.Item eventKey="0">
-        <Accordion.Header><h5 className="warning">Warning about this landlord!</h5></Accordion.Header>
-        <Accordion.Body className="alert-danger">
-          <p>This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
-          <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
-          <strong>Impacted Properties:</strong>
-          <UnsafeUnfitProperties unsafeUnfit={unsafe_unfit_list} />
-        </Accordion.Body>
-      </Accordion.Item>
-    </Accordion>
-    </Alert>
-    </div>
+        <Alert variant="danger">
+            <Accordion>
+              <Accordion.Item eventKey="0">
+                <Accordion.Header><h5 className="warning">Warning about this landlord!</h5></Accordion.Header>
+                <Accordion.Body className="alert-danger">
+                  <p>This landlord has had one or more properties deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
+                  <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
+                  <strong>Impacted Properties:</strong>
+                  <UnsafeUnfitProperties unsafeUnfit={unsafe_unfit_list} />
+                </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
+        </Alert>
         )
 }
+
+
 function LandlordTitleRow(props) {
     return (
-      <div className="row title-row text-center">
-        <div className="col-sm-7">
+      <Row className="title-row text-center">
+        <Col sm={7}>
           <span className="title-label">Landlord</span><br />
           <span className="landlord-name font-handwritten">{props.landlord.name}</span>
-        </div>
-        <div className="col-sm">
+        </Col>
+        <Col sm>
           <span className="title-label">Grade</span><br />
           <span className={getColorClassName(props.landlord.grade) + " font-handwritten grade"}>{props.landlord.grade}</span>
-        </div>        
-      </div>
+        </Col>        
+      </Row>
     )
   }
 
@@ -108,32 +115,29 @@ function AliasesBlock(props) {
     const commaSep = props.aliases.map(item => item.name).join(', ');
 
     return (
-        <div>
-        <span className="landlord-attribute">Also Known As: </span> 
-          <span className="font-handwritten">
-            {commaSep}
-          </span>
-        </div>
-        )
+        <>
+            <span className="landlord-attribute">Also Known As: </span> 
+            <span className="font-handwritten">{commaSep}</span>
+        </>
+    )
 
 }
 
 function LandlordDetailColumn(props) {
     return (
-        <div className="col-sm landlord-info">
+        <Col sm className="landlord-info">
           <span className="landlord-attribute">Address: </span>
           <span className="font-handwritten">{props.landlord.address}</span><br/>
           <span className="landlord-attribute">Landlord Size: </span> 
           <span className={getLandlordSizeClassName(props.landlord.property_count) + " font-handwritten"}>{getLandlordSize(props.landlord.property_count)}</span><br/>
           <AliasesBlock aliases={props.aliases}/>
-        </div>
+        </Col>
     )
   }
 
 
 function GradeDetailWidget(props) {
     return (
-        <div>
         <Accordion>
           <Accordion.Item eventKey="0">
             <Accordion.Header>{props.heading}<span className={getColorClassName(props.individual_grade) + " font-handwritten grade-value"}>{props.individual_grade}</span></Accordion.Header>
@@ -144,14 +148,12 @@ function GradeDetailWidget(props) {
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
-        </div>
     )
 }
 
 function GradeDetailColumn(props) {
     return (
-        <div className="col-sm-5 landlord-grades">
-            <div className="accordion" id="accordionExample">
+        <Col sm={5} className="landlord-grades">
             <GradeDetailWidget heading="Tenant Complaints" heading_total="Total Tenant Complaints" individual_grade={props.landlord.tenant_complaints_count_grade}
             total={props.landlord.tenant_complaints_count} per_property={props.landlord.tenant_complaints_count_per_property} city_average={props.city_average_stats.average_tenant_complaints_count} />
             <GradeDetailWidget heading="Code Violations" heading_total="Total Code Violations" individual_grade={props.landlord.code_violations_count_grade}
@@ -160,70 +162,30 @@ function GradeDetailColumn(props) {
             total={props.landlord.police_incidents_count} per_property={props.landlord.police_incidents_count_per_property} city_average={props.city_average_stats.average_police_incidents_count} />
             <GradeDetailWidget heading="Eviction Filings" heading_total="Total Eviction Filings in Q3 2022" individual_grade={props.landlord.eviction_count_grade}
             total={props.landlord.eviction_count} per_property={props.landlord.eviction_count_per_property} city_average={props.city_average_stats.average_eviction_count} />
-            </div>
-        </div>
+        </Col>
     )
-  }
-
-function MapMarkers(props) {
-    const withoutNullLat = props.properties.filter(v => v.latitude !== null);
-    return (
-      <div>
-        {withoutNullLat.map(({latitude, longitude, id, address, code_violations_count, police_incidents_count, tenant_complaints_count}) => (
-            <Marker key={id} position={[
-                latitude, 
-                longitude
-            ]}
-            >
-            <Popup>
-            <p>{address}</p>
-            <p>Code Violations: {code_violations_count}</p>
-            <p>Police Incidents: {police_incidents_count}</p>
-            <p>Tenant Complaints: {tenant_complaints_count}</p>
-            </Popup>
-          </Marker>
-          ))}
-      </div>
-
-    )
-
-}
-
-function MapWidget(props) {
-    return (
-        <div className="col-sm">
-            <MapContainer center={[42.6526, -73.7762]} zoom={13} scrollWheelZoom={false}>
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <MapMarkers properties={props.properties}/>
-            </MapContainer>
-      </div>
-    )
- 
   }
 
 
 function PropertiesList(props) {
     return (
-        <div>
+        <>
           {props.properties.map(({address, id}) => (
             <li className="list-group-item" key={id}><a href={"/property/" + id}>{address}</a></li>
           ))}
-        </div>
+        </>
     )
 }
 
 
 function PropertyList(props) {
     return (
-        <div className="col-sm">
+        <Col sm>
           <h5>Properties Owned By or Associated with {props.landlord.name}:</h5>
           <ul className="list-group">
           <PropertiesList properties={props.properties} />
           </ul>
-        </div>
+        </Col>
     )
   }
 
@@ -269,27 +231,29 @@ export default function Landlord () {
     if (!landlord) return null;
 
     return (
-        <div>
-         <UnsafeUnfitWarning unsafeUnfit={unsafeUnfit} />
-         <div className="container font-typewriter">
-          <div className="card">
-            <div className="card-body">
-              <LandlordTitleRow landlord={landlord} />
-              <div className="row card-lines">
-              <LandlordDetailColumn landlord={landlord} aliases={aliases}/>
-              <GradeDetailColumn landlord={landlord} city_average_stats={cityAverageStats}/>
-              </div>
-              </div>
-            </div>
-         </div>
-         <br/>
+        <>
+             <UnsafeUnfitWarning unsafeUnfit={unsafeUnfit} />
+             <Container className="container font-typewriter">
+              <Card className="card">
+                <Card.Body className="card-body">
+                  <LandlordTitleRow landlord={landlord} />
+                  <span className="row card-lines">
+                      <LandlordDetailColumn landlord={landlord} aliases={aliases}/>
+                      <GradeDetailColumn landlord={landlord} city_average_stats={cityAverageStats}/>
+                  </span>
+                </Card.Body>
+              </Card>
+             </Container>
+             <br/>
 
-        <div className="container font-typewriter">
-          <div className="row text-center">
-            <PropertyList properties={properties} landlord={landlord} />
-            <MapWidget properties={properties} />
-          </div>
-        </div>
-        </div>
+            <Container className="container font-typewriter">
+              <Row className="row text-center">
+                <PropertyList properties={properties} landlord={landlord} />
+                <Col sm>
+                    <MapWidget properties={properties} />
+                </Col>
+              </Row>
+            </Container>
+        </>
     );
 }

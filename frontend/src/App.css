@@ -51,7 +51,7 @@
   margin-right: 1rem;
 }
 
-.navbar li a{
+.nav-link { 
   color: black;
   font-weight: 500;
   font-size: 1.3rem;
@@ -243,6 +243,7 @@ h5.warning {
 #property-card .card-lines{
   min-height: 21rem;
 }
+
 #property-card span{
   font-family: 'Courier', monospace;
 }
@@ -273,13 +274,7 @@ h5.warning {
   color: #ff0000;
 }
 
-.nav-link { 
-  color: black;
-  font-weight: 500;
-  font-size: 1.3rem;
-  letter-spacing: .1rem;
-  font-family: 'Courier', monospace;
-}
+
 
 
 
