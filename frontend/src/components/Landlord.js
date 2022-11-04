@@ -203,6 +203,7 @@ export default function Landlord () {
     React.useEffect(() => {
         axios.get("/api/landlords/" + id + "/grades").then((response) => {
           setLandlord(response.data);
+          document.title = response.data.name;
         });
       }, []);
 

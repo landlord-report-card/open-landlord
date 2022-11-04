@@ -7,11 +7,16 @@ import {
   Row,
   Cell,
 } from '@table-library/react-table-library/table';
-import React from "react"
+import React from 'react';
 import axios from "axios"
 
 
-export default function Search() {    
+
+export default function Search() {
+    React.useEffect(() => {
+        document.title = 'Albany Landlord Report Card';
+    });
+
     const [query, setQuery] = React.useState("") 
     const [results, setResults] = React.useState([])
  

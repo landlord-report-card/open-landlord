@@ -1,4 +1,10 @@
+import React from 'react';
+
+
 export default function Faq () {
+    React.useEffect(() => {
+        document.title = "FAQ";
+    }, []);
     return (
     <div class="main">
         <h2>Frequently Asked Questions</h2>
