@@ -1,4 +1,10 @@
+import React from 'react';
+
+
 export default function About () {
+    React.useEffect(() => {
+        document.title = "About";
+    }, []);
     return (
         <div className="main">
 

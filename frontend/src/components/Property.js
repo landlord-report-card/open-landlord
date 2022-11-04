@@ -55,6 +55,7 @@ export default function Property () {
     React.useEffect(() => {
         axios.get("/api/properties/" + id).then((response) => {
           const propertyResponse = response.data;
+          document.title = propertyResponse.address;
           axios.get("/api/landlords/" + response.data.owner_id).then((response2) => {
             propertyResponse["owner"] = response2.data
             setProperty(propertyResponse);
@@ -62,9 +63,9 @@ export default function Property () {
         });
       }, []);
 
-    
 
     if (!property) return null;
+
 
     return (
         <>
