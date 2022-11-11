@@ -231,7 +231,6 @@ def sort_landlords_by_grade(sort_direction, page_number, page_size):
         landlord_list.append(landlord)
 
     reverse = False if sort_direction == "asc" else True
-
     landlord_list.sort(key=lambda x: x["grade"], reverse=reverse)
 
     first_result = (page_number-1) * page_size
@@ -258,4 +257,3 @@ def get_ranked_landlords(sort_by, sort_direction, page_number, page_size):
         landlord_list.append(landlord)
 
     return PaginatedResults(landlord_list, results.total)
-
