@@ -6,6 +6,7 @@ from models import db, Landlord, Property, Alias
 from constants import SEARCH_DEFAULT_MAX_RESULTS
 import os
 import utils
+import constants
 
 
 app = Flask(__name__,static_folder='frontend/build',static_url_path='')
@@ -88,28 +89,14 @@ def not_found(e):
 @app.route('/api/landlords/top/', methods=['GET'])
 @cross_origin()
 def get_top_landlords():
-    max_results = 50
-    if request.args.get('max_results'):
-        max_results = request.args.get('max_results')
+    pageSize = int(request.args.get('pageSize')) if request.args.get('pageSize') else constants.DEFAULT_PAGE_SIZE
+    pageNumber = int(request.args.get('pageNumber')) if request.args.get('pageNumber') else constants.DEFAULT_PAGE_NUMBER
+    sortBy = request.args.get('sortBy').lower() if request.args.get('sortBy') else constants.DEFAULT_SORT_BY
+    sortDirection = request.args.get('sortDirection') if request.args.get('sortDirection') else constants.DEFAULT_SORT_DIRECTION
 
-    landlords = []
+    landlords_paginated = utils.get_ranked_landlords(sortBy, sortDirection, pageNumber, pageSize)
 
-    if request.args.get('sorting'):
-        sort_method = request.args.get('sorting').lower()
-        if sort_method == "evictions":
-            landlords = utils.get_ranked_landlords(max_results, Landlord.eviction_count_per_property)
-        elif sort_method == "code_violations":
-            landlords = utils.get_ranked_landlords(max_results, Landlord.code_violations_count_per_property)
-        elif sort_method == "complaints":
-            landlords = utils.get_ranked_landlords(max_results, Landlord.tenant_complaints_count_per_property)
-        elif sort_method == "police_calls":
-            landlords = utils.get_ranked_landlords(max_results, Landlord.police_incidents_count_per_property)
-        else:
-            landlords = utils.get_ranked_landlords(max_results, Landlord.property_count) 
-    else:
-        landlords = utils.get_ranked_landlords(max_results, Landlord.property_count) 
-
-    return LANDLORDS_SCHEMA.jsonify(landlords)
+    return jsonify({"total_results": landlords_paginated.total, "landlords": landlords_paginated.items})
 
 
 @app.route('/api/landlords/<id>', methods=['GET'])

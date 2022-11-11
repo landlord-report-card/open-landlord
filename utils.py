@@ -10,6 +10,12 @@ import math
 import utils
 
 
+class PaginatedResults:
+    def __init__(self, items, total):
+        self.items = items
+        self.total = total
+
+
 def get_landlord(landlord_id):
     return Landlord.query.filter_by(id=landlord_id).first()
 
@@ -211,6 +217,44 @@ def get_unsafe_unfit_properties(landlord_id):
     return Property.query.filter(Property.owner_id == landlord_id).filter(Property.unsafe_unfit_count > 0).all()
 
 
-def get_ranked_landlords(limit, ranking_criteria):
-    return Landlord.query.order_by(ranking_criteria.desc()).limit(limit).all()
+def sort_landlords_by_grade(sort_direction, page_number, page_size):
+    landlord_list = []
+    landlord_objects = Landlord.query.all()
+    city_stats = utils.get_city_average_stats()
 
+    for landlord in landlord_objects:
+        landlord = landlord.as_dict()
+        grades = utils.add_grade_and_color(landlord, city_stats)
+        grades.update(utils.calculate_landlord_score(grades))
+
+        landlord["grade"] = grades["grade"]
+        landlord_list.append(landlord)
+
+    reverse = False if sort_direction == "asc" else True
+
+    landlord_list.sort(key=lambda x: x["grade"], reverse=reverse)
+
+    first_result = (page_number-1) * page_size
+    return PaginatedResults(landlord_list[first_result:first_result + page_size], len(landlord_list))
+
+
+def get_ranked_landlords(sort_by, sort_direction, page_number, page_size):
+    if sort_by == "grade":
+        return sort_landlords_by_grade(sort_direction, page_number, page_size)
+
+    ranking_criteria = getattr(Landlord, sort_by)
+    if sort_direction == "asc":
+        results = Landlord.query.order_by(ranking_criteria.asc()).paginate(page_number, page_size)
+    else:
+        results = Landlord.query.order_by(ranking_criteria.desc()).paginate(page_number, page_size)
+    landlord_list = []
+    city_stats = utils.get_city_average_stats()
+    for landlord in results.items:
+        landlord = landlord.as_dict()
+        grades = utils.add_grade_and_color(landlord, city_stats)
+        grades.update(utils.calculate_landlord_score(grades))
+
+        landlord["grade"] = grades["grade"]
+        landlord_list.append(landlord)
+
+    return PaginatedResults(landlord_list, results.total)

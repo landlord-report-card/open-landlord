@@ -172,17 +172,15 @@ def populate_evictions(filename):
             reader = csv.DictReader(csvfile, delimiter ='\t')
             for row in reader:
                 # Try matching on Landlord Name first, then Building Blocks Entity Name, then Group ID
-                filter_criteria = Landlord.name.ilike(row["Landlord Name"]) | Landlord.name.ilike(row["Building Blocks Entity Name"])
-                landlord = Landlord.query.filter(filter_criteria).first()
-                if landlord is None:
-                    filter_criteria_1 = Landlord.name.ilike(row["Landlord Name"]) | Landlord.name.ilike(row["Building Blocks Entity Name"])
-                    landlord1 = Landlord.query.filter(filter_criteria_1).first()
-                    if landlord1 is not None:
-                        group_id = landlord1.group_id
-                        landlord = Landlord.query.filter(Landlord.group_id == group_id).first()
-                if landlord is None:
+                filter_criteria = Alias.name.ilike(row["Landlord Name"]) | Alias.name.ilike(row["Building Blocks Entity Name"])
+                alias = Alias.query.filter(filter_criteria).first()
+                if alias is None:
                     print("Unable to find Landlord {}".format(row["Landlord Name"]))
                     continue
+                else:
+                    landlord = Landlord.query.filter_by(id=alias.landlord_id).first()
+
+
                 landlord.eviction_count = row["# of new filings, Q3"]
 
         db.session.commit()
