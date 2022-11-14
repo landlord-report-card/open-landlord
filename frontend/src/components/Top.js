@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from "react"
+import React, {useEffect, useMemo} from "react"
 import { useTable, usePagination, useSortBy } from "react-table"
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 import axios from 'axios'
@@ -6,7 +6,6 @@ import SortIcon from 'mdi-react/SortIcon'
 import SortAscendingIcon from 'mdi-react/SortAscendingIcon'
 import SortDescendingIcon from 'mdi-react/SortDescendingIcon'
 import ReactTablePagination from './ReactTablePagination'
-import { Link } from 'react-router-dom'
 
 
 const queryClient = new QueryClient()
