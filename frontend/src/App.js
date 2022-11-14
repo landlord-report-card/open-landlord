@@ -7,7 +7,6 @@ import Top from './components/Top'
 import Landlord from './components/Landlord'
 import Property from './components/Property'
 import Navigationbar from './components/Navigationbar';
-import Top from './components/Top'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 

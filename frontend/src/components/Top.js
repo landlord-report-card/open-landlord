@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from "react"
+import React, {useEffect, useMemo} from "react"
 import { useTable, usePagination, useSortBy } from "react-table"
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 import axios from 'axios'
@@ -6,7 +6,6 @@ import SortIcon from 'mdi-react/SortIcon'
 import SortAscendingIcon from 'mdi-react/SortAscendingIcon'
 import SortDescendingIcon from 'mdi-react/SortDescendingIcon'
 import ReactTablePagination from './ReactTablePagination'
-import { Link } from 'react-router-dom'
 
 
 const queryClient = new QueryClient()
@@ -15,14 +14,12 @@ const initialState = {
     queryPageIndex: 0,
     queryPageSize: 10,
     totalCount: 0,
-    queryPageFilter:"",
-    queryPageSortBy: [],
+    queryPageSortBy: [{id: 'eviction_count', desc: true}],
 };
 
 const PAGE_CHANGED = 'PAGE_CHANGED'
 const PAGE_SIZE_CHANGED = 'PAGE_SIZE_CHANGED'
 const PAGE_SORT_CHANGED = 'PAGE_SORT_CHANGED'
-const PAGE_FILTER_CHANGED = 'PAGE_FILTER_CHANGED'
 const TOTAL_COUNT_CHANGED = 'TOTAL_COUNT_CHANGED'
 
 const reducer = (state, { type, payload }) => {
@@ -42,11 +39,6 @@ const reducer = (state, { type, payload }) => {
             ...state,
             queryPageSortBy: payload,
         };
-    case PAGE_FILTER_CHANGED:
-        return {
-            ...state,
-            queryPageFilter: payload,
-        };
     case TOTAL_COUNT_CHANGED:
         return {
             ...state,
@@ -58,54 +50,12 @@ const reducer = (state, { type, payload }) => {
 };
 
 
-const UsersFilter = ({onClickFilterCallback, defaultKeyword}) => {
-    const [keyword, setKeyword] = React.useState(defaultKeyword)
-    const onKeywordChange = ( e ) => {
-        setKeyword( e.target.value )
-    }
-    const onClickSearch = () => {
-        onClickFilterCallback(keyword)
-    }
-    return (
-        <div className="form__form-group">
-            {/* <div className="col-md-4 px-0">
-                <Select
-                    value={status}
-                    onChange={onStatusChange}
-                    options={statusOptions}
-                    clearable={false}
-                    className="react-select"
-                    placeholder={statusPlaceholder}
-                    classNamePrefix="react-select"
-                />
-            </div> */}
-            <div className="col-md-4">
-                <div className="">
-                    <input 
-                        value={keyword}
-                        onChange={onKeywordChange}
-                        type="text"
-                        placeholder="Search users"
-                    />
-                </div>
-            </div>
-            <div className="col-md-4 d-flex align-items-center max-height-32px pl-1">
-                <span className="text-blue pointer" onClick={onClickSearch}>Search</span>
-            </div>
-        </div>
-    )
-}
-
-
-const fetchUsersData = async (page, pageSize, pageFilter, pageSortBy) => {
+const fetchLandlordData = async (page, pageSize, pageSortBy) => {
     let paramStr = ''
-    if( pageFilter.trim().length > 1 ) {
-        paramStr = `&keyword=${pageFilter}`
-    }
     if( pageSortBy.length > 0 ) {
         const sortParams = pageSortBy[0];
-        const sortyByDir = sortParams.desc ? 'desc' : 'asc'
-        paramStr = `${paramStr}&sortBy=${sortParams.id}&sortDirection=${sortyByDir}`
+        const sortByDir = sortParams.desc ? 'desc' : 'asc'
+        paramStr = `${paramStr}&sortBy=${sortParams.id}&sortDirection=${sortByDir}`
     }
     try {
         const response = await axios.get(
@@ -140,26 +90,32 @@ export const USERS_COLUMNS = [
     {
         Header: "Tenant Complaints",
         accessor: "tenant_complaints_count",
+        sortDescFirst: true,
     },
     {
         Header: "Property Count",
-        accessor: "property_count"
+        accessor: "property_count",
+        sortDescFirst: true
     },
     {
         Header: "Code Violations Count",
-        accessor: "code_violations_count"
+        accessor: "code_violations_count",
+        sortDescFirst: true
     },
     {
         Header: "Police Incidents Count",
-        accessor: "police_incidents_count"
+        accessor: "police_incidents_count",
+        sortDescFirst: true
     },
     {
         Header: "Eviction Count",
-        accessor: "eviction_count"
+        accessor: "eviction_count",
+        sortDescFirst: true
     },    
     {
         Header: "Grade",
-        accessor: "grade"
+        accessor: "grade",
+        sortDescFirst: true
     },    
 ]
 
@@ -179,29 +135,14 @@ const Sorting = ({ column }) => (
 
 
 const DataTable = () => {
-    const [keyword, setKeyword] = useState('');
-    const [useFilter, setUseFilter] = useState(false);
-    const onClickFilterCallback = ( filter ) => {
-        if(filter.trim() === "") {
-            alert('Please enter a keyword to search!')
-            return
-        }
-        if(filter === keyword)   {
-            alert('No change in search')
-            return
-        }
-        setUseFilter(true)
-        setKeyword(filter)
-    }
-
     let columns = useMemo( () => USERS_COLUMNS, [])
 
-    const [{ queryPageIndex, queryPageSize, totalCount, queryPageFilter, queryPageSortBy }, dispatch] =
+    const [{ queryPageIndex, queryPageSize, totalCount, queryPageSortBy }, dispatch] =
     React.useReducer(reducer, initialState);
 
     const { isLoading, error, data, isSuccess } = useQuery(
-        ['users', queryPageIndex, queryPageSize, queryPageFilter, queryPageSortBy],
-        () => fetchUsersData(queryPageIndex, queryPageSize, queryPageFilter, queryPageSortBy),
+        ['users', queryPageIndex, queryPageSize, queryPageSortBy],
+        () => fetchLandlordData(queryPageIndex, queryPageSize, queryPageSortBy),
         {
             keepPreviousData: false,
             staleTime: Infinity,
@@ -239,7 +180,8 @@ const DataTable = () => {
         pageCount: data ? totalPageCount : null,
         autoResetSortBy: false,
         autoResetExpanded: false,
-        autoResetPage: false
+        autoResetPage: false,
+        disableSortRemove: true,
     },
     useSortBy,
     usePagination,
@@ -259,13 +201,6 @@ const DataTable = () => {
         dispatch({ type: PAGE_SORT_CHANGED, payload: sortBy });
         gotoPage(0);
     }, [sortBy, gotoPage]);
-
-    useEffect(() => {
-        if ( useFilter ) {
-            dispatch({ type: PAGE_FILTER_CHANGED, payload: keyword });
-            gotoPage(0);
-        }
-    }, [keyword, gotoPage, useFilter]);
 
     useEffect(() => {
         if (data?.count) {
