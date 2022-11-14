@@ -203,7 +203,6 @@ const DataTable = () => {
         gotoPage(0);
     }, [sortBy, gotoPage]);
 
-
     useEffect(() => {
         if (data?.count) {
             dispatch({

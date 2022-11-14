@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Popup, Marker, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Popup, Marker } from 'react-leaflet'
 
 
 function MapMarkers(props) {
