@@ -21,3 +21,7 @@ If you'd like to develop or contribute changes, the first step is likely to get 
 4. Type "flask run" into your terminal. This should launch the app.
 
 5. Access the app in your browser at http://localhost:5000/
+
+## Building and Deploying.
+The app gets deployed to Heroku on the main branch. Currently, built files get checked in, which is probably broken. Run "npm run build" from the 
+"frontend" directory, then commit these files to the repo.
