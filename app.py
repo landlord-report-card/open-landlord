@@ -79,9 +79,52 @@ def serve():
     return app.send_static_file('index.html')
 
 
+
+@app.route('/results')
+def search_results(search):
+    results = utils.perform_search(search.data['search'])
+    return render_template('index.html', results=results, form=search, autocomplete_prompts=utils.get_autocomplete_prompts())
+
+
+@app.route('/landlord/<id>')
+def landlord(id):
+    properties_list = utils.get_all_properties_dict(id)
+    aliases = utils.get_all_aliases(id)
+    landlord = utils.get_enriched_landlord(id, properties_list)
+    city_average_stats = utils.get_city_average_stats()
+    landlord_stats = utils.get_landlord_stats(id, properties_list, city_average_stats)
+    landlord_score = utils.calculate_landlord_score(landlord_stats)
+    unsafe_unfit_list = utils.get_unsafe_unfit_properties(id)
+
+    return render_template('landlord.html', landlord=landlord, properties=properties_list, landlord_stats=landlord_stats, 
+        city_average_stats=city_average_stats, landlord_score=landlord_score, aliases=aliases, unsafe_unfit_list=unsafe_unfit_list)
+
+
+@app.route('/property/<id>')
+def property(id):
+    property = Property.query.filter_by(id=id).first()
+    landlord = Landlord.query.filter_by(id=property.owner_id).first()
+    return render_template('property.html', property=property.as_dict(), landlord=landlord.as_dict())
+
+
+@app.route('/faq/')
+def faq():
+    return render_template('faq.html')
+
+@app.route('/action/')
+def action():
+    return render_template('action.html')
+
+
+@app.route('/about/')
+def about():
+    return render_template('about.html')
+
+
 @app.errorhandler(404)
 def not_found(e):
     return app.send_static_file('index.html')
+
 
 # API Definitions
 
