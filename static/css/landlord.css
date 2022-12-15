@@ -258,8 +258,53 @@ h5.warning {
 
 
 
+/* Action Page */
 
 
+#action-page .accordion-button{
+
+  padding:var(--bs-accordion-btn-padding-y) var(--bs-accordion-btn-padding-x);
+}
+#action-page .accordion-body {
+  font-weight: 400;
+  font-family: "Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+}
 
 
+#action-page .accordion-button::after{
+  margin-left: auto;
+}
+
+
+#action-page .accordion-button {
+  --bs-accordion-bg: transparent;
+  border: 1px solid rgba(0,0,0,.125);
+}
+#action-page .col-8 {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.accordion-body {
+  font-weight: 100;
+  font-family: 'Schoolbell';
+}
+
+.accordion-button::after{
+  margin: 0;
+}
+
+.accordion {
+  --bs-accordion-bg: transparent;
+  --bs-accordion-border-color: none
+}
+
+.accordion-collapse {
+  background-color: white;
+}
+
+.accordion-button {
+  padding: 0;
+}
 

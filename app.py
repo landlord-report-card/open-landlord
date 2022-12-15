@@ -69,6 +69,10 @@ def property(id):
 def faq():
     return render_template('faq.html')
 
+@app.route('/action/')
+def action():
+    return render_template('action.html')
+
 
 @app.route('/about/')
 def about():
