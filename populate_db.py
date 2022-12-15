@@ -1,8 +1,9 @@
 import sys
 import csv
 import argparse
-from models import db, Landlord, Property
-from address import AddressParser, Address
+import uuid
+import json
+from models import db, Landlord, Property, Alias
 from app import app
 from sqlalchemy import types
 
@@ -12,23 +13,157 @@ CODE_VIOLATIONS_ROP_COUNT_COLUMN = "Code Violations - Count - ROP - In the last 
 
 
 COLUMN_LIST = [
-    {"csv_column": "Parcel ID", "db_column": "parcel_id", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": "Tenant Complaint - Count by Source - In the last 12 months", "db_column": "tenant_complaints", "column_type":types.Integer, "is_owner_col": False},
-    {"csv_column": "Owner_1", "db_column": "name", "column_type":types.String, "is_owner_col": True},
-    {"csv_column": "Zip Code", "db_column": "zip_code", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": "Public Owner", "db_column": "public_owner", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": "Address", "db_column": "address", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": CODE_VIOLATIONS_TOTAL_COUNT_COLUMN, "db_column": "code_violations_count", "column_type":types.Integer, "is_owner_col": False},
-    {"csv_column": "Owner Occupied", "db_column": "owner_occupied", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": "OwnAddr_1", "db_column": "address", "column_type":types.String, "is_owner_col": True},
-    {"csv_column": "Is Business", "db_column": "is_business", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": "Business Entity Type", "db_column": "business_entity_type", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": "Owner Property Count", "db_column": "property_count", "column_type":types.Integer, "is_owner_col": True},
-    {"csv_column": "Owner Location", "db_column": "location", "column_type":types.String, "is_owner_col": True},
-    {"csv_column": "Current Use", "db_column": "current_use", "column_type":types.String, "is_owner_col": False},
-    {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 12 months", "db_column": "police_incidents_count", "column_type":types.Integer, "is_owner_col": False},
-    {"csv_column": "Unsafe & Unfit Buildings - In the last 12 months", "db_column": "unsafe_unfit_count", "column_type":types.Integer, "is_owner_col": False},
+    {"csv_column": "Parcel ID", "db_column": "parcel_id", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Tenant Complaint - Count by Source - In the last 12 months", "db_column": "tenant_complaints", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Owner_1", "db_column": "name", "column_type":types.String, "is_owner_col": True, "is_owner_aggregate": False},
+    {"csv_column": "Zip Code", "db_column": "zip_code", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Public Owner", "db_column": "public_owner", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Address", "db_column": "address", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": CODE_VIOLATIONS_TOTAL_COUNT_COLUMN, "db_column": "code_violations_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Owner Occupied", "db_column": "owner_occupied", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "OwnAddr_1", "db_column": "address", "column_type":types.String, "is_owner_col": True, "is_owner_aggregate": False},
+    {"csv_column": "Is Business", "db_column": "is_business", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Business Entity Type", "db_column": "business_entity_type", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Owner Property Count", "db_column": "property_count", "column_type":types.Integer, "is_owner_col": True, "is_owner_aggregate": False},
+    {"csv_column": "Owner Location", "db_column": "location", "column_type":types.String, "is_owner_col": True, "is_owner_aggregate": False},
+    {"csv_column": "Current Use", "db_column": "current_use", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 12 months", "db_column": "police_incidents_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Unsafe & Unfit Buildings - In the last 12 months", "db_column": "unsafe_unfit_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
 ]
+
+
+def populate_alias_table(property_list_file, group_id_filename):
+    # This holds a mapping of Landlord name to group ID
+    landlord_name_to_group_id = {}
+    with open(group_id_filename, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            landlord_name_to_group_id[row["name"]] = row["group_id"]
+
+    current_id = 1
+    with app.app_context():
+        with open(property_list_file, 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            landlords_seen = []
+            for row in reader:
+                if row["Owner_1"] in landlords_seen or len(row["Owner_1"]) == 0:
+                    continue
+                else:
+                    landlords_seen.append(row["Owner_1"])
+
+                owner = Landlord.query.filter_by(name=row["Owner_1"]).first()
+                if owner is None:
+                    group_id = landlord_name_to_group_id[row["Owner_1"]]
+                    owner = Landlord.query.filter_by(group_id=group_id).first()
+                if owner is None:
+                    print(f"Failure on {row}")
+                alias = {
+                    "id": current_id,
+                    "name": row["Owner_1"],
+                    "landlord_id": owner.id
+                }
+                alias_obj = Alias(**alias)
+                db.session.add(alias_obj)
+                current_id = current_id + 1
+        db.session.commit()
+                
+
+
+def update_owner_id(property_list_file, group_id_filename):
+    # This holds a mapping of Landlord name to group ID
+    landlord_name_to_group_id = {}
+    with open(group_id_filename, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            landlord_name_to_group_id[row["name"]] = row["group_id"]
+
+    with app.app_context():
+        with open(property_list_file, 'r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                if len(row["Owner_1"]) == 0:
+                    continue
+                prop = Property.query.filter_by(parcel_id=row["Parcel ID"]).first()
+                owner = Landlord.query.filter_by(name=row["Owner_1"]).first()
+                if owner is None:
+                    group_id = landlord_name_to_group_id[row["Owner_1"]]
+                    owner = Landlord.query.filter_by(group_id=group_id).first()
+                if owner is None:
+                    print(f"Failure on {row}")
+                prop.owner_id = owner.id
+        db.session.commit()
+
+# Helper function to build out aggregated list of landlords (by group id) in a big dictionary
+def generate_landlord_group_dict(property_list_file, group_id_filename):
+    # This holds a mapping of Landlord name to group ID
+    landlord_name_to_group_id = {}
+    with open(group_id_filename, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            landlord_name_to_group_id[row["name"]] = row["group_id"]
+
+    landlord_groups = {}
+    with open(property_list_file, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if len(row["Owner_1"]) == 0:
+                continue
+
+            # If we already have a group ID for this LL, use it, otherwise generate a new one.
+            if row["Owner_1"] in landlord_name_to_group_id:
+                group_id = landlord_name_to_group_id[row["Owner_1"]]
+            else:
+                group_id = str(uuid.uuid4())
+                landlord_name_to_group_id[row["Owner_1"]] = group_id
+
+            # Aggregate the stats if we already have seen this landlord, or else create new entry
+            if group_id in landlord_groups:
+                landlord = landlord_groups[group_id]
+                landlord["properties_associated"] = landlord["properties_associated"] + 1
+                for column_obj in COLUMN_LIST:
+                    # Sum the aggregated columns
+                    if column_obj["is_owner_aggregate"]:
+                        landlord[column_obj["db_column"]] = landlord[column_obj["db_column"]] + get_clean_value(row, column_obj)
+            else:
+                landlord_groups[group_id] = {}
+                for column_obj in COLUMN_LIST:
+                    landlord = landlord_groups[group_id]
+                    landlord["properties_associated"] = 1
+                    if column_obj["is_owner_aggregate"] or column_obj["is_owner_col"]:
+                        landlord[column_obj["db_column"]] = get_clean_value(row, column_obj)
+    return landlord_groups
+
+
+def update_landlord_aggregate_values(property_list_file, group_id_filename):
+    with app.app_context():
+        landlord_groups = generate_landlord_group_dict(property_list_file, group_id_filename)
+
+        #print(json.dumps(landlord_groups))
+
+        for group_id, landlord_metadata in landlord_groups.items():
+
+            # For property count, take the max of the properties associated and the count provided by the city.
+            if landlord_metadata["properties_associated"] > landlord_metadata["property_count"]:
+                landlord_metadata["property_count"] = landlord_metadata["properties_associated"]
+
+            queried_landlord = Landlord.query.filter_by(name=landlord_metadata["name"]).first()
+
+            # If this landlord does not exist yet, create, otherwise update.
+            if queried_landlord is None:
+                landlord_dict = {"group_id": group_id}
+                for column_obj in COLUMN_LIST:
+                    if column_obj["is_owner_aggregate"] or column_obj["is_owner_col"]: 
+                        landlord_dict[column_obj["db_column"]] = landlord_metadata[column_obj["db_column"]]
+                landlord_obj = Landlord(**landlord_dict)
+                db.session.add(landlord_obj)
+            else:
+                setattr(queried_landlord, "group_id", group_id)
+                for column_obj in COLUMN_LIST:
+                    if column_obj["is_owner_aggregate"] or column_obj["is_owner_col"]:
+                        setattr(queried_landlord, column_obj["db_column"], landlord_metadata[column_obj["db_column"]])
+
+        db.session.commit()
+
 
 
 def populate_evictions(filename):
@@ -36,13 +171,16 @@ def populate_evictions(filename):
         with open(filename, 'r') as csvfile:
             reader = csv.DictReader(csvfile, delimiter ='\t')
             for row in reader:
-                # Try matching on Landlord Name first, then Building Blocks Entity Name
-                landlord = Landlord.query.filter(Landlord.name.ilike(row["Landlord Name"])).first()
-                if landlord is None:
-                    landlord = Landlord.query.filter(Landlord.name.ilike(row["Building Blocks Entity Name"])).first()
-                if landlord is None:
+                # Try matching on Landlord Name first, then Building Blocks Entity Name, then Group ID
+                filter_criteria = Alias.name.ilike(row["Landlord Name"]) | Alias.name.ilike(row["Building Blocks Entity Name"])
+                alias = Alias.query.filter(filter_criteria).first()
+                if alias is None:
                     print("Unable to find Landlord {}".format(row["Landlord Name"]))
                     continue
+                else:
+                    landlord = Landlord.query.filter_by(id=alias.landlord_id).first()
+
+
                 landlord.eviction_count = row["# of new filings, Q3"]
 
         db.session.commit()
@@ -87,19 +225,6 @@ def populate_empty_db(filename):
                     return
                 create_property(row, landlords, db)
 
-
-        db.session.commit()
-
-
-def generate_parsed_address_columns():
-    with app.app_context():
-        ap = AddressParser()
-        properties = Property.query.all()
-
-        for prop in properties:
-            parsed_address = ap.parse_address(prop.address)
-            prop.street_name = parsed_address.street
-            prop.house_number  = parsed_address.house_number
 
         db.session.commit()
 
@@ -164,7 +289,7 @@ def get_clean_value(row, column_obj):
     if column_obj["db_column"] == "code_violations_count":
         clean_value = get_adjusted_code_violations(row)
     if column_obj["column_type"] == types.Integer:
-        clean_value = 0 if clean_value is None else clean_value 
+        clean_value = 0 if clean_value is None else int(clean_value)
     return clean_value
 
 
@@ -228,7 +353,12 @@ if __name__ == '__main__':
     parser.add_argument('--generate', action='store_true', help='Generates parsed address columns')
     parser.add_argument('--rop', action='store_true', help='Generates ROP violations count')
     parser.add_argument('--evictions', action='store_true', help='Populates evictions from Evictions TSV')
+    parser.add_argument('--aggregate', action='store_true', help='Generate Landlord Aggregate stats')
+    parser.add_argument('--ownerid', action='store_true', help='Update owner ids only')
+    parser.add_argument('--alias', action='store_true', help='Populate alias table')
     parser.add_argument('--filename', type=str, help='Filename to import from')
+    parser.add_argument('--groupid', type=str, help='Group id file to import ')
+
 
     args = parser.parse_args()
 
@@ -244,3 +374,11 @@ if __name__ == '__main__':
         populate_evictions(args.filename)
     elif args.rop:
         generate_code_violations_columns(args.filename)
+    elif args.aggregate:
+        update_landlord_aggregate_values(args.filename, args.groupid)
+    elif args.ownerid:
+        update_owner_id(args.filename, args.groupid)
+    elif args.alias:
+        populate_alias_table(args.filename, args.groupid)
+
+

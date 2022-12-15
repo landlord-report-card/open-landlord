@@ -1,5 +1,5 @@
 from decimal import Decimal
-from models import db, Landlord, Property
+from models import db, Landlord, Property, Alias
 from sqlalchemy.sql import func
 from sqlalchemy import or_
 from num2words import num2words
@@ -10,83 +10,45 @@ import math
 import utils
 
 
+class PaginatedResults:
+    def __init__(self, items, total):
+        self.items = items
+        self.total = total
+
+
 def get_landlord(landlord_id):
     return Landlord.query.filter_by(id=landlord_id).first()
 
 
-def get_group_id(landlord_id):
-    current_landlord = Landlord.query.filter_by(id=landlord_id).first()
-    return current_landlord.group_id
-
-
-def get_all_landlords(landlord_id):
-    group_id = get_group_id(landlord_id)
-    if group_id is not None:
-        return Landlord.query.filter(or_(Landlord.id==landlord_id, Landlord.group_id==group_id)).all()
-    return Landlord.query.filter(Landlord.id==landlord_id).all()
-
-
 def get_all_aliases(landlord_id):
-    landlords = get_all_landlords(landlord_id)
-    aliases = []
-    
-    for landlord in landlords:
-        if int(landlord.id) != int(landlord_id):
-            aliases.append(landlord.name)
-
-    return aliases
-
-
-def get_all_evictions(landlord_id):
-    landlords = get_all_landlords(landlord_id)
-    landlord_ids = [landlord.id for landlord in landlords]
-    evictions_query = Landlord.query.filter(Landlord.id.in_(landlord_ids)).with_entities(
-        func.sum(Landlord.eviction_count).label('total_eviction_count')).first()
-
-    return evictions_query["total_eviction_count"]
-
-
-def get_all_properties(landlord_id):
-    landlords = get_all_landlords(landlord_id)
-    landlord_ids = [landlord.id for landlord in landlords]
-    return Property.query.filter(Property.owner_id.in_(landlord_ids)).all()
-
+    return Alias.query.filter_by(landlord_id=landlord_id).all()
 
 def get_all_properties_dict(landlord_id):
-    properties = get_all_properties(landlord_id)
+    properties = Property.query.filter(Property.owner_id == landlord_id).all()
     return [prop.as_dict() for prop in properties]
 
 
 def get_landlord_stats(landlord_id, properties_list, city_average_stats):
-    property_ids = [prop["id"] for prop in properties_list]
-    landlord_stats = Property.query.filter(Property.id.in_(property_ids)).with_entities(
-            func.sum(Property.service_call_count).label('service_call_count'),
-            func.sum(Property.code_violations_count).label('code_violations_total'),
-            func.sum(Property.tenant_complaints).label('tenant_complaints_total'),
-            func.sum(Property.health_violation_count).label('health_violation_count'),
-            func.sum(Property.police_incidents_count).label('police_incidents_total')).first()
+    landlord_stats = Landlord.query.get(landlord_id)
 
-    landlord_stats = dict(landlord_stats)
-    landlord_stats["eviction_count_total"] = get_all_evictions(landlord_id)
-    landlord_stats = add_scaled_landlord_stats(landlord_stats, len(properties_list))
+    landlord_stats = landlord_stats.as_dict()
     landlord_stats = add_grade_and_color(landlord_stats, city_average_stats)
     landlord_stats = replace_none_with_zero(landlord_stats)
 
     return landlord_stats
 
 
-def get_enriched_landlord(landlord_id, properties_list):
+def get_enriched_landlord(landlord_id):
     landlord = get_landlord(landlord_id).as_dict()
-    landlord = adjust_landlord_property_count(landlord, properties_list)
     landlord = add_landlord_size(landlord)
     landlord = replace_none_with_zero(landlord)
     return landlord
 
 def add_grade_and_color(landlord_stats, average_stats):
     for component in constants.GRADE_COMPONENTS:
-        grade_and_color = get_stats_grade_and_color(landlord_stats[component],
-                                                    average_stats["average_{}".format(component)], 
-                                                    average_stats["{}_std_dev".format(component)])
+        grade_and_color = get_stats_grade_and_color(landlord_stats[f"{component}_per_property"],
+                                                    average_stats[f"average_{component}"], 
+                                                    average_stats[f"{component}_std_dev"])
 
         landlord_stats["{}_color".format(component)] = grade_and_color["color"]
         landlord_stats["{}_grade".format(component)] = grade_and_color["grade"]
@@ -100,8 +62,8 @@ def replace_none_with_zero(some_dict):
 
 def get_std_devs(value, average, std_dev):
     if value is None:
-        value = Decimal(0)
-    return (average - value) / std_dev
+        value = 0.0
+    return (average - Decimal(value)) / std_dev
 
 
 def get_grade_and_color_from_std_devs(std_devs):
@@ -172,25 +134,14 @@ def get_stats_grade_and_color(value, average, std_dev):
     return grade_and_color
 
 
-
-def add_scaled_landlord_stats(stats, property_count):
-    for stat in constants.STATS_TO_SCALE:
-        total_stat = stats["{}_total".format(stat)]
-        if total_stat is None:
-            stats[stat] = total_stat
-        else:
-            stats[stat] = Decimal(float(total_stat) / float(property_count))
-    return stats
-
-
 def get_city_average_stats():
     property_stats_row = Property.query.with_entities(
-        func.avg(Property.tenant_complaints).label('average_tenant_complaints'),
-        func.avg(Property.code_violations_count).label('average_code_violations'),
-        func.avg(Property.police_incidents_count).label('average_police_incidents'),
-        func.stddev(Property.tenant_complaints).label('tenant_complaints_std_dev'),
-        func.stddev(Property.code_violations_count).label('code_violations_std_dev'),
-        func.stddev(Property.police_incidents_count).label('police_incidents_std_dev'),
+        func.avg(Property.tenant_complaints).label('average_tenant_complaints_count'),
+        func.avg(Property.code_violations_count).label('average_code_violations_count'),
+        func.avg(Property.police_incidents_count).label('average_police_incidents_count'),
+        func.stddev(Property.tenant_complaints).label('tenant_complaints_count_std_dev'),
+        func.stddev(Property.code_violations_count).label('code_violations_count_std_dev'),
+        func.stddev(Property.police_incidents_count).label('police_incidents_count_std_dev'),
     ).first()
 
     landlord_stats_row = Landlord.query.with_entities(
@@ -206,15 +157,6 @@ def get_city_average_stats():
     property_stats.update(landlord_stats)
 
     return property_stats
-
-
-# This function sets the property count to whichever is higher between the reported property count and the properties associated
-def adjust_landlord_property_count(landlord, properties):
-    properties_associated = len(properties)
-    if properties_associated > landlord["property_count"]:
-        landlord["property_count"] = properties_associated
-
-    return landlord
 
 
 def add_landlord_size(landlord):
@@ -236,21 +178,6 @@ def replace_ordinals(text):
         text = text.replace(match.group(1), ordinalAsString)
 
     return text
-
-
-def get_autocomplete_prompts():
-    properties = Property.query.all()
-    landlords = Landlord.query.all()
-
-    autocomplete_prompts = []
-
-    for prop in properties:
-        autocomplete_prompts.append(prop.address)
-
-    for landlord in landlords:
-        autocomplete_prompts.append(landlord.name)
-
-    return autocomplete_prompts
 
 
 def get_address_dict(parsed_address_tuple_list):
@@ -279,16 +206,54 @@ def get_landlord_filter_criteria(search_string):
     return filter_criteria
 
 
-def perform_search(text):
+def perform_search(text, max_results):
     filter_criteria = get_address_filter_criteria(text) | get_landlord_filter_criteria(text)
 
-    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).add_columns(Landlord.name).order_by(Property.address)
+    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).order_by(Property.address).limit(max_results)
     return results
 
 
 def get_unsafe_unfit_properties(landlord_id):
-    landlords = get_all_landlords(landlord_id)
-    landlord_ids = [landlord.id for landlord in landlords]
-    return Property.query.filter(Property.owner_id.in_(landlord_ids)).filter(Property.unsafe_unfit_count > 0).all()
+    return Property.query.filter(Property.owner_id == landlord_id).filter(Property.unsafe_unfit_count > 0).all()
 
 
+def sort_landlords_by_grade(sort_direction, page_number, page_size):
+    landlord_list = []
+    landlord_objects = Landlord.query.all()
+    city_stats = utils.get_city_average_stats()
+
+    for landlord in landlord_objects:
+        landlord = landlord.as_dict()
+        grades = utils.add_grade_and_color(landlord, city_stats)
+        grades.update(utils.calculate_landlord_score(grades))
+
+        landlord["grade"] = grades["grade"]
+        landlord_list.append(landlord)
+
+    reverse = False if sort_direction == "asc" else True
+    landlord_list.sort(key=lambda x: x["grade"], reverse=reverse)
+
+    first_result = (page_number-1) * page_size
+    return PaginatedResults(landlord_list[first_result:first_result + page_size], len(landlord_list))
+
+
+def get_ranked_landlords(sort_by, sort_direction, page_number, page_size):
+    if sort_by == "grade":
+        return sort_landlords_by_grade(sort_direction, page_number, page_size)
+
+    ranking_criteria = getattr(Landlord, sort_by)
+    if sort_direction == "asc":
+        results = Landlord.query.order_by(ranking_criteria.asc()).paginate(page_number, page_size)
+    else:
+        results = Landlord.query.order_by(ranking_criteria.desc()).paginate(page_number, page_size)
+    landlord_list = []
+    city_stats = utils.get_city_average_stats()
+    for landlord in results.items:
+        landlord = landlord.as_dict()
+        grades = utils.add_grade_and_color(landlord, city_stats)
+        grades.update(utils.calculate_landlord_score(grades))
+
+        landlord["grade"] = grades["grade"]
+        landlord_list.append(landlord)
+
+    return PaginatedResults(landlord_list, results.total)

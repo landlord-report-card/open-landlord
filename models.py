@@ -1,7 +1,18 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import case, inspect
+from sqlalchemy.sql import func, select
+
 
 db = SQLAlchemy()
+
+
+class Alias(db.Model):
+    __tablename__ = "alias"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    landlord_id = db.Column(db.Integer, db.ForeignKey("landlord2.id"))
 
 
 class Landlord(db.Model):
@@ -10,16 +21,47 @@ class Landlord(db.Model):
     name = db.Column(db.String(80), unique=True, nullable=False)
     address = db.Column(db.String(250))
     location = db.Column(db.String(250))
-    property_count = db.Column(db.Integer)
-    eviction_count = db.Column(db.Integer)
     group_id = db.Column(db.String(50))
+    property_count = db.Column(db.Integer)
+    unsafe_unfit_count = db.Column(db.Integer)
+    eviction_count = db.Column(db.Integer)
+    tenant_complaints_count = db.Column(db.Integer)
+    code_violations_count = db.Column(db.Integer)
+    police_incidents_count = db.Column(db.Integer)
 
+
+    @hybrid_property
+    def code_violations_count_per_property(self):
+        return self.code_violations_count / self.property_count
+
+
+    @hybrid_property
+    def police_incidents_count_per_property(self):
+        return self.police_incidents_count / self.property_count
+
+
+    @hybrid_property
+    def tenant_complaints_count_per_property(self):
+        return self.tenant_complaints_count / self.property_count
+
+
+    @hybrid_property
+    def eviction_count_per_property(self):
+        return self.eviction_count / self.property_count
 
     def __repr__(self):
         return '<Landlord %r>' % self.name
 
-    def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+    def as_dict(self) -> {}:
+        dict_ = {}
+        for key in self.__mapper__.c.keys():
+            if not key.startswith('_'):
+                dict_[key] = getattr(self, key)
+
+        for key, prop in inspect(self.__class__).all_orm_descriptors.items():
+            if isinstance(prop, hybrid_property):
+                dict_[key] = getattr(self, key)
+        return dict_
 
 
 class Property(db.Model):
@@ -32,7 +74,6 @@ class Property(db.Model):
     zip_code = db.Column(db.String(10))
     property_type = db.Column(db.String(250))
     owner_id = db.Column(db.Integer, db.ForeignKey("landlord.id"))
-    owner = db.relationship("Landlord", backref="properties")
     service_call_count = db.Column(db.Integer)
     tenant_complaints = db.Column(db.Integer)
     health_violation_count = db.Column(db.Integer)
@@ -48,8 +89,7 @@ class Property(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     unsafe_unfit_count = db.Column(db.Integer)
-    # TODO: GroupID is duplicated here: should only exist with Landlord
-    group_id = db.Column(db.String(50))
+    group_id = db.Column(db.String(50), db.ForeignKey("landlord.group_id"))
     
 
     def __repr__(self):

@@ -1,3 +1,10 @@
+DEFAULT_PAGE_SIZE = 50
+DEFAULT_PAGE_NUMBER = 1
+DEFAULT_SORT_BY = "property_count"
+DEFAULT_SORT_DIRECTION = "desc"
+
+SEARCH_DEFAULT_MAX_RESULTS = 100
+
 GRADE_COLORS = {
   'A': "2cba00",
   'B': "2cba00",
@@ -22,15 +29,10 @@ GRADE_F = {"grade":"F", "value":0, "color":GRADE_COLORS["F"]}
 
 
 GRADE_COMPONENTS = [
-    "tenant_complaints",
-    "code_violations",
-    "police_incidents",
+    "tenant_complaints_count",
+    "code_violations_count",
+    "police_incidents_count",
     "eviction_count",
 ]
 
-STATS_TO_SCALE = [
-    "tenant_complaints",
-    "code_violations",
-    "police_incidents",
-    "eviction_count",
-]
+STATS_TO_SCALE = GRADE_COMPONENTS
