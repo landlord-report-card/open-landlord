@@ -14,8 +14,7 @@ const Navigationbar = () => {
 	            <Nav.Link href="/">Search</Nav.Link>
 	            <Nav.Link href="/about">About</Nav.Link>
 	            <Navbar.Brand className="brand-center d-none d-lg-block d-md-block" href="/"><img src="/logo.png" alt="Albany Landlord Report Card" height="100" /></Navbar.Brand>
-	            <Nav.Link href="/faq">FAQ</Nav.Link>
-	            <Nav.Link target="_blank" href="https://linktr.ee/utalbany">Resources</Nav.Link>
+	            <Nav.Link href="/action">Take Action</Nav.Link>
 	          </Nav>
 	        </Navbar.Collapse>
 	    </Navbar>

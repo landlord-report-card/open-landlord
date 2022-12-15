@@ -277,16 +277,11 @@ h5.warning {
 .transparent-background {
   background-color: transparent !important;
 }
-/*
-.accordion-collapse {
-  background-color: transparent;
-}*/
 
-/*.accordion-button:not(.collapsed) {
-  background-color: transparent;
+.action-accordion-body {
+  font-weight: 400;
+  font-family: "Segoe UI",Roboto,"Helvetica Neue","Noto Sans","Liberation Sans",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
 }
-*/
-
 
 
 
