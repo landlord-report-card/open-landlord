@@ -10,8 +10,13 @@ import Property from './components/Property'
 import Navigationbar from './components/Navigationbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import ReactGA from 'react-ga';
+
 
 function App() {
+
+  ReactGA.initialize('G-WVXYXZ9LGV');
+  ReactGA.pageview(window.location.pathname + window.location.search);
 
   return (
     <>
