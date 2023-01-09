@@ -24,6 +24,19 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>Albany Landlord Report Card</title>
+    <!--
+      Google Analytics Initialization
+    -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-WVXYXZ9LGV" >
+    </script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-WVXYXZ9LGV')
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
