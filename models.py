@@ -10,19 +10,20 @@ db = SQLAlchemy()
 
 class Alias(db.Model):
     __tablename__ = "alias"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     landlord_id = db.Column(db.Integer, db.ForeignKey("landlord2.id"))
 
 
 class Landlord(db.Model):
     __tablename__ = "landlord"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     address = db.Column(db.String(250))
     location = db.Column(db.String(250))
     group_id = db.Column(db.String(50))
     property_count = db.Column(db.Integer)
+    unit_count = db.Column(db.Integer)
     unsafe_unfit_count = db.Column(db.Integer)
     eviction_count = db.Column(db.Integer)
     tenant_complaints_count = db.Column(db.Integer)
@@ -66,7 +67,7 @@ class Landlord(db.Model):
 
 class Property(db.Model):
     __tablename__ = "property"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     parcel_id = db.Column(db.String(250), nullable=False)
     address = db.Column(db.String(250), nullable=False)
     house_number = db.Column(db.Integer)
@@ -90,6 +91,8 @@ class Property(db.Model):
     longitude = db.Column(db.Float)
     unsafe_unfit_count = db.Column(db.Integer)
     group_id = db.Column(db.String(50), db.ForeignKey("landlord.group_id"))
+    unit_count = db.Column(db.Integer)
+    has_rop = db.Column(db.Boolean)
     
 
     def __repr__(self):
