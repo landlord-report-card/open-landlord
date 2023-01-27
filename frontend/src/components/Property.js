@@ -21,7 +21,27 @@ function PropertyUnsafeUnfitWarning(props) {
                 <Accordion.Body className="alert-danger">
                   <span className="font-typewriter">
                   <p>This property has been deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
-                  <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
+                  <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" rel="noreferrer" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
+                  </span>
+                </Accordion.Body>
+              </Accordion.Item>
+            </Accordion>
+        </Alert>
+        )
+}
+
+
+function PropertyNoROPWarning(props) {
+    if (props.property.has_rop) return null;
+    return (
+        <Alert variant="danger">
+            <Accordion>
+              <Accordion.Item className="bg-color-warning" eventKey="0">
+                <Accordion.Header><h5 className="warning">Possible warning about this property!</h5></Accordion.Header>
+                <Accordion.Body className="alert-danger">
+                  <span className="font-typewriter">
+                  <p>This property is not registered as a rental property with the City of Albany as it does not have an ROP/Residential Occupancy Permit on file.</p>
+                  <p>If it is currently being rented, check the <a target="_blank" rel="noreferrer" href="https://www.albanyny.gov/DocumentCenter/View/2369/Active-Residential-Occupancy-Permits-12152021">online list of ROPs</a> or call the City of Albany Code Department to determine if the unit you're looking at is safe to be rented. <a target="_blank" rel="noreferrer" href="https://www.albanyny.gov/2037/Residential-Occupancy-Permits">Learn More</a></p>
                   </span>
                 </Accordion.Body>
               </Accordion.Item>
@@ -34,6 +54,8 @@ function PropertyInfo(props) {
     return (
         <>
           <span>Owner: </span> &nbsp;<a href={"/landlord/" + props.property.owner_id}>{props.property.owner.name}</a><br />
+          <span>Has Residential Occupancy Permit (ROP): </span>{props.property.has_rop ? 'Yes' : 'No'}<br />
+          <span>Number of Units: </span>{props.property.unit_count}<br />
           <span>Current Use: </span> &nbsp;{props.property.current_use}<br />
           <span>Business Entity Type: </span>{props.property.business_entity_type}<br />
           <span>Owner Occupied: </span>{props.property.owner_occupied}<br />
@@ -63,13 +85,13 @@ export default function Property () {
         });
       }, []);
 
-
     if (!property) return null;
 
 
     return (
         <>
           <PropertyUnsafeUnfitWarning property={property}/>
+          <PropertyNoROPWarning property={property}/>
           <Container className="container font-typewriter">
             <Row>
               <Col sm>

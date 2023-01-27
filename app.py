@@ -58,6 +58,8 @@ class PropertySchema(ma.Schema):
             "code_violations_count",
             "owner_occupied",
             "business_entity_type",
+            "unit_count",
+            "has_rop",
         )
 
 
