@@ -10,12 +10,14 @@ import Property from './components/Property'
 import Navigationbar from './components/Navigationbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import usePageTracking from './usePageTracking.js'
 
 function App() {
 
+  usePageTracking();
+
   return (
     <>
-      <BrowserRouter>
         <Navigationbar />
         <Container>
         <Routes>
@@ -29,7 +31,6 @@ function App() {
           <Route path="/top" element={ <Top />}/>
         </Routes>
         </Container>
-      </BrowserRouter>
     </>
   );
 }
