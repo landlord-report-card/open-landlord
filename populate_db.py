@@ -283,10 +283,7 @@ def update_landlord(row, landlords, db):
 
     if landlord is None:
         landlord = create_landlord(row, db)
-        # print("Creating landlord")
     else:
-        # print("Landlord Found")
-        # print(landlord.name)
         for column_obj in COLUMN_LIST:
             if column_obj["is_owner_col"]:
                 setattr(landlord, column_obj["db_column"], row[column_obj["csv_column"]])
