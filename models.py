@@ -12,7 +12,7 @@ class Alias(db.Model):
     __tablename__ = "alias"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
-    landlord_id = db.Column(db.Integer, db.ForeignKey("landlord2.id"))
+    landlord_id = db.Column(db.Integer, db.ForeignKey("landlord.id"))
 
 
 class Landlord(db.Model):
@@ -33,22 +33,30 @@ class Landlord(db.Model):
 
     @hybrid_property
     def code_violations_count_per_property(self):
-        return self.code_violations_count / self.property_count
+        if self.code_violations_count and self.property_count:
+            return self.code_violations_count / self.property_count
+        return None
 
 
     @hybrid_property
     def police_incidents_count_per_property(self):
-        return self.police_incidents_count / self.property_count
+        if self.police_incidents_count and self.property_count:
+            return self.police_incidents_count / self.property_count
+        return None
 
 
     @hybrid_property
     def tenant_complaints_count_per_property(self):
-        return self.tenant_complaints_count / self.property_count
+        if self.tenant_complaints_count and self.property_count:
+            return self.tenant_complaints_count / self.property_count
+        return None
 
 
     @hybrid_property
     def eviction_count_per_property(self):
-        return self.eviction_count / self.property_count
+        if self.eviction_count and self.property_count:
+            return self.eviction_count / self.property_count
+        return None
 
     def __repr__(self):
         return '<Landlord %r>' % self.name
