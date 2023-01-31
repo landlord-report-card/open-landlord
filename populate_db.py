@@ -19,22 +19,22 @@ ROP_POSSIBLE_COLUMNS = [
 
 COLUMN_LIST = [
     {"csv_column": "Parcel ID", "db_column": "parcel_id", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
-    {"csv_column": "Tenant Complaint - Count by Source - In the last 12 months", "db_column": "tenant_complaints_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Tenant Complaint - Count by Source - In the last 12 months", "db_column": "tenant_complaints_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
     {"csv_column": "Owner_1", "db_column": "name", "column_type":types.String, "is_owner_col": True, "is_owner_aggregate": False},
     {"csv_column": "Zip Code", "db_column": "zip_code", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "Public Owner", "db_column": "public_owner", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "Address", "db_column": "address", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
-    {"csv_column": CODE_VIOLATIONS_TOTAL_COUNT_COLUMN, "db_column": "code_violations_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": CODE_VIOLATIONS_TOTAL_COUNT_COLUMN, "db_column": "code_violations_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
     {"csv_column": "Owner Occupied", "db_column": "owner_occupied", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "OwnAddr_1", "db_column": "address", "column_type":types.String, "is_owner_col": True, "is_owner_aggregate": False},
     {"csv_column": "Is Business", "db_column": "is_business", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "Business Entity Type", "db_column": "business_entity_type", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
-    {"csv_column": "Owner Property Count", "db_column": "property_count", "column_type":types.Integer, "is_owner_col": True, "is_owner_aggregate": False},
+    {"csv_column": "Owner Property Count", "db_column": "property_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": True, "is_owner_aggregate": False},
     {"csv_column": "Owner Location", "db_column": "location", "column_type":types.String, "is_owner_col": True, "is_owner_aggregate": False},
     {"csv_column": "Current Use", "db_column": "current_use", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
-    {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 12 months", "db_column": "police_incidents_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
-    {"csv_column": "Unsafe & Unfit Buildings - In the last 12 months", "db_column": "unsafe_unfit_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
-    {"csv_column": "Rental Registry - Count by Rental Units - In the last 30 months", "db_column": "unit_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 12 months", "db_column": "police_incidents_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Unsafe & Unfit Buildings - In the last 12 months", "db_column": "unsafe_unfit_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Rental Registry - Count by Rental Units - In the last 30 months", "db_column": "unit_count", "column_type":types.Integer, "default_value": 1, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "ROP Code Cases - Count By Status - Closed - In the last 30 months", "db_column": "has_rop", "column_type":types.Boolean, "is_owner_col": False, "is_owner_aggregate": False},
 ]
 
@@ -278,8 +278,6 @@ def update_landlord(row, landlords, db):
     # Check the alias table
     alias = Alias.query.filter_by(name=row["Owner_1"]).first()
 
-    print(alias.landlord_id)
-
     # If none, add to alias and to landlord table, otherwise update landlord
     if alias is None:
         print("New landlord bring created: " + row["Owner_1"])
@@ -310,7 +308,7 @@ def get_clean_value(row, column_obj):
     if column_obj["db_column"] == "has_rop":
         clean_value = check_for_rop(row)
     if column_obj["column_type"] == types.Integer:
-        clean_value = 0 if clean_value is None else int(float(clean_value)) # Parse as float because sometimes we get decimals
+        clean_value = column_obj["default_value"] if clean_value is None else int(float(clean_value)) # Parse as float because sometimes we get decimals
     return clean_value
 
 
@@ -353,18 +351,20 @@ def update_database(filename):
     with app.app_context():
         landlords = {}
         # For convenience, we process all landlords first, store their IDs, then process properties
+        print("Processing all landlords...")
         with open(filename, 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 update_landlord(row, landlords, db)
         db.session.flush()
 
+        print("Processing all properties...")
         with open(filename, 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 update_property(row, landlords, db)
 
-
+        print("Committing to DB...")
         db.session.commit()
 
 
