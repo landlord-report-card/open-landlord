@@ -19,7 +19,7 @@ ROP_POSSIBLE_COLUMNS = [
 
 COLUMN_LIST = [
     {"csv_column": "Parcel ID", "db_column": "parcel_id", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
-    {"csv_column": "Tenant Complaint - Count by Source - In the last 12 months", "db_column": "tenant_complaints", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Tenant Complaint - Count by Source - In the last 12 months", "db_column": "tenant_complaints_count", "column_type":types.Integer, "is_owner_col": False, "is_owner_aggregate": True},
     {"csv_column": "Owner_1", "db_column": "name", "column_type":types.String, "is_owner_col": True, "is_owner_aggregate": False},
     {"csv_column": "Zip Code", "db_column": "zip_code", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "Public Owner", "db_column": "public_owner", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
@@ -50,32 +50,23 @@ def create_alias(db, name, landlord_id):
 
 
 
-def populate_alias_table(property_list_file, group_id_filename):
-    # This holds a mapping of Landlord name to group ID
-    landlord_name_to_group_id = {}
-    with open(group_id_filename, 'r') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            landlord_name_to_group_id[row["name"]] = row["group_id"]
-
+def populate_alias_table(group_id_filename):
     with app.app_context():
-        with open(property_list_file, 'r') as csvfile:
+        with open(group_id_filename, 'r') as csvfile:
             reader = csv.DictReader(csvfile)
-            landlords_seen = []
             for row in reader:
-                if row["Owner_1"] in landlords_seen or len(row["Owner_1"]) == 0:
-                    continue
-                else:
-                    landlords_seen.append(row["Owner_1"])
-
-                owner = Landlord.query.filter_by(name=row["Owner_1"]).first()
+                owner = Landlord.query.filter_by(name=row["name"]).first()
                 if owner is None:
-                    group_id = landlord_name_to_group_id[row["Owner_1"]]
-                    owner = Landlord.query.filter_by(group_id=group_id).first()
+                    owner = Landlord.query.filter_by(group_id=row["group_id"]).first()
                 if owner is None:
                     print(f"Failure on {row}")
+                    continue
 
-                create_alias(db, row["Owner_1"], owner.id)
+                alias = Alias.query.filter_by(name=row["name"]).first()
+                if alias is not None:
+                    setattr(alias, "landlord_id", owner.id)
+                else:
+                    create_alias(db, row["name"], owner.id)
 
         db.session.commit()
                 
@@ -128,6 +119,7 @@ def generate_landlord_group_dict(property_list_file, group_id_filename):
                 group_id = str(uuid.uuid4())
                 landlord_name_to_group_id[row["Owner_1"]] = group_id
 
+
             # Aggregate the stats if we already have seen this landlord, or else create new entry
             if group_id in landlord_groups:
                 landlord = landlord_groups[group_id]
@@ -150,7 +142,7 @@ def update_landlord_aggregate_values(property_list_file, group_id_filename):
     with app.app_context():
         landlord_groups = generate_landlord_group_dict(property_list_file, group_id_filename)
 
-        #print(json.dumps(landlord_groups))
+        # print(json.dumps(landlord_groups), flush=True)
 
         for group_id, landlord_metadata in landlord_groups.items():
 
@@ -286,10 +278,13 @@ def update_landlord(row, landlords, db):
     # Check the alias table
     alias = Alias.query.filter_by(name=row["Owner_1"]).first()
 
+    print(alias.landlord_id)
+
     # If none, add to alias and to landlord table, otherwise update landlord
     if alias is None:
         print("New landlord bring created: " + row["Owner_1"])
         landlord = create_landlord(row, db)
+        db.session.flush()
         create_alias(db, row["Owner_1"], landlord.id)
     else:
         landlord = Landlord.query.filter_by(id=alias.landlord_id).first()
@@ -408,6 +403,6 @@ if __name__ == '__main__':
     elif args.ownerid:
         update_owner_id(args.filename, args.groupid)
     elif args.alias:
-        populate_alias_table(args.filename, args.groupid)
+        populate_alias_table(args.groupid)
 
 
