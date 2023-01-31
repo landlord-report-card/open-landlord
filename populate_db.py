@@ -39,6 +39,17 @@ COLUMN_LIST = [
 ]
 
 
+def create_alias(db, name, landlord_id):
+    alias = {
+        "name": name,
+        "landlord_id": landlord_id
+    }
+    alias_obj = Alias(**alias)
+    db.session.add(alias_obj)
+    return alias_obj
+
+
+
 def populate_alias_table(property_list_file, group_id_filename):
     # This holds a mapping of Landlord name to group ID
     landlord_name_to_group_id = {}
@@ -47,7 +58,6 @@ def populate_alias_table(property_list_file, group_id_filename):
         for row in reader:
             landlord_name_to_group_id[row["name"]] = row["group_id"]
 
-    current_id = 1
     with app.app_context():
         with open(property_list_file, 'r') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -64,14 +74,9 @@ def populate_alias_table(property_list_file, group_id_filename):
                     owner = Landlord.query.filter_by(group_id=group_id).first()
                 if owner is None:
                     print(f"Failure on {row}")
-                alias = {
-                    "id": current_id,
-                    "name": row["Owner_1"],
-                    "landlord_id": owner.id
-                }
-                alias_obj = Alias(**alias)
-                db.session.add(alias_obj)
-                current_id = current_id + 1
+
+                create_alias(db, row["Owner_1"], owner.id)
+
         db.session.commit()
                 
 
@@ -278,12 +283,16 @@ def update_landlord(row, landlords, db):
     if row["Owner_1"] in landlords:
         return
 
-    landlord = Landlord.query.filter_by(name=row["Owner_1"]).first()
+    # Check the alias table
+    alias = Alias.query.filter_by(name=row["Owner_1"]).first()
 
-
-    if landlord is None:
+    # If none, add to alias and to landlord table, otherwise update landlord
+    if alias is None:
+        print("New landlord bring created: " + row["Owner_1"])
         landlord = create_landlord(row, db)
+        create_alias(db, row["Owner_1"], landlord.id)
     else:
+        landlord = Landlord.query.filter_by(id=alias.landlord_id).first()
         for column_obj in COLUMN_LIST:
             if column_obj["is_owner_col"]:
                 setattr(landlord, column_obj["db_column"], row[column_obj["csv_column"]])
@@ -334,11 +343,14 @@ def update_property(row, landlords, db):
     prop = Property.query.filter_by(parcel_id=row["Parcel ID"]).first()
 
     if prop is None:
+        print("Creating new property for parcel " + row["Parcel ID"])
         create_property(row, landlords, db)
     else:
         for column_obj in COLUMN_LIST:
+            setattr(prop, "owner_id", landlords[row["Owner_1"]])
             if not column_obj["is_owner_col"]:
                 setattr(prop, column_obj["db_column"], get_clean_value(row, column_obj))
+
 
 
 # TODO: Still requires deleting bogus lines at beginning of CSV and removing errant "=" signs from CSV
