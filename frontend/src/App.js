@@ -8,6 +8,7 @@ import TakeAction from './components/TakeAction'
 import Landlord from './components/Landlord'
 import Property from './components/Property'
 import Navigationbar from './components/Navigationbar';
+import Footer from './components/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import usePageTracking from './usePageTracking.js'
@@ -31,6 +32,7 @@ function App() {
           <Route path="/top" element={ <Top />}/>
         </Routes>
         </Container>
+        <Footer />
     </>
   );
 }

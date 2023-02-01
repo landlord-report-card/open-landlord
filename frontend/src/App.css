@@ -284,6 +284,16 @@ h5.warning {
 }
 
 
+.disclaimer-box {
+  font-size: 12px;
+  font-style: italic;
+}
+
+body > #root > div {
+  height: 100%;
+  min-height: 90vh;
+}
+
 
 
 
