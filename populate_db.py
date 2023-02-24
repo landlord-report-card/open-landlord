@@ -34,7 +34,7 @@ COLUMN_LIST = [
     {"csv_column": "Current Use", "db_column": "current_use", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 12 months", "db_column": "police_incidents_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
     {"csv_column": "Unsafe & Unfit Buildings - In the last 12 months", "db_column": "unsafe_unfit_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
-    {"csv_column": "Rental Registry - Count by Rental Units - In the last 30 months", "db_column": "unit_count", "column_type":types.Integer, "default_value": 1, "is_owner_col": False, "is_owner_aggregate": False},
+    {"csv_column": "Rental Registry - Count by Rental Units - In the last 30 months", "db_column": "unit_count", "column_type":types.Integer, "default_value": None, "is_owner_col": False, "is_owner_aggregate": True},
     {"csv_column": "ROP Code Cases - Count By Status - Closed - In the last 30 months", "db_column": "has_rop", "column_type":types.Boolean, "is_owner_col": False, "is_owner_aggregate": False},
 ]
 
@@ -144,28 +144,29 @@ def update_landlord_aggregate_values(property_list_file, group_id_filename):
 
         # print(json.dumps(landlord_groups), flush=True)
 
+        count = 0
         for group_id, landlord_metadata in landlord_groups.items():
+
+            if count % 1000 == 0:
+                print("Processing Landlord {count} out of {len(landlord_groups)}...")
+                count = count + 1
 
             # For property count, take the max of the properties associated and the count provided by the city.
             if landlord_metadata["properties_associated"] > landlord_metadata["property_count"]:
                 landlord_metadata["property_count"] = landlord_metadata["properties_associated"]
 
-            queried_landlord = Landlord.query.filter_by(name=landlord_metadata["name"]).first()
+            matched_alias = Alias.query.filter_by(name=landlord_metadata["name"]).first()
+            matched_landlord = Landlord.query.filter_by(id=matched_alias.landlord_id).first()
 
-            # If this landlord does not exist yet, create, otherwise update.
-            if queried_landlord is None:
-                landlord_dict = {"group_id": group_id}
-                for column_obj in COLUMN_LIST:
-                    if column_obj["is_owner_aggregate"] or column_obj["is_owner_col"]: 
-                        landlord_dict[column_obj["db_column"]] = landlord_metadata[column_obj["db_column"]]
-                landlord_obj = Landlord(**landlord_dict)
-                db.session.add(landlord_obj)
-            else:
-                setattr(queried_landlord, "group_id", group_id)
+            if matched_landlord is not None:
+                setattr(matched_landlord, "group_id", group_id)
                 for column_obj in COLUMN_LIST:
                     if column_obj["is_owner_aggregate"] or column_obj["is_owner_col"]:
-                        setattr(queried_landlord, column_obj["db_column"], landlord_metadata[column_obj["db_column"]])
-
+                        setattr(matched_landlord, column_obj["db_column"], landlord_metadata[column_obj["db_column"]])
+            else:
+                print("Error: No Landlord found for name " + landlord_metadata["name"])
+                continue
+                
         db.session.commit()
 
 
@@ -307,6 +308,8 @@ def get_clean_value(row, column_obj):
         clean_value = get_adjusted_code_violations(row)
     if column_obj["db_column"] == "has_rop":
         clean_value = check_for_rop(row)
+    if column_obj["db_column"] == "unit_count": # Treat unit_count nulls as 0 for aggregation purposes
+        clean_value = 0 if clean_value is None else clean_value
     if column_obj["column_type"] == types.Integer:
         clean_value = column_obj["default_value"] if clean_value is None else int(float(clean_value)) # Parse as float because sometimes we get decimals
     return clean_value
@@ -329,8 +332,8 @@ def create_property(row, landlords, db):
 
 
 def update_property(row, landlords, db):
-    # Hack to ignore "address unknown"
-    if "Address Unknown" in row["Address"]:
+    # Hack to ignore "address unknown" or null landlord
+    if "Address Unknown" in row["Address"] or row["Owner_1"] == "":
         return
 
     prop = Property.query.filter_by(parcel_id=row["Parcel ID"]).first()
@@ -350,19 +353,29 @@ def update_property(row, landlords, db):
 def update_database(filename):
     with app.app_context():
         landlords = {}
+        count = 0
         # For convenience, we process all landlords first, store their IDs, then process properties
         print("Processing all landlords...")
         with open(filename, 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 update_landlord(row, landlords, db)
+
+                if count % 1000 == 0:
+                    print("Processing Landlord {count}...")
+                    count = count + 1
         db.session.flush()
 
         print("Processing all properties...")
+        count = 0
         with open(filename, 'r') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 update_property(row, landlords, db)
+
+                if count % 1000 == 0:
+                    print("Processing Property {count}...")
+                    count = count + 1
 
         print("Committing to DB...")
         db.session.commit()

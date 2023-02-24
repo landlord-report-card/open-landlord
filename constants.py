@@ -13,14 +13,6 @@ GRADE_COLORS = {
   'F': "ff0000",
 }
 
-
-LANDLORD_SIZES = [
-    (10, {"size": "Very Large (More than 10 properties owned)", "color": "ff0000"}),
-    (4, {"size": "Large (Between 5 and 10 properties owned)", "color": "ff0000"}),
-    (1, {"size": "Medium (Between 1 and 4 properties owned)", "color": "ffa700"}),
-    (0, {"size": "Small (One property owned)", "color": "2cba00"}),
-]
-
 GRADE_A = {"grade":"A", "value":4, "color":GRADE_COLORS["A"]}
 GRADE_B = {"grade":"B", "value":3, "color":GRADE_COLORS["B"]}
 GRADE_C = {"grade":"C", "value":2, "color":GRADE_COLORS["C"]}

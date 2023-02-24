@@ -98,6 +98,11 @@ export const USERS_COLUMNS = [
         sortDescFirst: true
     },
     {
+        Header: "Unit Count",
+        accessor: "unit_count",
+        sortDescFirst: true
+    },
+    {
         Header: "Code Violations Count",
         accessor: "code_violations_count",
         sortDescFirst: true
