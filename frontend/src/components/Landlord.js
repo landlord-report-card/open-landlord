@@ -26,8 +26,8 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const SMALL_LANDLORD = {"maxSize": 2, "sizeDetail": "Small (One or two units owned)", "gradeClassName": "green-grade"}
 const MEDIUM_LANDLORD = {"maxSize": 5, "sizeDetail": "Medium (Between 3 and 5 units owned)", "gradeClassName": "yellow-grade"}
-const LARGE_LANDLORD = {"maxSize": 10, "sizeDetail": "Large (Between 6 and 10 units owned)", "gradeClassName": "red-grade"}
-const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 10 units owned)", "gradeClassName": "red-grade"}
+const LARGE_LANDLORD = {"maxSize": 15, "sizeDetail": "Large (Between 6 and 15 units owned)", "gradeClassName": "red-grade"}
+const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 15 units owned)", "gradeClassName": "red-grade"}
 
 
 function getLandlordSizeInfo(size, feature) {
@@ -150,9 +150,8 @@ function GradeDetailWidget(props) {
             <Accordion.Header>{props.heading}<span className={getColorClassName(props.individual_grade) + " font-handwritten grade-value"}>{props.individual_grade}</span></Accordion.Header>
             <Accordion.Body>
               <p className="mb-0">{props.heading_total}: {props.total} </p>
-              <p className="mb-0">{props.heading} Per Property: {Math.round(props.per_property * 100) / 100} </p>
               <p className="mb-0">{props.heading} Per Unit: {Math.round(props.per_unit * 100) / 100} </p>
-              <p className="mb-0">City Average Per Property: {Math.round(props.city_average * 100) / 100} </p>
+              <p className="mb-0">City Average Per Unit: {Math.round(props.city_average * 1000) / 1000} </p>
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
