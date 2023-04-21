@@ -26,6 +26,7 @@ class LandlordSchema(ma.SQLAlchemySchema):
 
     name = ma.auto_field()
     id = ma.auto_field()
+    group_id = ma.auto_field()
     address = ma.auto_field()
     property_count = ma.auto_field()
     eviction_count = ma.auto_field()
@@ -48,6 +49,7 @@ class PropertySchema(ma.Schema):
             "id",
             "property_type",
             "owner_id",
+            "group_id",
             "tenant_complaints",
             "owner_occupied",
             "unsafe_unfit_count",
@@ -101,10 +103,10 @@ def get_top_landlords():
     return jsonify({"total_results": landlords_paginated.total, "landlords": landlords_paginated.items})
 
 
-@app.route('/api/landlords/<id>', methods=['GET'])
+@app.route('/api/landlords/<group_id>', methods=['GET'])
 @cross_origin()
-def get_landlord(id):
-    return LANDLORD_SCHEMA.jsonify(Landlord.query.get(id))
+def get_landlord(group_id):
+    return LANDLORD_SCHEMA.jsonify(Landlord.query.filter_by(group_id=group_id).first())
 
 
 @app.route('/api/landlords/', methods=['POST'])
@@ -112,42 +114,42 @@ def get_landlord(id):
 def get_landlords_bulk():
     response_json = request.get_json()
     landlord_ids = response_json["ids"] if "ids" in response_json else []
-    landlords = Landlord.query.filter(Landlord.id.in_(landlord_ids)).all()
+    landlords = Landlord.query.filter(Landlord.group_id.in_(landlord_ids)).all()
     landlord_map = {}
     for landlord in landlords:
-        landlord_map[landlord.id] = landlord.as_dict()
+        landlord_map[landlord.group_id] = landlord.as_dict()
 
     return jsonify(landlord_map)
 
 
-@app.route('/api/landlords/<landlord_id>/aliases', methods=['GET'])
+@app.route('/api/landlords/<group_id>/aliases', methods=['GET'])
 @cross_origin()
-def get_landlord_aliases(landlord_id):
-    aliases = Alias.query.filter_by(landlord_id=landlord_id).all()
+def get_landlord_aliases(group_id):
+    aliases = Alias.query.filter_by(group_id=group_id).all()
     return ALIASES_SCHEMA.jsonify(aliases)
 
 
-@app.route('/api/landlords/<landlord_id>/grades', methods=['GET'])
+@app.route('/api/landlords/<group_id>/grades', methods=['GET'])
 @cross_origin()
-def get_landlord_grades(landlord_id):
-    landlord = Landlord.query.get(landlord_id).as_dict()
+def get_landlord_grades(group_id):
+    landlord = Landlord.query.filter_by(group_id=group_id).first().as_dict()
     stats = utils.get_city_average_stats()
     grades = utils.add_grade_and_color(landlord, stats)
     grades.update(utils.calculate_landlord_score(grades))
     return jsonify(grades)
 
 
-@app.route('/api/landlords/<landlord_id>/properties', methods=['GET'])
+@app.route('/api/landlords/<group_id>/properties', methods=['GET'])
 @cross_origin()
-def get_landlord_properties(landlord_id):
-    properties = Property.query.filter_by(owner_id=landlord_id).all()
+def get_landlord_properties(group_id):
+    properties = Property.query.filter_by(group_id=group_id).all()
     return PROPERTIES_SCHEMA.jsonify(properties)
 
 
-@app.route('/api/landlords/<landlord_id>/unsafe_unfit', methods=['GET'])
+@app.route('/api/landlords/<group_id>/unsafe_unfit', methods=['GET'])
 @cross_origin()
-def get_landlord_unsafe_unfit_properties(landlord_id):
-    properties = Property.query.filter(Property.owner_id == landlord_id).filter(Property.unsafe_unfit_count > 0).all()
+def get_landlord_unsafe_unfit_properties(group_id):
+    properties = Property.query.filter(Property.group_id == group_id).filter(Property.unsafe_unfit_count > 0).all()
     return PROPERTIES_SCHEMA.jsonify(properties)
 
 

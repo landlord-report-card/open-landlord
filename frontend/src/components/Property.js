@@ -53,7 +53,7 @@ function PropertyNoROPWarning(props) {
 function PropertyInfo(props) {
     return (
         <>
-          <span>Owner: </span> &nbsp;<a href={"/landlord/" + props.property.owner_id}>{props.property.owner.name}</a><br />
+          <span>Owner: </span> &nbsp;<a href={"/landlord/" + props.property.group_id}>{props.property.owner.name}</a><br />
           <span>Has Residential Occupancy Permit (ROP): </span>{props.property.has_rop ? 'Yes' : 'No'}<br />
           <span>Number of Units: </span>{props.property.unit_count}<br />
           <span>Current Use: </span> &nbsp;{props.property.current_use}<br />
@@ -78,7 +78,7 @@ export default function Property () {
         axios.get("/api/properties/" + id).then((response) => {
           const propertyResponse = response.data;
           document.title = propertyResponse.address;
-          axios.get("/api/landlords/" + response.data.owner_id).then((response2) => {
+          axios.get("/api/landlords/" + response.data.group_id).then((response2) => {
             propertyResponse["owner"] = response2.data
             setProperty(propertyResponse);
           });

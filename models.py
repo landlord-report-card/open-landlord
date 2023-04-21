@@ -9,19 +9,19 @@ db = SQLAlchemy()
 
 
 class Alias(db.Model):
-    __tablename__ = "alias"
+    __tablename__ = "staging_alias"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
-    landlord_id = db.Column(db.Integer, db.ForeignKey("landlord.id"))
+    group_id = db.Column(db.String(256), unique=False, nullable=True)
 
 
 class Landlord(db.Model):
-    __tablename__ = "landlord"
+    __tablename__ = "staging_landlord"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     address = db.Column(db.String(250))
     location = db.Column(db.String(250))
-    group_id = db.Column(db.String(50))
+    group_id = db.Column(db.String(256))
     property_count = db.Column(db.Integer)
     unit_count = db.Column(db.Integer)
     unsafe_unfit_count = db.Column(db.Integer)
@@ -74,7 +74,7 @@ class Landlord(db.Model):
 
 
 class Property(db.Model):
-    __tablename__ = "property"
+    __tablename__ = "staging_property"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     parcel_id = db.Column(db.String(250), nullable=False)
     address = db.Column(db.String(250), nullable=False)
@@ -82,9 +82,9 @@ class Property(db.Model):
     street_name = db.Column(db.String(250))
     zip_code = db.Column(db.String(10))
     property_type = db.Column(db.String(250))
-    owner_id = db.Column(db.Integer, db.ForeignKey("landlord.id"))
+    owner_id = db.Column(db.Integer, db.ForeignKey("staging_landlord.id"))
     service_call_count = db.Column(db.Integer)
-    tenant_complaints = db.Column(db.Integer)
+    tenant_complaints_count = db.Column(db.Integer)
     health_violation_count = db.Column(db.Integer)
     court_case_count = db.Column(db.Integer)
     owner_occupied = db.Column(db.String(250))
@@ -98,7 +98,7 @@ class Property(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     unsafe_unfit_count = db.Column(db.Integer)
-    group_id = db.Column(db.String(50), db.ForeignKey("landlord.group_id"))
+    group_id = db.Column(db.String(50), db.ForeignKey("staging_landlord.group_id"))
     unit_count = db.Column(db.Integer)
     has_rop = db.Column(db.Boolean)
     

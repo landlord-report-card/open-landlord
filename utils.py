@@ -136,10 +136,10 @@ def get_stats_grade_and_color(value, average, std_dev):
 
 def get_city_average_stats():
     property_stats_row = Property.query.with_entities(
-        func.avg(Property.tenant_complaints).label('average_tenant_complaints_count'),
+        func.avg(Property.tenant_complaints_count).label('average_tenant_complaints_count'),
         func.avg(Property.code_violations_count).label('average_code_violations_count'),
         func.avg(Property.police_incidents_count).label('average_police_incidents_count'),
-        func.stddev(Property.tenant_complaints).label('tenant_complaints_count_std_dev'),
+        func.stddev(Property.tenant_complaints_count).label('tenant_complaints_count_std_dev'),
         func.stddev(Property.code_violations_count).label('code_violations_count_std_dev'),
         func.stddev(Property.police_incidents_count).label('police_incidents_count_std_dev'),
     ).first()
@@ -209,7 +209,7 @@ def get_landlord_filter_criteria(search_string):
 def perform_search(text, max_results):
     filter_criteria = get_address_filter_criteria(text) | get_landlord_filter_criteria(text)
 
-    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).order_by(Property.address).limit(max_results)
+    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.group_id==Property.group_id).order_by(Property.address).limit(max_results)
     return results
 
 
