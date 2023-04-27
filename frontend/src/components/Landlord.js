@@ -31,7 +31,7 @@ const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 1
 
 
 function getLandlordSizeInfo(size, feature) {
-    if (size == 0) return ""
+    if (size == 0) return "No Rental Properties on File"
     if (size > LARGE_LANDLORD["maxSize"]) return XLARGE_LANDLORD[feature];
     if (size > MEDIUM_LANDLORD["maxSize"]) return LARGE_LANDLORD[feature];
     if (size > SMALL_LANDLORD["maxSize"]) return MEDIUM_LANDLORD[feature];
@@ -94,6 +94,18 @@ function UnsafeUnfitWarning(props) {
 }
 
 
+function GradeTitleRow(props) {
+    if (props.landlord.unit_count == 0) {
+        return (<span className="landlord-name font-handwritten">N/A</span>)
+    }
+    return (
+        <span className={getColorClassName(props.landlord.grade) + " font-handwritten grade"}>
+            {props.landlord.grade}
+        </span>
+    )
+}
+
+
 function LandlordTitleRow(props) {
     return (
       <Row className="title-row text-center">
@@ -103,7 +115,7 @@ function LandlordTitleRow(props) {
         </Col>
         <Col sm>
           <span className="title-label">Grade</span><br />
-          <span className={getColorClassName(props.landlord.grade) + " font-handwritten grade"}>{props.landlord.grade}</span>
+          <GradeTitleRow landlord={props.landlord}/>
         </Col>        
       </Row>
     )
@@ -159,6 +171,9 @@ function GradeDetailWidget(props) {
 }
 
 function GradeDetailColumn(props) {
+    if (props.landlord.unit_count == 0) {
+        return null
+    }
     return (
         <Col sm={5} className="landlord-grades">
             <GradeDetailWidget heading="Tenant Complaints" heading_total="Total Tenant Complaints" individual_grade={props.landlord.tenant_complaints_count_grade}

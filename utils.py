@@ -136,20 +136,20 @@ def get_stats_grade_and_color(value, average, std_dev):
 def get_city_average_stats(divide_by_units=False):
     if divide_by_units:
         property_stats_row = Property.query.with_entities(
-            func.avg(Property.tenant_complaints / Property.unit_count).label('average_tenant_complaints_count'),
+            func.avg(Property.tenant_complaints_count / Property.unit_count).label('average_tenant_complaints_count'),
             func.avg(Property.code_violations_count / Property.unit_count).label('average_code_violations_count'),
             func.avg(Property.police_incidents_count / Property.unit_count).label('average_police_incidents_count'),
-            func.stddev(Property.tenant_complaints / Property.unit_count).label('tenant_complaints_count_std_dev'),
+            func.stddev(Property.tenant_complaints_count / Property.unit_count).label('tenant_complaints_count_std_dev'),
             func.stddev(Property.code_violations_count / Property.unit_count).label('code_violations_count_std_dev'),
             func.stddev(Property.police_incidents_count / Property.unit_count).label('police_incidents_count_std_dev'),
         ).first()
 
     else:
         property_stats_row = Property.query.with_entities(
-            func.avg(Property.tenant_complaints).label('average_tenant_complaints_count'),
+            func.avg(Property.tenant_complaints_count).label('average_tenant_complaints_count'),
             func.avg(Property.code_violations_count).label('average_code_violations_count'),
             func.avg(Property.police_incidents_count).label('average_police_incidents_count'),
-            func.stddev(Property.tenant_complaints).label('tenant_complaints_count_std_dev'),
+            func.stddev(Property.tenant_complaints_count).label('tenant_complaints_count_std_dev'),
             func.stddev(Property.code_violations_count).label('code_violations_count_std_dev'),
             func.stddev(Property.police_incidents_count).label('police_incidents_count_std_dev'),
         ).first()

@@ -37,7 +37,7 @@ COLUMN_LIST = [
     {"csv_column": "Current Use", "db_column": "current_use", "column_type":types.String, "is_owner_col": False, "is_owner_aggregate": False},
     {"csv_column": "Police Incidents - Count - LANDLORD/TENANT TROUBLE - In the last 12 months", "db_column": "police_incidents_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
     {"csv_column": "Unsafe & Unfit Buildings - In the last 12 months", "db_column": "unsafe_unfit_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
-    {"csv_column": "Rental Registry - Count by Rental Units - In the last 30 months", "db_column": "unit_count", "column_type":types.Integer, "default_value": None, "is_owner_col": False, "is_owner_aggregate": True},
+    {"csv_column": "Rental Registry - Count by Rental Units - In the last 30 months", "db_column": "unit_count", "column_type":types.Integer, "default_value": 0, "is_owner_col": False, "is_owner_aggregate": True},
     {"csv_column": "ROP Code Cases - Count By Status - Closed - In the last 30 months", "db_column": "has_rop", "column_type":types.Boolean, "is_owner_col": False, "is_owner_aggregate": False},
 ]
 
