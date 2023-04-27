@@ -58,6 +58,34 @@ class Landlord(db.Model):
             return self.eviction_count / self.property_count
         return None
 
+
+    @hybrid_property
+    def code_violations_count_per_unit(self):
+        if self.code_violations_count and self.unit_count:
+            return self.code_violations_count / self.unit_count
+        return None
+
+
+    @hybrid_property
+    def police_incidents_count_per_unit(self):
+        if self.police_incidents_count and self.unit_count:
+            return self.police_incidents_count / self.unit_count
+        return None
+
+
+    @hybrid_property
+    def tenant_complaints_count_per_unit(self):
+        if self.tenant_complaints_count and self.unit_count:
+            return self.tenant_complaints_count / self.unit_count
+        return None
+
+
+    @hybrid_property
+    def eviction_count_per_unit(self):
+        if self.eviction_count and self.unit_count:
+            return self.eviction_count / self.unit_count
+        return None
+
     def __repr__(self):
         return '<Landlord %r>' % self.name
 

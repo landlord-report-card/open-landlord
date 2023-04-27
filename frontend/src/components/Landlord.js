@@ -24,13 +24,14 @@ let DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const SMALL_LANDLORD = {"maxSize": 1, "sizeDetail": "Small (One property owned)", "gradeClassName": "green-grade"}
-const MEDIUM_LANDLORD = {"maxSize": 4, "sizeDetail": "Medium (Between 1 and 4 properties owned)", "gradeClassName": "yellow-grade"}
-const LARGE_LANDLORD = {"maxSize": 10, "sizeDetail": "Large (Between 5 and 10 properties owned)", "gradeClassName": "red-grade"}
-const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 10 properties owned)", "gradeClassName": "red-grade"}
+const SMALL_LANDLORD = {"maxSize": 2, "sizeDetail": "Small (One or two units owned)", "gradeClassName": "green-grade"}
+const MEDIUM_LANDLORD = {"maxSize": 5, "sizeDetail": "Medium (Between 3 and 5 units owned)", "gradeClassName": "yellow-grade"}
+const LARGE_LANDLORD = {"maxSize": 15, "sizeDetail": "Large (Between 6 and 15 units owned)", "gradeClassName": "red-grade"}
+const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 15 units owned)", "gradeClassName": "red-grade"}
 
 
 function getLandlordSizeInfo(size, feature) {
+    if (size == 0) return ""
     if (size > LARGE_LANDLORD["maxSize"]) return XLARGE_LANDLORD[feature];
     if (size > MEDIUM_LANDLORD["maxSize"]) return LARGE_LANDLORD[feature];
     if (size > SMALL_LANDLORD["maxSize"]) return MEDIUM_LANDLORD[feature];
@@ -131,7 +132,11 @@ function LandlordDetailColumn(props) {
           <span className="landlord-attribute">Address: </span>
           <span className="font-handwritten">{props.landlord.address}</span><br/>
           <span className="landlord-attribute">Landlord Size: </span> 
-          <span className={getLandlordSizeClassName(props.landlord.property_count) + " font-handwritten"}>{getLandlordSize(props.landlord.property_count)}</span><br/>
+          <span className={getLandlordSizeClassName(props.landlord.unit_count) + " font-handwritten"}>{getLandlordSize(props.landlord.unit_count)}</span><br/>
+          {props.landlord.unit_count != 0 &&
+            <><span className="landlord-attribute">Total Rental Unit Count: </span>
+            <span className="font-handwritten">{props.landlord.unit_count}</span><br/></>
+          }
           <AliasesBlock aliases={props.aliases}/>
         </Col>
     )
@@ -145,8 +150,8 @@ function GradeDetailWidget(props) {
             <Accordion.Header>{props.heading}<span className={getColorClassName(props.individual_grade) + " font-handwritten grade-value"}>{props.individual_grade}</span></Accordion.Header>
             <Accordion.Body>
               <p className="mb-0">{props.heading_total}: {props.total} </p>
-              <p className="mb-0">{props.heading} Per Property: {Math.round(props.per_property * 100) / 100} </p>
-              <p className="mb-0">City Average: {Math.round(props.city_average * 1000) / 1000} </p>
+              <p className="mb-0">{props.heading} Per Unit: {Math.round(props.per_unit * 100) / 100} </p>
+              <p className="mb-0">City Average Per Unit: {Math.round(props.city_average * 1000) / 1000} </p>
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>
@@ -157,13 +162,13 @@ function GradeDetailColumn(props) {
     return (
         <Col sm={5} className="landlord-grades">
             <GradeDetailWidget heading="Tenant Complaints" heading_total="Total Tenant Complaints" individual_grade={props.landlord.tenant_complaints_count_grade}
-            total={props.landlord.tenant_complaints_count} per_property={props.landlord.tenant_complaints_count_per_property} city_average={props.city_average_stats.average_tenant_complaints_count} />
+            total={props.landlord.tenant_complaints_count} per_property={props.landlord.tenant_complaints_count_per_property} per_unit={props.landlord.tenant_complaints_count_per_unit} city_average={props.city_average_stats.average_tenant_complaints_count} />
             <GradeDetailWidget heading="Code Violations" heading_total="Total Code Violations" individual_grade={props.landlord.code_violations_count_grade}
-            total={props.landlord.code_violations_count} per_property={props.landlord.code_violations_count_per_property} city_average={props.city_average_stats.average_code_violations_count} />
+            total={props.landlord.code_violations_count} per_property={props.landlord.code_violations_count_per_property} per_unit={props.landlord.code_violations_count_per_unit} city_average={props.city_average_stats.average_code_violations_count} />
             <GradeDetailWidget heading="Police Incidents" heading_total="Total Police Incidents" individual_grade={props.landlord.police_incidents_count_grade}
-            total={props.landlord.police_incidents_count} per_property={props.landlord.police_incidents_count_per_property} city_average={props.city_average_stats.average_police_incidents_count} />
+            total={props.landlord.police_incidents_count} per_property={props.landlord.police_incidents_count_per_property} per_unit={props.landlord.police_incidents_count_per_unit} city_average={props.city_average_stats.average_police_incidents_count} />
             <GradeDetailWidget heading="Eviction Filings" heading_total="Total 2023 Eviction Filings" individual_grade={props.landlord.eviction_count_grade}
-            total={props.landlord.eviction_count} per_property={props.landlord.eviction_count_per_property} city_average={props.city_average_stats.average_eviction_count} />
+            total={props.landlord.eviction_count} per_property={props.landlord.eviction_count_per_property} per_unit={props.landlord.eviction_count_per_unit} city_average={props.city_average_stats.average_eviction_count} />
         </Col>
     )
   }

@@ -30,6 +30,7 @@ class LandlordSchema(ma.SQLAlchemySchema):
     address = ma.auto_field()
     property_count = ma.auto_field()
     eviction_count = ma.auto_field()
+    unit_count = ma.auto_field()
     eviction_count_per_property = fields.Float(dump_only=True)
     code_violations_count = ma.auto_field()
     code_violations_count_per_property = fields.Float(dump_only=True)
