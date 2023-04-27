@@ -191,6 +191,7 @@ def get_address_filter_criteria(search_string):
     search_string = utils.replace_ordinals(search_string)
     parsed_address_tuple_list = usaddress.parse(search_string)
     parsed_address = get_address_dict(parsed_address_tuple_list)
+
     if "AddressNumber" in parsed_address and "StreetName" in parsed_address:
         filter_criteria = Property.house_number.ilike("{}".format(parsed_address["AddressNumber"])) & Property.address.ilike("%{}%".format(parsed_address["StreetName"]))
     elif "StreetName" in parsed_address:
@@ -209,7 +210,7 @@ def get_landlord_filter_criteria(search_string):
 def perform_search(text, max_results):
     filter_criteria = get_address_filter_criteria(text) | get_landlord_filter_criteria(text)
 
-    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).order_by(Property.address).limit(max_results)
+    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.group_id==Property.group_id).order_by(Property.address).limit(max_results)
     return results
 
 

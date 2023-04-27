@@ -53,7 +53,7 @@ function PropertyNoROPWarning(props) {
 function PropertyInfo(props) {
     return (
         <>
-          <span>Owner: </span> &nbsp;<a href={"/landlord/" + props.property.owner_id}>{props.property.owner.name}</a><br />
+          <span>Owner: </span> &nbsp;<a href={"/landlord/" + props.property.group_id}>{props.property.owner.name}</a><br />
           <span>Has Residential Occupancy Permit (ROP): </span>{props.property.has_rop ? 'Yes' : 'No'}<br />
           <span>Number of Rental Units: </span>{props.property.unit_count}<br />
           <span>Current Use: </span> &nbsp;{props.property.current_use}<br />
@@ -61,7 +61,7 @@ function PropertyInfo(props) {
           <span>Owner Occupied: </span>{props.property.owner_occupied}<br />
           <span>Parcel ID: </span>{props.property.parcel_id}<br />
           <span>Property Type: </span>{props.property.property_type}<br />
-          <span>Tenant Complaints: </span>{props.property.tenant_complaints}<br />
+          <span>Tenant Complaints: </span>{props.property.tenant_complaints_count}<br />
           <span>Code Violations Count: </span>{props.property.code_violations_count}<br />
           <span>Police Incidents Count: </span>{props.property.police_incidents_count}<br />
         </>
@@ -78,7 +78,7 @@ export default function Property () {
         axios.get("/api/properties/" + id).then((response) => {
           const propertyResponse = response.data;
           document.title = propertyResponse.address;
-          axios.get("/api/landlords/" + response.data.owner_id).then((response2) => {
+          axios.get("/api/landlords/" + response.data.group_id).then((response2) => {
             propertyResponse["owner"] = response2.data
             setProperty(propertyResponse);
           });
