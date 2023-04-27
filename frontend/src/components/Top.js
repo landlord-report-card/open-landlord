@@ -78,7 +78,7 @@ export const USERS_COLUMNS = [
     {
         Header: "Name",
         accessor: "name",
-        Cell: props =><a href={"landlord/" + props.row.original.id}> {props.value} </a>    },
+        Cell: props =><a href={"landlord/" + props.row.original.group_id}> {props.value} </a>    },
     {
         Header: "Address",
         accessor: "address",
@@ -95,6 +95,11 @@ export const USERS_COLUMNS = [
     {
         Header: "Property Count",
         accessor: "property_count",
+        sortDescFirst: true
+    },
+    {
+        Header: "Unit Count",
+        accessor: "unit_count",
         sortDescFirst: true
     },
     {

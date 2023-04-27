@@ -27,12 +27,12 @@ export default function Search() {
         }
         axios.get("/api/search?query=" + query).then((response) => {
           const addressResults = response.data
-          const landlordIds = addressResults.map(a => a.owner_id);
+          const landlordIds = addressResults.map(a => a.group_id);
           axios.post('/api/landlords/', {"ids": landlordIds}).then((response) => {
               const landlords = response.data
               const mergedData = addressResults;
               mergedData.forEach(function (element) {
-                element.landlord = landlords[element.owner_id];
+                element.landlord = landlords[element.group_id];
               });
               setResults(mergedData)
           });
@@ -64,7 +64,7 @@ export default function Search() {
                 {tableList.map((item) => (
                   <Row key={item.id} item={item}>
                     <Cell>{item.address}</Cell>
-                    <Cell><a href={"/landlord/" + item.owner_id}>{item.landlord.name}</a></Cell>
+                    <Cell><a href={"/landlord/" + item.group_id}>{item.landlord.name}</a></Cell>
                   </Row>
                 ))}
               </Body>

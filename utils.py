@@ -40,7 +40,6 @@ def get_landlord_stats(landlord_id, properties_list, city_average_stats):
 
 def get_enriched_landlord(landlord_id):
     landlord = get_landlord(landlord_id).as_dict()
-    landlord = add_landlord_size(landlord)
     landlord = replace_none_with_zero(landlord)
     return landlord
 
@@ -67,13 +66,13 @@ def get_std_devs(value, average, std_dev):
 
 
 def get_grade_and_color_from_std_devs(std_devs):
-    if std_devs <= -2:
+    if std_devs <= -1.5:
         return constants.GRADE_F
-    elif std_devs <= -1:
+    elif std_devs <= -.5:
         return constants.GRADE_D
-    elif std_devs >= 2:
+    elif std_devs >= 1.5:
         return constants.GRADE_A
-    elif std_devs >= 1:
+    elif std_devs >= 0.5:
         return constants.GRADE_B
     else:
         return constants.GRADE_C
@@ -134,15 +133,26 @@ def get_stats_grade_and_color(value, average, std_dev):
     return grade_and_color
 
 
-def get_city_average_stats():
-    property_stats_row = Property.query.with_entities(
-        func.avg(Property.tenant_complaints).label('average_tenant_complaints_count'),
-        func.avg(Property.code_violations_count).label('average_code_violations_count'),
-        func.avg(Property.police_incidents_count).label('average_police_incidents_count'),
-        func.stddev(Property.tenant_complaints).label('tenant_complaints_count_std_dev'),
-        func.stddev(Property.code_violations_count).label('code_violations_count_std_dev'),
-        func.stddev(Property.police_incidents_count).label('police_incidents_count_std_dev'),
-    ).first()
+def get_city_average_stats(divide_by_units=False):
+    if divide_by_units:
+        property_stats_row = Property.query.with_entities(
+            func.avg(Property.tenant_complaints_count / Property.unit_count).label('average_tenant_complaints_count'),
+            func.avg(Property.code_violations_count / Property.unit_count).label('average_code_violations_count'),
+            func.avg(Property.police_incidents_count / Property.unit_count).label('average_police_incidents_count'),
+            func.stddev(Property.tenant_complaints_count / Property.unit_count).label('tenant_complaints_count_std_dev'),
+            func.stddev(Property.code_violations_count / Property.unit_count).label('code_violations_count_std_dev'),
+            func.stddev(Property.police_incidents_count / Property.unit_count).label('police_incidents_count_std_dev'),
+        ).first()
+
+    else:
+        property_stats_row = Property.query.with_entities(
+            func.avg(Property.tenant_complaints_count).label('average_tenant_complaints_count'),
+            func.avg(Property.code_violations_count).label('average_code_violations_count'),
+            func.avg(Property.police_incidents_count).label('average_police_incidents_count'),
+            func.stddev(Property.tenant_complaints_count).label('tenant_complaints_count_std_dev'),
+            func.stddev(Property.code_violations_count).label('code_violations_count_std_dev'),
+            func.stddev(Property.police_incidents_count).label('police_incidents_count_std_dev'),
+        ).first()
 
     landlord_stats_row = Landlord.query.with_entities(
         func.avg(Landlord.eviction_count).label('average_eviction_count'),
@@ -157,16 +167,6 @@ def get_city_average_stats():
     property_stats.update(landlord_stats)
 
     return property_stats
-
-
-def add_landlord_size(landlord):
-    for (size, attributes) in constants.LANDLORD_SIZES:
-        if landlord["property_count"] > size:
-            landlord["size"] = attributes["size"]
-            landlord["size_color"] = attributes["color"]
-            break
-
-    return landlord
 
 
 def replace_ordinals(text):
@@ -191,6 +191,7 @@ def get_address_filter_criteria(search_string):
     search_string = utils.replace_ordinals(search_string)
     parsed_address_tuple_list = usaddress.parse(search_string)
     parsed_address = get_address_dict(parsed_address_tuple_list)
+
     if "AddressNumber" in parsed_address and "StreetName" in parsed_address:
         filter_criteria = Property.house_number.ilike("{}".format(parsed_address["AddressNumber"])) & Property.address.ilike("%{}%".format(parsed_address["StreetName"]))
     elif "StreetName" in parsed_address:
@@ -209,7 +210,7 @@ def get_landlord_filter_criteria(search_string):
 def perform_search(text, max_results):
     filter_criteria = get_address_filter_criteria(text) | get_landlord_filter_criteria(text)
 
-    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.id==Property.owner_id).order_by(Property.address).limit(max_results)
+    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.group_id==Property.group_id).order_by(Property.address).limit(max_results)
     return results
 
 
@@ -243,9 +244,9 @@ def get_ranked_landlords(sort_by, sort_direction, page_number, page_size):
 
     ranking_criteria = getattr(Landlord, sort_by)
     if sort_direction == "asc":
-        results = Landlord.query.order_by(ranking_criteria.asc()).paginate(page_number, page_size)
+        results = Landlord.query.order_by(ranking_criteria.is_(None), ranking_criteria.asc()).paginate(page_number, page_size)
     else:
-        results = Landlord.query.order_by(ranking_criteria.desc()).paginate(page_number, page_size)
+        results = Landlord.query.order_by(ranking_criteria.is_(None), ranking_criteria.desc()).paginate(page_number, page_size)
     landlord_list = []
     city_stats = utils.get_city_average_stats()
     for landlord in results.items:
