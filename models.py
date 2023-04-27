@@ -9,14 +9,14 @@ db = SQLAlchemy()
 
 
 class Alias(db.Model):
-    __tablename__ = "staging_alias"
+    __tablename__ = "alias"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     group_id = db.Column(db.String(256), unique=False, nullable=True)
 
 
 class Landlord(db.Model):
-    __tablename__ = "staging_landlord"
+    __tablename__ = "landlord"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     address = db.Column(db.String(250))
@@ -102,7 +102,7 @@ class Landlord(db.Model):
 
 
 class Property(db.Model):
-    __tablename__ = "staging_property"
+    __tablename__ = "property"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     parcel_id = db.Column(db.String(250), nullable=False)
     address = db.Column(db.String(250), nullable=False)
@@ -120,7 +120,7 @@ class Property(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     unsafe_unfit_count = db.Column(db.Integer)
-    group_id = db.Column(db.String(50), db.ForeignKey("staging_landlord.group_id"))
+    group_id = db.Column(db.String(50), db.ForeignKey("landlord.group_id"))
     unit_count = db.Column(db.Integer)
     has_rop = db.Column(db.Boolean)
     
