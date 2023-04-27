@@ -162,7 +162,7 @@ function GradeDetailColumn(props) {
             total={props.landlord.code_violations_count} per_property={props.landlord.code_violations_count_per_property} city_average={props.city_average_stats.average_code_violations_count} />
             <GradeDetailWidget heading="Police Incidents" heading_total="Total Police Incidents" individual_grade={props.landlord.police_incidents_count_grade}
             total={props.landlord.police_incidents_count} per_property={props.landlord.police_incidents_count_per_property} city_average={props.city_average_stats.average_police_incidents_count} />
-            <GradeDetailWidget heading="Eviction Filings" heading_total="Total Eviction Filings in Q3 2022" individual_grade={props.landlord.eviction_count_grade}
+            <GradeDetailWidget heading="Eviction Filings" heading_total="Total 2023 Eviction Filings" individual_grade={props.landlord.eviction_count_grade}
             total={props.landlord.eviction_count} per_property={props.landlord.eviction_count_per_property} city_average={props.city_average_stats.average_eviction_count} />
         </Col>
     )

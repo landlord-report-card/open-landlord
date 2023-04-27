@@ -61,7 +61,7 @@ function PropertyInfo(props) {
           <span>Owner Occupied: </span>{props.property.owner_occupied}<br />
           <span>Parcel ID: </span>{props.property.parcel_id}<br />
           <span>Property Type: </span>{props.property.property_type}<br />
-          <span>Tenant Complaints: </span>{props.property.tenant_complaints}<br />
+          <span>Tenant Complaints: </span>{props.property.tenant_complaints_count}<br />
           <span>Code Violations Count: </span>{props.property.code_violations_count}<br />
           <span>Police Incidents Count: </span>{props.property.police_incidents_count}<br />
         </>

@@ -4,6 +4,7 @@ import argparse
 import uuid
 import json
 import logging
+import usaddress
 from hashlib import sha256
 from models import db, Landlord, Property, Alias
 from app import app
@@ -117,6 +118,17 @@ def parse_csv_as_dict_list(csv_filename):
         reader = csv.DictReader(csvfile)
         return list(reader)
 
+def parse_geocoded_csv_as_map(csv_filename):
+    geocoded_parcel_ids = {}
+    with open(csv_filename, 'r') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            geocoded_parcel_ids[row["parcel_id"]] = (row["latitude"], row["longitude"]) 
+
+    return geocoded_parcel_ids
+
+
+
 
 ##########################################
 # Data Transformation Functions
@@ -144,7 +156,23 @@ def create_alias_list(properties, groupings, evictions):
     return aliases
 
 
-def create_property_list(properties, groupings, evictions):
+def get_street_name_and_number(raw_address):
+    street_name = None
+    house_number = None
+    address_dict = {}
+    parsed_address_tuple_list = usaddress.parse(raw_address)
+    for value, field in parsed_address_tuple_list:
+        address_dict[field] = value
+
+    if "StreetName" in address_dict:
+        street_name = address_dict["StreetName"]
+    if "AddressNumber" in address_dict:
+        house_number = address_dict["AddressNumber"]
+
+    return (street_name, house_number)
+
+
+def create_property_list(properties, groupings, evictions, geocoding_map):
     logging.warning("Creating Property List.")
     property_objects = []
     count = 0
@@ -160,10 +188,19 @@ def create_property_list(properties, groupings, evictions):
             if not column_obj["is_owner_col"]:
                 property_dict[column_obj["db_column"]] = get_clean_value(prop, column_obj)
 
+        street_name, house_number = get_street_name_and_number(property_dict["address"])
+        property_dict["street_name"] = street_name
+        property_dict["house_number"] = house_number
+
+        if prop["Parcel ID"] in geocoding_map:
+            property_dict["latitude"] = geocoding_map[prop["Parcel ID"]][0]
+            property_dict["longitude"] = geocoding_map[prop["Parcel ID"]][1]
+
         property_dict["group_id"] = get_group_id(prop["Owner_1"], groupings)
 
         property_objects.append(property_dict)
         count = count + 1
+
 
     return property_objects
 
@@ -245,15 +282,16 @@ def commit_to_db(landlord_list, property_list, alias_list):
 
 
 # TODO: Still requires deleting bogus lines at beginning of CSV and removing errant "=" signs from CSV
-def populate_database(properties_filename, groupings_filename, evictions_filename):
+def populate_database(properties_filename, groupings_filename, evictions_filename, geo_filename):
     logging.warning("Parsing CSVs as Dictionaries.")
 
     properties = parse_csv_as_dict_list(properties_filename) # "/Users/akaier/Downloads/tolemi-export1680275139690.csv")
     groupings = parse_csv_as_dict_list(groupings_filename) # "/Users/akaier/Downloads/albany_owner_groups_with_properties_2023_03_23.csv")
     evictions = parse_csv_as_dict_list(evictions_filename) #"/Users/akaier/Downloads/Albany Evictions Logger - Counter.csv")
+    geocoding_map = parse_geocoded_csv_as_map(geo_filename) #"/Users/akaier/Downloads/albany_properties_lat_lon.csv")
     
     landlord_list = create_landlord_list(properties, groupings, evictions)
-    property_list = create_property_list(properties, groupings, evictions)
+    property_list = create_property_list(properties, groupings, evictions, geocoding_map)
     alias_list = create_alias_list(properties, groupings, evictions)
 
     commit_to_db(landlord_list, property_list, alias_list)
@@ -268,10 +306,11 @@ if __name__ == '__main__':
     parser.add_argument('--properties', type=str)
     parser.add_argument('--groupings', type=str)
     parser.add_argument('--evictions', type=str)
+    parser.add_argument('--geocoding', type=str)
 
     args = parser.parse_args()
 
-    populate_database(args.properties, args.groupings, args.evictions)
+    populate_database(args.properties, args.groupings, args.evictions, args.geocoding)
 
 
 

@@ -50,7 +50,7 @@ class PropertySchema(ma.Schema):
             "property_type",
             "owner_id",
             "group_id",
-            "tenant_complaints",
+            "tenant_complaints_count",
             "owner_occupied",
             "unsafe_unfit_count",
             "police_incidents_count",
