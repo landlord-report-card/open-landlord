@@ -146,7 +146,7 @@ function GradeDetailWidget(props) {
             <Accordion.Body>
               <p className="mb-0">{props.heading_total}: {props.total} </p>
               <p className="mb-0">{props.heading} Per Property: {Math.round(props.per_property * 100) / 100} </p>
-              <p className="mb-0">City Average: {Math.round(props.city_average * 100) / 100} </p>
+              <p className="mb-0">City Average: {Math.round(props.city_average * 1000) / 1000} </p>
             </Accordion.Body>
           </Accordion.Item>
         </Accordion>

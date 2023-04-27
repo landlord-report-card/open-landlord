@@ -193,7 +193,7 @@ def get_address_filter_criteria(search_string):
     parsed_address = get_address_dict(parsed_address_tuple_list)
 
     if "AddressNumber" in parsed_address and "StreetName" in parsed_address:
-        filter_criteria = Property.house_number.ilike("%{}%".format(parsed_address["AddressNumber"])) & Property.address.ilike("%{}%".format(parsed_address["StreetName"]))
+        filter_criteria = Property.house_number.ilike("{}".format(parsed_address["AddressNumber"])) & Property.address.ilike("%{}%".format(parsed_address["StreetName"]))
     elif "StreetName" in parsed_address:
         filter_criteria = Property.address.ilike("%{}%".format(parsed_address["StreetName"]))
     else:
