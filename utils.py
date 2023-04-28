@@ -203,14 +203,14 @@ def get_address_filter_criteria(search_string):
 
 
 def get_landlord_filter_criteria(search_string):
-    filter_criteria = Landlord.name.ilike("%{}%".format(search_string))
+    filter_criteria = Alias.name.ilike("%{}%".format(search_string))
     return filter_criteria
 
 
 def perform_search(text, max_results):
     filter_criteria = get_address_filter_criteria(text) | get_landlord_filter_criteria(text)
 
-    results = Property.query.filter(filter_criteria).join(Landlord, Landlord.group_id==Property.group_id).order_by(Property.address).limit(max_results)
+    results = Property.query.filter(filter_criteria).join(Alias, Alias.group_id==Property.group_id).order_by(Property.address).limit(max_results)
     return results
 
 
