@@ -116,9 +116,12 @@ def get_landlords_bulk():
     response_json = request.get_json()
     landlord_ids = response_json["ids"] if "ids" in response_json else []
     landlords = Landlord.query.filter(Landlord.group_id.in_(landlord_ids)).all()
+    aliases = Alias.query.filter(Alias.group_id.in_(landlord_ids)).all()
     landlord_map = {}
     for landlord in landlords:
         landlord_map[landlord.group_id] = landlord.as_dict()
+        alias_names = ', '.join([alias.name for alias in aliases if alias.group_id == landlord.group_id and alias.name != landlord.name])
+        landlord_map[landlord.group_id]["aliases"] = alias_names
 
     return jsonify(landlord_map)
 

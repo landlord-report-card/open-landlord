@@ -57,6 +57,7 @@ export default function Search() {
               <HeaderRow>
                 <HeaderCell>Property Address</HeaderCell>
                 <HeaderCell>Owner/Landlord Name</HeaderCell>
+                <HeaderCell>Also Known As</HeaderCell>
               </HeaderRow>
             </Header>
 
@@ -65,6 +66,7 @@ export default function Search() {
                   <Row key={item.id} item={item}>
                     <Cell>{item.address}</Cell>
                     <Cell><a href={"/landlord/" + item.group_id}>{item.landlord.name}</a></Cell>
+                    <Cell>{item.landlord.aliases}</Cell>
                   </Row>
                 ))}
               </Body>
