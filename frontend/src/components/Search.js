@@ -57,7 +57,7 @@ export default function Search() {
               <HeaderRow>
                 <HeaderCell>Property Address</HeaderCell>
                 <HeaderCell>Owner/Landlord Name</HeaderCell>
-                <HeaderCell>Owner Aliases</HeaderCell>
+                <HeaderCell>Also Known As</HeaderCell>
               </HeaderRow>
             </Header>
 
