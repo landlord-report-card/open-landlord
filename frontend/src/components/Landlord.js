@@ -31,7 +31,7 @@ const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 1
 
 
 function getLandlordSizeInfo(size, feature) {
-    if (size == 0) return "No Rental Properties on File"
+    if (size == 0) return "No Registerd Rental Properties on File"
     if (size > LARGE_LANDLORD["maxSize"]) return XLARGE_LANDLORD[feature];
     if (size > MEDIUM_LANDLORD["maxSize"]) return LARGE_LANDLORD[feature];
     if (size > SMALL_LANDLORD["maxSize"]) return MEDIUM_LANDLORD[feature];
@@ -93,9 +93,22 @@ function UnsafeUnfitWarning(props) {
         )
 }
 
+function hideGrade(props) {
+    if (
+        props.landlord.unit_count == 0 && 
+        props.landlord.code_violations_count == 0 && 
+        props.landlord.police_incidents_count == 0 &&
+        props.landlord.tenant_complaints_count == 0 &&
+        props.landlord.eviction_count == 0
+    ) {
+        return true
+    }
+    return false
+}
+
 
 function GradeTitleRow(props) {
-    if (props.landlord.unit_count == 0) {
+    if (hideGrade(props)) {
         return (<span className="landlord-name font-handwritten">N/A</span>)
     }
     return (
@@ -171,7 +184,7 @@ function GradeDetailWidget(props) {
 }
 
 function GradeDetailColumn(props) {
-    if (props.landlord.unit_count == 0) {
+    if (hideGrade(props)) {
         return null
     }
     return (
