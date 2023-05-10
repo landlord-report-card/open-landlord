@@ -31,7 +31,7 @@ const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 1
 
 
 function getLandlordSizeInfo(size, feature) {
-    if (size == 0) return "No Registerd Rental Properties on File"
+    if (size == 0) return "No Registered Rental Properties on File"
     if (size > LARGE_LANDLORD["maxSize"]) return XLARGE_LANDLORD[feature];
     if (size > MEDIUM_LANDLORD["maxSize"]) return LARGE_LANDLORD[feature];
     if (size > SMALL_LANDLORD["maxSize"]) return MEDIUM_LANDLORD[feature];
