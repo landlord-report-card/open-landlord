@@ -26,7 +26,7 @@ export default function Footer() {
       <div className='text-center disclaimer-box' style={{ backgroundColor: 'rgba(0, 0, 0, 0.2)' }}>
         &copy; {new Date().getFullYear()} Copyright:{' '}
         <a className='text-dark' href='https://www.albanylandlord.com/'>
-          Albany Landlord Report Card. 
+          Albany Landlord Report Card, Inc. 
         </a>
         &nbsp;All rights reserved.
       </div>
