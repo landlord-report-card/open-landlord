@@ -9,7 +9,7 @@ export default function About () {
         <div className="main">
 
             <p><strong>About the Landlord Report Card</strong></p>
-            <p>The Landlord Report Card is a volunteer-led, grassroots project based in Albany, NY, working to provide greater transparency into the City's data for tenants across the city. It is an open-source project whose code is available here: <a target="_blank" rel="noreferrer" href="https://github.com/landlord-report-card/open-landlord">https://github.com/landlord-report-card/open-landlord</a></p>
+            <p>The Albany Landlord Report Card, Inc. is a not for profit, volunteer-led, grassroots project based in Albany, NY, working to provide greater transparency into the City's data for tenants across the city. It is an open-source project whose code is available here: <a target="_blank" rel="noreferrer" href="https://github.com/landlord-report-card/open-landlord">https://github.com/landlord-report-card/open-landlord</a></p>
 
             <p><strong>About the Data</strong></p>
             <p>All data is provided by the City of Albany, and any errors, omissions, and inaccuracies should be reported to the City of Albany. This data is provided for informational purposes, as a public resource for general information. You should not rely on this information for any business, legal, or other decision. The Albany Landlord Report Card is not responsible for and disclaims responsibility for any losses or damages, directly or otherwise, which may result from the use of this data.</p>
