@@ -20,7 +20,7 @@ export default function TakeAction () {
                 <Accordion.Header><h5>My rights as a tenant have been violated.</h5></Accordion.Header>
                 <Accordion.Body>
                 <span class="action-accordion-body">
-                            <p><a href="https://www.albanyny.gov/1986/Your-Rights-as-a-Renter">Know your rights as a renter.</a></p>
+                            <p><a href="https://utalbany.org/know-your-rights/">Know your rights as a renter.</a></p>
                             <p>For assistance or guidance in pursuing civil legal action against a landlord, visit <a href="https://nycourts.gov/courthelp/">New York State CourtHelp</a> for a variety of self-help resources.</p>
                             <p>You may also try contacting the <strong>Legal Aid Society of Northeastern New York</strong> at (833) 628-0087.</p>
                             <p>For tenant advocacy or mediation services, contact <strong>United Tenants of Albany </strong>at (518) 436-8997 x3.</p>
