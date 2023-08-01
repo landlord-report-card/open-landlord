@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -130,4 +131,14 @@ class Property(db.Model):
 
     def as_dict(self):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
+
+class Review(db.Model):
+    __tablename__ = "review"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    text = db.Column(db.String(600))
+    timestamp = db.Column(db.DateTime(), default=datetime.utcnow, index=True)
+    landlord_alias_id = db.Column(db.Integer)
+    is_approved = db.Column(db.Boolean)
+
 

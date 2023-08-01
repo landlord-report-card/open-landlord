@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, request, redirect, send_from_di
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
 from marshmallow import fields
-from models import db, Landlord, Property, Alias
+from models import db, Landlord, Property, Alias, Review
 from constants import SEARCH_DEFAULT_MAX_RESULTS
 import os
 import utils
@@ -71,12 +71,19 @@ class AliasSchema(ma.Schema):
         fields = ("name", "landlord_id")
 
 
+class ReviewSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "text", "timestamp", "landlord_alias_id", "is_approved")
+
+
 LANDLORD_SCHEMA = LandlordSchema()
 LANDLORDS_SCHEMA = LandlordSchema(many=True)
 ALIAS_SCHEMA = AliasSchema()
 ALIASES_SCHEMA = AliasSchema(many=True)
 PROPERTY_SCHEMA = PropertySchema()
 PROPERTIES_SCHEMA = PropertySchema(many=True)
+REVIEW_SCHEMA = ReviewSchema()
+REVIEWS_SCHEMA = ReviewSchema(many=True)
 
 
 @app.route('/')
@@ -155,6 +162,30 @@ def get_landlord_properties(group_id):
 def get_landlord_unsafe_unfit_properties(group_id):
     properties = Property.query.filter(Property.group_id == group_id).filter(Property.unsafe_unfit_count > 0).all()
     return PROPERTIES_SCHEMA.jsonify(properties)
+
+
+@app.route('/api/reviews/landlord/<group_id>', methods=['GET'])
+@cross_origin()
+def get_landlord_reviews(group_id):
+    aliases = Alias.query.filter_by(group_id=group_id).all()
+    group_ids = [alias.group_id for alias in aliases]
+    reviews = Review.query.filter(Landlord.group_id.in_(group_ids)).all()
+    return REVIEWS_SCHEMA.jsonify(reviews)
+
+
+@app.route('/api/reviews/alias', methods=['POST'])
+@cross_origin()
+def create_landlord_review():
+    try:
+        data = request.get_json()
+        print(data)
+        db.session.add(Review(**data))
+        db.session.commit()
+        db.session.close()
+
+        return jsonify({'message': 'Object created successfully.'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 
 @app.route('/api/stats', methods=['GET'])
