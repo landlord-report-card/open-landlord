@@ -20,6 +20,9 @@ export default function About () {
             <p><strong>Contact Us</strong></p>
             <p>If you have feedback on the site or wish to get into contact with the developers and maintainers of the site, you can email us at <a href="mailto:info@albanylandlord.com">info@albanylandlord.com</a></p>
 
+            <p><strong>Support the Albany Landlord Report Card</strong></p>
+            <p>The Albany Landlord Report Card, Inc. is a registered not for profit dependent on grassroots support. If you would like to support the report card financially, you may do so <a href="https://www.paypal.com/donate/?hosted_button_id=USWP65CXAZC3Q">here</a>. Note that donations are not currently tax deductible.</p>
+
         </div>
     );
 }
