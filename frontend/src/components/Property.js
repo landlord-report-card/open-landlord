@@ -40,8 +40,8 @@ function PropertyNoROPWarning(props) {
                 <Accordion.Header><h5 className="warning">Are you renting this property?</h5></Accordion.Header>
                 <Accordion.Body className="alert-danger">
                   <span className="font-typewriter">
-                  <p>This property is not registered as a rental property with the City of Albany as it does not have an active ROP/Residential Occupancy Permit on file.</p>
-                  <p>If it is currently being rented, check the <a target="_blank" rel="noreferrer" href="https://www.albanyny.gov/DocumentCenter/View/2369/Active-Residential-Occupancy-Permits-12152021">online list of ROPs</a> or call the City of Albany Code Department to determine if the unit you're looking at is safe to be rented. <a target="_blank" rel="noreferrer" href="https://www.albanyny.gov/2037/Residential-Occupancy-Permits">Learn More</a></p>
+                  <p>This property does not appear to be registered as a rental property with the City of Albany as it does not have an active ROP/Residential Occupancy Permit on file.</p>
+                  <p>If it is currently being rented, check Albany's <a target="_blank" rel="noreferrer" href="https://albanyny-energovpub.tylerhost.net/Apps/SelfService#/home">Self Service Portal</a> or call the City of Albany Code Department to determine if the unit you're looking at has an ROP and is safe to be rented. <a target="_blank" rel="noreferrer" href="https://www.albanyny.gov/2037/Residential-Occupancy-Permits">Learn More</a></p>
                   </span>
                 </Accordion.Body>
               </Accordion.Item>
