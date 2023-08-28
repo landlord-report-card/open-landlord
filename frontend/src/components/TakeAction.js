@@ -107,7 +107,7 @@ export default function TakeAction () {
                 <Accordion.Header><h5>I want to check to see if my building/apartment has a Residential Occupancy Permit (ROP).</h5></Accordion.Header>
                 <Accordion.Body>
                 <span class="action-accordion-body">
-                            <p>To check if your building has an current ROP <a target="_blank" href="https://www.albanyny.gov/DocumentCenter/View/2369/Active-Residential-Occupancy-Permits-12152021?bidId=">check this list.</a></p>
+                            <p>To check if your building has an current ROP, check the <a target="_blank" href="https://albanyny-energovpub.tylerhost.net/Apps/SelfService#/home">Self Service Portal.</a></p>
                             <strong>If you do not see your property listed here, reach out to code enforcement at 518-434-5995 or by emailing <a href="mailto:codes@albanyny.gov">codes@albanyny.gov</a> to clarify why.</strong>
                 </span>
                 </Accordion.Body>
