@@ -41,6 +41,10 @@ COLUMN_LIST = [
     {"csv_column": "ROP Code Cases - Count By Status - Closed - In the last 30 months", "db_column": "has_rop", "column_type":types.Boolean, "is_owner_col": False, "is_owner_aggregate": False},
 ]
 
+COMMON_NAMES = [
+    "Albany Housing Authority",
+]
+
 
 ##########################################
 # Helper Functions
@@ -102,6 +106,10 @@ def update_landlord_obj(prop, landlord):
         if column_obj["is_owner_aggregate"]:
             landlord[column_obj["db_column"]] = landlord[column_obj["db_column"]] + get_clean_value(prop, column_obj)
 
+        # Use preferred/common names if applicable:
+        if prop["Owner_1"] in COMMON_NAMES and column_obj["is_owner_col"]:
+            landlord[column_obj["db_column"]] = get_clean_value(prop, column_obj)
+
 
 def create_landlord_obj(prop):
     landlord_dict = {}
@@ -110,6 +118,7 @@ def create_landlord_obj(prop):
     for column_obj in COLUMN_LIST:
         if column_obj["is_owner_col"] or column_obj["is_owner_aggregate"]:
             landlord_dict[column_obj["db_column"]] = get_clean_value(prop, column_obj)
+
     return landlord_dict
 
 
