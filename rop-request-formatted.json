@@ -1,0 +1,446 @@
+{
+    "Keyword": "",
+    "ExactMatch": true,
+    "SearchModule": 5,
+    "FilterModule": 1,
+    "SearchMainAddress": false,
+    "PlanCriteria": {
+        "PlanNumber": null,
+        "PlanTypeId": null,
+        "PlanWorkclassId": null,
+        "PlanStatusId": null,
+        "ProjectName": null,
+        "ApplyDateFrom": null,
+        "ApplyDateTo": null,
+        "ExpireDateFrom": null,
+        "ExpireDateTo": null,
+        "CompleteDateFrom": null,
+        "CompleteDateTo": null,
+        "Address": null,
+        "Description": null,
+        "SearchMainAddress": false,
+        "ContactId": null,
+        "ParcelNumber": null,
+        "TypeId": null,
+        "WorkClassIds": null,
+        "ExcludeCases": null,
+        "EnableDescriptionSearch": false,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "PermitCriteria": {
+        "PermitNumber": null,
+        "PermitTypeId": null,
+        "PermitWorkclassId": null,
+        "PermitStatusId": null,
+        "ProjectName": null,
+        "IssueDateFrom": null,
+        "IssueDateTo": null,
+        "Address": null,
+        "Description": null,
+        "ExpireDateFrom": null,
+        "ExpireDateTo": null,
+        "FinalDateFrom": null,
+        "FinalDateTo": null,
+        "ApplyDateFrom": null,
+        "ApplyDateTo": null,
+        "SearchMainAddress": false,
+        "ContactId": null,
+        "TypeId": null,
+        "WorkClassIds": null,
+        "ParcelNumber": null,
+        "ExcludeCases": null,
+        "EnableDescriptionSearch": false,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "InspectionCriteria": {
+        "Keyword": null,
+        "ExactMatch": false,
+        "Complete": null,
+        "InspectionNumber": null,
+        "InspectionTypeId": null,
+        "InspectionStatusId": null,
+        "RequestDateFrom": null,
+        "RequestDateTo": null,
+        "ScheduleDateFrom": null,
+        "ScheduleDateTo": null,
+        "Address": null,
+        "SearchMainAddress": false,
+        "ContactId": null,
+        "TypeId": [],
+        "WorkClassIds": [],
+        "ParcelNumber": null,
+        "DisplayCodeInspections": false,
+        "ExcludeCases": [],
+        "ExcludeFilterModules": [],
+        "HiddenInspectionTypeIDs": null,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "CodeCaseCriteria": {
+        "CodeCaseNumber": null,
+        "CodeCaseTypeId": "none",
+        "CodeCaseStatusId": "none",
+        "ProjectName": null,
+        "OpenedDateFrom": "2022-01-01T05:00:00.000Z",
+        "OpenedDateTo": "2022-12-31T05:00:00.000Z",
+        "ClosedDateFrom": null,
+        "ClosedDateTo": null,
+        "Address": null,
+        "ParcelNumber": null,
+        "Description": null,
+        "SearchMainAddress": false,
+        "RequestId": null,
+        "ExcludeCases": null,
+        "ContactId": null,
+        "EnableDescriptionSearch": false,
+        "PageNumber": 1,
+        "PageSize": 10000,
+        "SortBy": "relevance",
+        "SortAscending": false
+    },
+    "RequestCriteria": {
+        "RequestNumber": null,
+        "RequestTypeId": null,
+        "RequestStatusId": null,
+        "ProjectName": null,
+        "EnteredDateFrom": null,
+        "EnteredDateTo": null,
+        "DeadlineDateFrom": null,
+        "DeadlineDateTo": null,
+        "CompleteDateFrom": null,
+        "CompleteDateTo": null,
+        "Address": null,
+        "ParcelNumber": null,
+        "SearchMainAddress": false,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "BusinessLicenseCriteria": {
+        "LicenseNumber": null,
+        "LicenseTypeId": null,
+        "LicenseClassId": null,
+        "LicenseStatusId": null,
+        "BusinessStatusId": null,
+        "LicenseYear": null,
+        "ApplicationDateFrom": null,
+        "ApplicationDateTo": null,
+        "IssueDateFrom": null,
+        "IssueDateTo": null,
+        "ExpirationDateFrom": null,
+        "ExpirationDateTo": null,
+        "SearchMainAddress": false,
+        "CompanyTypeId": null,
+        "CompanyName": null,
+        "BusinessTypeId": null,
+        "Description": null,
+        "CompanyOpenedDateFrom": null,
+        "CompanyOpenedDateTo": null,
+        "CompanyClosedDateFrom": null,
+        "CompanyClosedDateTo": null,
+        "LastAuditDateFrom": null,
+        "LastAuditDateTo": null,
+        "ParcelNumber": null,
+        "Address": null,
+        "TaxID": null,
+        "DBA": null,
+        "ExcludeCases": null,
+        "TypeId": null,
+        "WorkClassIds": null,
+        "ContactId": null,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "ProfessionalLicenseCriteria": {
+        "LicenseNumber": null,
+        "HolderFirstName": null,
+        "HolderMiddleName": null,
+        "HolderLastName": null,
+        "HolderCompanyName": null,
+        "LicenseTypeId": null,
+        "LicenseClassId": null,
+        "LicenseStatusId": null,
+        "IssueDateFrom": null,
+        "IssueDateTo": null,
+        "ExpirationDateFrom": null,
+        "ExpirationDateTo": null,
+        "ApplicationDateFrom": null,
+        "ApplicationDateTo": null,
+        "Address": null,
+        "MainParcel": null,
+        "SearchMainAddress": false,
+        "ExcludeCases": null,
+        "TypeId": null,
+        "WorkClassIds": null,
+        "ContactId": null,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "LicenseCriteria": {
+        "LicenseNumber": null,
+        "LicenseTypeId": null,
+        "LicenseClassId": null,
+        "LicenseStatusId": null,
+        "BusinessStatusId": null,
+        "ApplicationDateFrom": null,
+        "ApplicationDateTo": null,
+        "IssueDateFrom": null,
+        "IssueDateTo": null,
+        "ExpirationDateFrom": null,
+        "ExpirationDateTo": null,
+        "SearchMainAddress": false,
+        "CompanyTypeId": null,
+        "CompanyName": null,
+        "BusinessTypeId": null,
+        "Description": null,
+        "CompanyOpenedDateFrom": null,
+        "CompanyOpenedDateTo": null,
+        "CompanyClosedDateFrom": null,
+        "CompanyClosedDateTo": null,
+        "LastAuditDateFrom": null,
+        "LastAuditDateTo": null,
+        "ParcelNumber": null,
+        "Address": null,
+        "TaxID": null,
+        "DBA": null,
+        "ExcludeCases": null,
+        "TypeId": null,
+        "WorkClassIds": null,
+        "ContactId": null,
+        "HolderFirstName": null,
+        "HolderMiddleName": null,
+        "HolderLastName": null,
+        "MainParcel": null,
+        "EnableDescriptionSearchForBLicense": false,
+        "EnableDescriptionSearchForPLicense": false,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "ProjectCriteria": {
+        "ProjectNumber": null,
+        "ProjectName": null,
+        "Address": null,
+        "ParcelNumber": null,
+        "StartDateFrom": null,
+        "StartDateTo": null,
+        "ExpectedEndDateFrom": null,
+        "ExpectedEndDateTo": null,
+        "CompleteDateFrom": null,
+        "CompleteDateTo": null,
+        "Description": null,
+        "SearchMainAddress": false,
+        "ContactId": null,
+        "TypeId": null,
+        "ExcludeCases": null,
+        "EnableDescriptionSearch": false,
+        "PageNumber": 0,
+        "PageSize": 0,
+        "SortBy": null,
+        "SortAscending": false
+    },
+    "PlanSortList": [
+        {
+            "Key": "relevance",
+            "Value": "Relevance"
+        },
+        {
+            "Key": "PlanNumber.keyword",
+            "Value": "Plan Number"
+        },
+        {
+            "Key": "ProjectName.keyword",
+            "Value": "Project"
+        },
+        {
+            "Key": "MainAddress",
+            "Value": "Address"
+        },
+        {
+            "Key": "ApplyDate",
+            "Value": "Apply Date"
+        }
+    ],
+    "PermitSortList": [
+        {
+            "Key": "relevance",
+            "Value": "Relevance"
+        },
+        {
+            "Key": "PermitNumber.keyword",
+            "Value": "Permit Number"
+        },
+        {
+            "Key": "ProjectName.keyword",
+            "Value": "Project"
+        },
+        {
+            "Key": "MainAddress",
+            "Value": "Address"
+        },
+        {
+            "Key": "IssueDate",
+            "Value": "Issued Date"
+        },
+        {
+            "Key": "FinalDate",
+            "Value": "Finalized Date"
+        }
+    ],
+    "InspectionSortList": [
+        {
+            "Key": "relevance",
+            "Value": "Relevance"
+        },
+        {
+            "Key": "InspectionNumber.keyword",
+            "Value": "Inspection Number"
+        },
+        {
+            "Key": "MainAddress",
+            "Value": "Address"
+        },
+        {
+            "Key": "ScheduledDate",
+            "Value": "Schedule Date"
+        },
+        {
+            "Key": "RequestDate",
+            "Value": "Request Date"
+        }
+    ],
+    "CodeCaseSortList": [
+        {
+            "Key": "relevance",
+            "Value": "Relevance"
+        },
+        {
+            "Key": "CaseNumber.keyword",
+            "Value": "Code Case Number"
+        },
+        {
+            "Key": "ProjectName.keyword",
+            "Value": "Project"
+        },
+        {
+            "Key": "MainAddress",
+            "Value": "Address"
+        },
+        {
+            "Key": "OpenedDate",
+            "Value": "Opened Date"
+        },
+        {
+            "Key": "ClosedDate",
+            "Value": "Closed Date"
+        }
+    ],
+    "RequestSortList": [
+        {
+            "Key": "relevance",
+            "Value": "Relevance"
+        },
+        {
+            "Key": "RequestNumber.keyword",
+            "Value": "Request Number"
+        },
+        {
+            "Key": "ProjectName.keyword",
+            "Value": "Project Name"
+        },
+        {
+            "Key": "MainAddress",
+            "Value": "Address"
+        },
+        {
+            "Key": "EnteredDate",
+            "Value": "Date Entered"
+        },
+        {
+            "Key": "CompleteDate",
+            "Value": "Completion Date"
+        }
+    ],
+    "LicenseSortList": [
+        {
+            "Key": "relevance",
+            "Value": "Relevance"
+        },
+        {
+            "Key": "LicenseNumber.keyword",
+            "Value": "License Number"
+        },
+        {
+            "Key": "CompanyName.keyword",
+            "Value": "Company Name"
+        },
+        {
+            "Key": "AppliedDate",
+            "Value": "Applied Date"
+        },
+        {
+            "Key": "MainAddress",
+            "Value": "Address"
+        }
+    ],
+    "ProjectSortList": [
+        {
+            "Key": "relevance",
+            "Value": "Relevance"
+        },
+        {
+            "Key": "ProjectNumber.keyword",
+            "Value": "Project Number"
+        },
+        {
+            "Key": "ProjectName.keyword",
+            "Value": "Project Name"
+        },
+        {
+            "Key": "StartDate",
+            "Value": "Start Date"
+        },
+        {
+            "Key": "CompleteDate",
+            "Value": "Completed Date"
+        },
+        {
+            "Key": "ExpectedEndDate",
+            "Value": "Expected End Date"
+        },
+        {
+            "Key": "MainAddress",
+            "Value": "Address"
+        }
+    ],
+    "ExcludeCases": null,
+    "SortOrderList": [
+        {
+            "Key": true,
+            "Value": "Ascending"
+        },
+        {
+            "Key": false,
+            "Value": "Descending"
+        }
+    ],
+    "HiddenInspectionTypeIDs": null,
+    "PageNumber": 0,
+    "PageSize": 0,
+    "SortBy": "relevance",
+    "SortAscending": false
+}
