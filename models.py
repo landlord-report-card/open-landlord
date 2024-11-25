@@ -35,18 +35,18 @@ class CodeCase(db.Model):
 
 class Landlord(db.Model):
     __tablename__ = "staging_landlord"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
-    address = db.Column(db.String(250))
-    location = db.Column(db.String(250))
-    group_id = db.Column(db.String(256))
-    property_count = db.Column(db.Integer) 
-    unit_count = db.Column(db.Integer) ######
-    unsafe_unfit_count = db.Column(db.Integer) ######
-    eviction_count = db.Column(db.Integer) 
-    tenant_complaints_count = db.Column(db.Integer) ######
-    code_violations_count = db.Column(db.Integer) ######
-    police_incidents_count = db.Column(db.Integer) ######
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True) #generated
+    name = db.Column(db.String(80), unique=True, nullable=False) #Owner_1
+    address = db.Column(db.String(250)) #OwnAddr_1
+    location = db.Column(db.String(250)) #Owner Location
+    group_id = db.Column(db.String(256)) #partly generated partly from grouping file
+    property_count = db.Column(db.Integer) #calculated from property list
+    unit_count = db.Column(db.Integer) #calculated from codecase data
+    unsafe_unfit_count = db.Column(db.Integer) ######  #calculated from codecase data
+    eviction_count = db.Column(db.Integer) #calculated from evictions data
+    tenant_complaints_count = db.Column(db.Integer) ###### #to be removed
+    code_violations_count = db.Column(db.Integer) ###### #calculated from codecase data
+    police_incidents_count = db.Column(db.Integer) ###### #to be removed
 
 
     @hybrid_property
