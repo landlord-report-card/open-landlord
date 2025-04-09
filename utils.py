@@ -1,5 +1,6 @@
 from decimal import Decimal
-from models import db, Landlord, Property, Alias
+from datetime import date, timedelta
+from models import db, Landlord, Property, Alias, Eviction, CodeCase
 from sqlalchemy.sql import func
 from sqlalchemy import or_
 from num2words import num2words
@@ -8,6 +9,7 @@ import re
 import constants
 import math
 import utils
+import statistics
 
 
 class PaginatedResults:
@@ -45,9 +47,9 @@ def get_enriched_landlord(landlord_id):
 
 def add_grade_and_color(landlord_stats, average_stats):
     for component in constants.GRADE_COMPONENTS:
-        grade_and_color = get_stats_grade_and_color(landlord_stats[f"{component}_per_property"],
-                                                    average_stats[f"average_{component}"], 
-                                                    average_stats[f"{component}_std_dev"])
+        grade_and_color = get_stats_grade_and_color(landlord_stats[f"{component}_per_unit"],
+                                                    average_stats[f"mean_{component}_per_unit"], 
+                                                    average_stats[f"std_dev_{component}"])
 
         landlord_stats["{}_color".format(component)] = grade_and_color["color"]
         landlord_stats["{}_grade".format(component)] = grade_and_color["grade"]
@@ -62,7 +64,7 @@ def replace_none_with_zero(some_dict):
 def get_std_devs(value, average, std_dev):
     if value is None:
         value = 0.0
-    return (average - Decimal(value)) / std_dev
+    return (average - value) / std_dev
 
 
 def get_grade_and_color_from_std_devs(std_devs):
@@ -132,41 +134,114 @@ def get_stats_grade_and_color(value, average, std_dev):
     grade_and_color = get_grade_and_color_from_std_devs(std_devs)
     return grade_and_color
 
+def landlords_with_unit_count_query():
+    two_years_ago = date.today() - timedelta(days=730) 
+    return CodeCase.query\
+        .with_entities(Property.group_id, func.sum(CodeCase.number_of_units_to_receive_rops).label('units_with_rop'))\
+        .outerjoin(Property, Property.parcel_id==CodeCase.parcel_id)\
+        .filter(CodeCase.final_date >= two_years_ago)\
+        .filter(CodeCase.case_type == constants.ROP_TYPE)\
+        .filter(CodeCase.case_status == 'Closed')\
+        .filter(CodeCase.number_of_units_to_receive_rops != None)\
+        .group_by(Property.group_id)
 
-def get_city_average_stats(divide_by_units=False):
-    if divide_by_units:
-        property_stats_row = Property.query.with_entities(
-            func.avg(Property.tenant_complaints_count / Property.unit_count).label('average_tenant_complaints_count'),
-            func.avg(Property.code_violations_count / Property.unit_count).label('average_code_violations_count'),
-            func.avg(Property.police_incidents_count / Property.unit_count).label('average_police_incidents_count'),
-            func.stddev(Property.tenant_complaints_count / Property.unit_count).label('tenant_complaints_count_std_dev'),
-            func.stddev(Property.code_violations_count / Property.unit_count).label('code_violations_count_std_dev'),
-            func.stddev(Property.police_incidents_count / Property.unit_count).label('police_incidents_count_std_dev'),
-        ).first()
 
-    else:
-        property_stats_row = Property.query.with_entities(
-            func.avg(Property.tenant_complaints_count).label('average_tenant_complaints_count'),
-            func.avg(Property.code_violations_count).label('average_code_violations_count'),
-            func.avg(Property.police_incidents_count).label('average_police_incidents_count'),
-            func.stddev(Property.tenant_complaints_count).label('tenant_complaints_count_std_dev'),
-            func.stddev(Property.code_violations_count).label('code_violations_count_std_dev'),
-            func.stddev(Property.police_incidents_count).label('police_incidents_count_std_dev'),
-        ).first()
+def get_landlord_unit_count(group_id):
+    value = landlords_with_unit_count_query().filter_by(group_id=group_id).first()
+    if value is None:
+        return None
+    return value[1]
 
-    landlord_stats_row = Landlord.query.with_entities(
-        func.avg(Landlord.eviction_count).label('average_eviction_count'),
-        # Note: This is a workaround, not a bug. We can't calculate standard deviation in the same way here, because
-        # we don't have per property eviction data. So we use the citywide average as our "standard deviation", because
-        # it will assign a D to anyone worse than citywide average, and F to anyone double citywide average.
-        func.avg(Landlord.eviction_count).label('eviction_count_std_dev'),
-    ).first()
+def get_all_landlords_with_unit_count():
+    landlords_and_count = landlords_with_unit_count_query().all()
+    return {group_id: unitcount for group_id, unitcount in landlords_and_count}
 
-    property_stats = dict(property_stats_row)
-    landlord_stats = dict(landlord_stats_row)
-    property_stats.update(landlord_stats)
 
-    return property_stats
+def evictions_query():
+    one_year_ago = date.today() - timedelta(days=365) 
+    return Eviction.query\
+        .with_entities(Alias.group_id, func.count(Eviction.id).label('eviction_count'))\
+        .filter(Eviction.case_date >= one_year_ago)\
+        .join(Alias, Eviction.matched_name==Alias.name)\
+        .group_by(Alias.group_id)
+
+def get_all_evictions_by_group_id():
+    return evictions_query().all()
+
+def get_evictions_for_group(group_id):
+    value = evictions_query().filter_by(group_id=group_id).first()
+    if value is None:
+        return 0
+    return value[1]
+
+
+def code_violations_query():
+    one_year_ago = date.today() - timedelta(days=365) 
+    return CodeCase.query\
+        .with_entities(Property.group_id, func.count(CodeCase.case_id).label('code_violation_count'))\
+        .filter(CodeCase.apply_date >= one_year_ago)\
+        .filter(CodeCase.case_type == constants.CODE_VIOLATIONS_TYPE)\
+        .join(Property, Property.parcel_id==CodeCase.parcel_id)\
+        .group_by(Property.group_id)
+
+def get_all_code_violations_by_group_id():
+    return code_violations_query().all()
+
+def get_code_violations_for_group(group_id):
+    value = code_violations_query().filter_by(group_id=group_id).first()
+    if value is None:
+        return 0
+    return value[1]
+
+def get_landlord_stats(group_id):
+    units_for_group = get_landlord_unit_count(group_id)
+    total_evictions = get_evictions_for_group(group_id)
+    total_code_violations = get_code_violations_for_group(group_id)
+
+    denominator = 1 if units_for_group is None else units_for_group
+
+    return {
+        "unit_count": units_for_group,
+        "evictions_count": total_evictions,
+        "code_violations_count": total_code_violations,
+        "evictions_per_unit":  total_evictions / denominator,
+        "code_violations_per_unit":  total_code_violations / denominator
+    }
+
+def get_city_average_stats():
+    one_year_ago = date.today() - timedelta(days=365) 
+    total_eviction_count = Eviction.query.filter(Eviction.case_date >= one_year_ago).count()
+    total_code_violation_count = CodeCase.query.filter(CodeCase.apply_date >= one_year_ago).filter(CodeCase.case_type == constants.CODE_VIOLATIONS_TYPE).count()
+    landlords_with_counts = get_all_landlords_with_unit_count()
+    total_unit_count = sum(landlords_with_counts.values())
+
+    evictions_by_group = get_all_evictions_by_group_id()
+
+    eviction_counts_per_unit = []
+    for group_id, eviction_count in evictions_by_group:
+        if group_id in landlords_with_counts:
+            eviction_counts_per_unit.append(eviction_count/landlords_with_counts[group_id])
+        else:
+            eviction_counts_per_unit.append(eviction_count)
+    stddev_eviction_counts = statistics.stdev(eviction_counts_per_unit)
+
+    code_violations_by_group = get_all_code_violations_by_group_id()
+
+    code_violations_per_unit = []
+    for group_id, code_violation_count in code_violations_by_group:
+        if group_id in landlords_with_counts and landlords_with_counts[group_id] > 0:
+            code_violations_per_unit.append(code_violation_count/landlords_with_counts[group_id])
+        else:
+            code_violations_per_unit.append(code_violation_count)
+
+    stddev_code_violation_counts = statistics.stdev(code_violations_per_unit)
+
+    return {
+        "mean_evictions_per_unit": total_eviction_count / total_unit_count,
+        "mean_code_violations_per_unit": total_code_violation_count / total_unit_count,
+        "std_dev_evictions": stddev_eviction_counts,
+        "std_dev_code_violations": stddev_code_violation_counts,
+    }
 
 
 def replace_ordinals(text):
@@ -238,6 +313,7 @@ def sort_landlords_by_grade(sort_direction, page_number, page_size):
     return PaginatedResults(landlord_list[first_result:first_result + page_size], len(landlord_list))
 
 
+# TODO: Fix this function
 def get_ranked_landlords(sort_by, sort_direction, page_number, page_size):
     if sort_by == "grade":
         return sort_landlords_by_grade(sort_direction, page_number, page_size)

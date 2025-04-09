@@ -24,10 +24,13 @@ def get_custom_fields(rop_entity_id):
 	request_body = CUSTOM_FIELDS_REQUEST_TEMPLATE
 	request_body["EntityId"] = rop_entity_id
 	r = requests.post(CUSTOM_FIELDS_URL, json=request_body, headers=HEADERS)
-	if "Success" not in r.json():
+	
+	while "Success" not in r.json():
 		logging.error(r.json())
 		logging.error(rop_entity_id)
-		exit(0)
+		logging.error("Request failed. Waiting and trying again.")
+		time.sleep(30)
+		r = requests.post(CUSTOM_FIELDS_URL, json=request_body, headers=HEADERS)
 
 	results = r.json()
 	time.sleep(2)
@@ -38,13 +41,14 @@ def get_results_one_year(year):
 
 # CAUTION: If we have too many results here, the API will fail. We can handle pulling up until 2014.
 def get_results_year_range(from_year, to_year):
-	return get_code_case_results("{from_year}-01-01T05:00:00.000Z", "{to_year}-12-31T05:00:00.000Z")
+	return get_code_case_results(f"{from_year}-01-01T05:00:00.000Z", f"{to_year}-12-31T05:00:00.000Z")
 
 def get_code_case_results(from_datetime, to_datetime):
 	with open(REQUEST_BODY_FILE) as f:
 		request_body = json.load(f) 
 		request_body["CodeCaseCriteria"]["OpenedDateFrom"] = from_datetime
 		request_body["CodeCaseCriteria"]["OpenedDateTo"] = to_datetime
+		# print(request_body)
 
 		r = requests.post(CODE_SEARCH_URL, json=request_body, headers=HEADERS)
 		if not r.json()["Success"]:
@@ -59,6 +63,7 @@ def build_full_code_case_results():
 
 	for year in range(HISTORICAL_END_YEAR + 1, datetime.now().year + 1):
 		annualResults = get_results_one_year(year)
+		logging.error(f"Fetching year {year}. This year size is {len(annualResults)}, cumulative is {len(cumulativeResults)}")
 		cumulativeResults = cumulativeResults + annualResults
 		time.sleep(2)
 
@@ -98,7 +103,12 @@ def handle_custom_fields(code_case):
 def create_code_violations_table():
 	json_results = build_full_code_case_results()
 	code_case_objects = []
+	total = len(json_results)
+	count = 0
 	for code_case in json_results:
+		if count % 500 == 0:
+			logging.error(f"Processing code case {count} of {total}...")
+		count = count + 1
 
 		custom_fields = handle_custom_fields(code_case)
 		
@@ -110,6 +120,7 @@ def create_code_violations_table():
 			"case_number": code_case["CaseNumber"],
 			"case_type": code_case["CaseType"],
 			"case_status": code_case["CaseStatus"],
+			"description": code_case["Description"],
 			"apply_date": code_case["ApplyDate"],
 			"final_date": code_case["FinalDate"],
 			"address_line_1": address1,
@@ -132,6 +143,7 @@ def create_code_violations_table():
 
 def main():
 	create_code_violations_table()
+	#print(get_custom_fields('941dba5b-00e7-4fd2-bffd-b5bcef52a8bd'))
 
 if __name__ == "__main__":
 	main()

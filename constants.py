@@ -21,10 +21,12 @@ GRADE_F = {"grade":"F", "value":0, "color":GRADE_COLORS["F"]}
 
 
 GRADE_COMPONENTS = [
-    "tenant_complaints_count",
-    "code_violations_count",
-    "police_incidents_count",
-    "eviction_count",
+    "code_violations",
+    "evictions",
 ]
 
 STATS_TO_SCALE = GRADE_COMPONENTS
+
+CODE_VIOLATIONS_TYPE = 'CODE ENFORCEMENT'
+UNSAFE_UNFIT_TYPE = 'UNSAFE & UNFIT'
+ROP_TYPE = 'ROP'

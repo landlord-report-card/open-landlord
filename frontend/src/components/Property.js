@@ -12,7 +12,7 @@ import { MapWidget } from './Maps';
 
 
 function PropertyUnsafeUnfitWarning(props) {
-    if (props.property.unsafe_unfit_count <= 0) return null;
+    if (props.property.unsafe_unfit_case_number === null) return null;
     return (
         <Alert variant="danger">
             <Accordion>
@@ -22,6 +22,7 @@ function PropertyUnsafeUnfitWarning(props) {
                   <span className="font-typewriter">
                   <p>This property has been deemed unsafe or unfit for habitability by the City of Albany within the past year.</p>
                   <p>Call the City of Albany Code Department to determine if the unit you're looking at has been deemed unsafe or unfit. <a target="_blank" rel="noreferrer" href="https://www.albanyny.gov/2038/Code-Enforcement#:~:text=Unsafe%2FUnfit%20Orders,gas%2C%20electricity%2C%20or%20heat%20utilities">Learn More</a></p>
+                  <p>Violation Number: <a target="_blank" rel="noreferrer" href={"https://albanyny-energovpub.tylerhost.net/Apps/SelfService#/code/" + props.property.unsafe_unfit_case_id}>{props.property.unsafe_unfit_case_number} </a></p>
                   </span>
                 </Accordion.Body>
               </Accordion.Item>
@@ -60,9 +61,6 @@ function PropertyInfo(props) {
           <span>Business Entity Type: </span>{props.property.business_entity_type}<br />
           <span>Owner Occupied: </span>{props.property.owner_occupied}<br />
           <span>Parcel ID: </span>{props.property.parcel_id}<br />
-          <span>Tenant Complaints: </span>{props.property.tenant_complaints_count}<br />
-          <span>Code Violations Count: </span>{props.property.code_violations_count}<br />
-          <span>Police Incidents Count: </span>{props.property.police_incidents_count}<br />
         </>
     )
   }
