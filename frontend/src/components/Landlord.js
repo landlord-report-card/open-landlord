@@ -10,10 +10,6 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import { MapWidget } from './Maps';
-
-
-
-
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
@@ -31,7 +27,7 @@ const XLARGE_LANDLORD = {"maxSize": null, "sizeDetail": "Very Large (More than 1
 
 
 function getLandlordSizeInfo(size, feature) {
-    if (size == 0) return "No Registered Rental Properties on File"
+    if (size === null) return "No Registered Rental Properties on File"
     if (size > LARGE_LANDLORD["maxSize"]) return XLARGE_LANDLORD[feature];
     if (size > MEDIUM_LANDLORD["maxSize"]) return LARGE_LANDLORD[feature];
     if (size > SMALL_LANDLORD["maxSize"]) return MEDIUM_LANDLORD[feature];
@@ -95,11 +91,9 @@ function UnsafeUnfitWarning(props) {
 
 function hideGrade(props) {
     if (
-        props.landlord.unit_count == 0 && 
+        props.landlord.unit_count === null && 
         props.landlord.code_violations_count == 0 && 
-        props.landlord.police_incidents_count == 0 &&
-        props.landlord.tenant_complaints_count == 0 &&
-        props.landlord.eviction_count == 0
+        props.landlord.evictions_count == 0
     ) {
         return true
     }
@@ -189,14 +183,10 @@ function GradeDetailColumn(props) {
     }
     return (
         <Col sm={5} className="landlord-grades">
-            <GradeDetailWidget heading="Tenant Complaints" heading_total="Total Tenant Complaints" individual_grade={props.landlord.tenant_complaints_count_grade}
-            total={props.landlord.tenant_complaints_count} per_property={props.landlord.tenant_complaints_count_per_property} per_unit={props.landlord.tenant_complaints_count_per_unit} city_average={props.city_average_stats.average_tenant_complaints_count} />
-            <GradeDetailWidget heading="Code Violations" heading_total="Total Code Violations" individual_grade={props.landlord.code_violations_count_grade}
-            total={props.landlord.code_violations_count} per_property={props.landlord.code_violations_count_per_property} per_unit={props.landlord.code_violations_count_per_unit} city_average={props.city_average_stats.average_code_violations_count} />
-            <GradeDetailWidget heading="Police Incidents" heading_total="Total Police Incidents" individual_grade={props.landlord.police_incidents_count_grade}
-            total={props.landlord.police_incidents_count} per_property={props.landlord.police_incidents_count_per_property} per_unit={props.landlord.police_incidents_count_per_unit} city_average={props.city_average_stats.average_police_incidents_count} />
-            <GradeDetailWidget heading="Eviction Filings" heading_total="Total 2023 Eviction Filings" individual_grade={props.landlord.eviction_count_grade}
-            total={props.landlord.eviction_count} per_property={props.landlord.eviction_count_per_property} per_unit={props.landlord.eviction_count_per_unit} city_average={props.city_average_stats.average_eviction_count} />
+            <GradeDetailWidget heading="Code Violations" heading_total="Code Violations (Past Year)" individual_grade={props.landlord.code_violations_grade}
+            total={props.landlord.code_violations_count} per_unit={props.landlord.code_violations_per_unit} city_average={props.city_average_stats.mean_code_violations_per_unit} />
+            <GradeDetailWidget heading="Eviction Filings" heading_total="Eviction Filings (Past Year)" individual_grade={props.landlord.evictions_grade}
+            total={props.landlord.evictions_count} per_unit={props.landlord.evictions_per_unit} city_average={props.city_average_stats.mean_evictions_per_unit} />
         </Col>
     )
   }
@@ -232,6 +222,7 @@ export default function Landlord () {
     const [cityAverageStats, setCityAverageStats] = React.useState({})
     const [properties, setProperties] = React.useState([])
     const [unsafeUnfit, setUnsafeUnfit] = React.useState([])
+    const [evictions, setEvictions] = React.useState([])
 
     React.useEffect(() => {
         axios.get("/api/landlords/" + id + "/grades").then((response) => {
@@ -264,18 +255,24 @@ export default function Landlord () {
         });
       }, []);
 
+    React.useEffect(() => {
+        axios.get("/api/landlords/" + id + "/evictions").then((response) => {
+          setEvictions(response.data);
+        });
+      }, []);
+
     if (!landlord) return null;
 
     return (
         <>
-             <UnsafeUnfitWarning unsafeUnfit={unsafeUnfit} />
+             {<UnsafeUnfitWarning unsafeUnfit={unsafeUnfit} /> }
              <Container className="container font-typewriter">
               <Card className="card">
                 <Card.Body className="card-body">
                   <LandlordTitleRow landlord={landlord} />
                   <span className="row card-lines">
                       <LandlordDetailColumn landlord={landlord} aliases={aliases}/>
-                      <GradeDetailColumn landlord={landlord} city_average_stats={cityAverageStats}/>
+                      { <GradeDetailColumn landlord={landlord} city_average_stats={cityAverageStats}/> }
                   </span>
                 </Card.Body>
               </Card>
