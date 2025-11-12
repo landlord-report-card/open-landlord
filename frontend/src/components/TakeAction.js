@@ -51,7 +51,7 @@ export default function TakeAction () {
                 <span class="action-accordion-body">
                                 <p>
                                     <strong>United Tenants of Albany</strong> is currently the community's primary rental assistance provider. They also have some funding for utility assistance. UTA can be reached by phone at
-                                    <strong>(518) 436-8997 x3</strong>. More information on financial assistance from UTA can be found <a href="https://utalbany.org/for-tenants/#:~:text=UTA%20Financial%20Assistance%20Service">here</a>.
+                                    <strong>(518) 436-8997 x3</strong>. More information on financial assistance from UTA can be found <a href="https://utalbany.org/services/rental-assistance/">here</a>.
                                 </p>
                                 The <strong>Home Energy Assistance Program </strong>from the Albany County Department of Social Services is also open and accepting applications for utility assistance. To learn more or apply, call
                                 <strong>(518) 447-7323</strong>.
@@ -66,7 +66,7 @@ export default function TakeAction () {
                 <Accordion.Body>
                 <span class="action-accordion-body">
                          <strong>United Tenants of Albany</strong> is able to support tenants in the City of Albany who want to canvas their neighbors, hold tenant meetings, and form a Tenant Association. Tenant Associations are a
-                                powerful way to bargain with your landlord for repairs and have tenant voices be heard. Call <strong>(518) 436-8997 x3 </strong>to be connected to a tenant organizer.
+                                powerful way to bargain with your landlord for repairs and have tenant voices be heard. Go <a href="https://utalbany.org/services/tenant-organizing/">here</a> for more information or Call <strong>(518) 436-8997 </strong>to be connected to a tenant organizer.
                 </span>
                 </Accordion.Body>
               </Accordion.Item>
