@@ -4,16 +4,21 @@ import time
 import logging
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from models import db, CodeCase
+from models import db, CodeCase, CodeViolation
 from app import app
 
 REQUEST_BODY_FILE = './rop-request-formatted.json'
 CODE_SEARCH_URL = 'https://albanyny-energovpub.tylerhost.net/apps/selfservice/api/energov/search/search'
 CUSTOM_FIELDS_URL = 'https://albanyny-energovpub.tylerhost.net/apps/selfservice/api/energov/customfields/data/'
+VIOLATIONS_URL = 'https://albanyny-energovpub.tylerhost.net/apps/selfservice/api/energov/entity/violations/search'
 HISTORICAL_START_YEAR = 1900
 HISTORICAL_END_YEAR = 2014
 
+CODE_ENFORCEMENT_CODE_CASE_TYPE_ID = '48e1603a-4b28-40be-89bc-61793ed7241b'
+
 CUSTOM_FIELDS_REQUEST_TEMPLATE = {"EntityId":"","ModuleId":3,"LayoutId":"13521345-000d-47f0-9a55-83489ead05d7","OnlineLayoutId":"cb89531e-b1fc-d4ca-c403-4b673d90ac57"}
+
+VIOLATIONS_REQUEST_TEMPLATE = {"PageNumber":1,"PageSize":10000,"SortField":"","IsSortedInAscendingOrder":True,"ModuleId":3,"EntityId":""}
 
 HEADERS = {
 	"tenantId": "1",
@@ -100,6 +105,54 @@ def handle_custom_fields(code_case):
 	return custom_fields_to_return
 
 
+def populate_violations():
+	with app.app_context():
+		# Get all code cases of type code enforcement
+		code_enforcement_cases = CodeCase.query.filter(CodeCase.case_type == 'CODE ENFORCEMENT')
+		code_violations = []
+
+		total = code_enforcement_cases.count()
+		count = 0
+
+		# for each, do a request and add an entry to code violations table
+		for code_case in code_enforcement_cases:
+			if count % 500 == 0:
+				logging.error(f"Processing code case {count} of {total}...")
+			count = count + 1
+			request_body = VIOLATIONS_REQUEST_TEMPLATE
+			request_body["EntityId"] = code_case.case_id
+			r = requests.post(VIOLATIONS_URL, json=request_body, headers=HEADERS)
+			results = r.json()
+			if "Result" not in results:
+				logging.error(f"No results found for {results}")
+				continue
+
+			if not results["Result"]:
+				continue
+
+			for violation in results["Result"]:
+				violations_json = {
+				    "code_violation_id": violation["EntityViolationId"],
+				    "code_case_id": violation["EntityId"],
+				    "code_number": violation["CodeNumber"],
+				    "code_description": violation["CodeDescription"],
+				    "code_text": violation["RevisionCodeText"],
+				    "corrective_action": violation["CorrectiveAction"],
+				    "category_name": violation["CategoryName"],
+				    "status": violation["CodeStatus"],
+				    "priority": violation["ViolationPriority"],
+				    "issue_date": violation["CitationIssueDate"],
+				    "compliance_date": violation["ComplianceDate"],
+				    "resolve_date": violation["ResolveDate"],
+				}
+				code_violations.append(CodeViolation(**violations_json))
+
+		# First, delete existing Code Cases, then create, then commit
+		db.session.query(CodeViolation).delete()
+		db.session.bulk_save_objects(code_violations)
+		db.session.commit()
+
+
 def create_code_violations_table():
 	json_results = build_full_code_case_results()
 	code_case_objects = []
@@ -142,8 +195,8 @@ def create_code_violations_table():
 		db.session.commit()
 
 def main():
-	create_code_violations_table()
-	#print(get_custom_fields('941dba5b-00e7-4fd2-bffd-b5bcef52a8bd'))
+	#create_code_violations_table()
+	populate_violations()
 
 if __name__ == "__main__":
 	main()
