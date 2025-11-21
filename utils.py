@@ -162,8 +162,8 @@ def get_city_average_stats(divide_by_units=False):
         func.avg(Landlord.eviction_count).label('eviction_count_std_dev'),
     ).first()
 
-    property_stats = dict(property_stats_row)
-    landlord_stats = dict(landlord_stats_row)
+    property_stats = dict(property_stats_row._mapping)
+    landlord_stats = dict(landlord_stats_row._mapping)
     property_stats.update(landlord_stats)
 
     return property_stats
