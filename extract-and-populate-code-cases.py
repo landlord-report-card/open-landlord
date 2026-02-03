@@ -148,12 +148,20 @@ def populate_violations():
 				code_violations.append(CodeViolation(**violations_json))
 
 		# First, delete existing Code Cases, then create, then commit
+		logging.error("Writing out code violations...")
 		db.session.query(CodeViolation).delete()
 		db.session.bulk_save_objects(code_violations)
-		db.session.commit()
+		try:
+			db.session.commit()
+		except SQLAlchemyError as e:
+		    logging.error(f"Error: {e}")
+		    db.session.rollback() # Rollback the failed transaction
+		finally:
+		    db.session.close()
 
 
-def create_code_violations_table():
+
+def populate_code_cases():
 	json_results = build_full_code_case_results()
 	code_case_objects = []
 	total = len(json_results)
@@ -192,11 +200,17 @@ def create_code_violations_table():
 		# First, delete existing Code Cases, then create, then commit
 		db.session.query(CodeCase).delete()
 		db.session.bulk_save_objects(code_case_objects)
-		db.session.commit()
+		try:
+			db.session.commit()
+		except SQLAlchemyError as e:
+		    logging.error(f"Error: {e}")
+		    db.session.rollback() # Rollback the failed transaction
+		finally:
+		    db.session.close()
 
 def main():
-	#create_code_violations_table()
-	populate_violations()
+	populate_code_cases()
+	#populate_violations()
 
 if __name__ == "__main__":
 	main()
