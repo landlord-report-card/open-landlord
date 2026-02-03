@@ -5,6 +5,7 @@ from marshmallow import fields
 from models import db, Landlord, Property, Alias, CodeCase, Eviction
 from constants import SEARCH_DEFAULT_MAX_RESULTS
 from datetime import date, timedelta
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import utils
 import constants
@@ -16,6 +17,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['LANDLORD_DATABASE_URI']
 db.init_app(app)
 CORS(app)
 
+
+# Trust Heroku's proxy headers
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+@app.before_request
+def force_https():
+    if request.headers.get('X-Forwarded-Proto', 'http') != 'https':
+        return redirect(request.url.replace('http://', 'https://'), code=301)
 
 # Schema API initializations 
 class LandlordSchema(ma.SQLAlchemySchema):
