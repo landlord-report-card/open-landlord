@@ -1,4 +1,5 @@
 __pycache__/
+frontend/build/
 venv*
 *.py[cod]
 .DS_Store
