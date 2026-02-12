@@ -235,7 +235,7 @@ def populate_database(properties_filename, groupings_filename, geo_filename):
     property_list = create_property_list(properties, groupings, geocoding_map)
     alias_list = create_alias_list(properties, groupings)
 
-
+    commit_to_db(landlord_list, property_list, alias_list)
 
 ##########################################
 

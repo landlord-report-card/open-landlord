@@ -218,7 +218,6 @@ def get_search_results():
 @cross_origin()
 def get_property(id):
     property_obj = Property.query.get(id).as_dict()
-    print(property_obj)
     one_year_ago = date.today() - timedelta(days=365) 
     unsafe_unfit = CodeCase.query.filter(CodeCase.parcel_id == property_obj["parcel_id"])\
         .filter(CodeCase.case_type == constants.UNSAFE_UNFIT_TYPE) \

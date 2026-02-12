@@ -42,6 +42,21 @@ class CodeCase(db.Model):
     units_to_receive_an_rop = db.Column(db.String())
     issue_rops = db.Column(db.Boolean)
 
+class CodeViolation(db.Model):
+    __tablename__ = "codeviolation"
+    code_violation_id  = db.Column(db.String(80), primary_key=True)
+    code_case_id = db.Column(db.String(80))
+    code_number = db.Column(db.String(80))
+    code_description = db.Column(db.Text)
+    code_text = db.Column(db.Text)
+    corrective_action = db.Column(db.Text)
+    category_name = db.Column(db.String(256))
+    status = db.Column(db.String(80))
+    priority = db.Column(db.String(80))
+    issue_date = db.Column(db.DateTime())
+    compliance_date = db.Column(db.DateTime())
+    resolve_date = db.Column(db.DateTime())
+
 
 class Landlord(db.Model):
     __tablename__ = "staging_landlord"
@@ -65,9 +80,7 @@ class Property(db.Model):
     house_number = db.Column(db.Integer)
     street_name = db.Column(db.String(250))
     zip_code = db.Column(db.String(10))
-    tenant_complaints_count = db.Column(db.Integer) ######
     owner_occupied = db.Column(db.String(250))
-    code_violations_count = db.Column(db.Integer) ######
     is_business = db.Column(db.String(250))
     public_owner = db.Column(db.String(250))
     business_entity_type = db.Column(db.String(250))
