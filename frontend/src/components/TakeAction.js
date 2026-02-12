@@ -9,8 +9,8 @@ export default function TakeAction () {
     return (
  <div class="main" id="action-page">
     <p>
-        The information below has been aggregated from the City of Albany’s <a target="_blank" href="https://www.albanyny.gov/1944/Tenant-Resources-Information">Albany Tenant Resource & Information Center</a> and the United Tenants of
-        Albany’s (UTA) <a target="_blank" href="https://utalbany.org/for-tenants/">resources for tenants</a>. Please visit these sites for the most up to date resources and information.
+        The information below has been aggregated from the City of Albany’s <a target="_blank" href="https://albanyny.gov/2410/Tenant-Resources-Information">Albany Tenant Resource & Information Center</a> and the United Tenants of
+        Albany’s (UTA) <a target="_blank" href="https://utalbany.org/resources/">resources for tenants</a>. Please visit these sites for the most up to date resources and information.
     </p>
 
     <div class="row">
@@ -20,7 +20,7 @@ export default function TakeAction () {
                 <Accordion.Header><h5>My rights as a tenant have been violated.</h5></Accordion.Header>
                 <Accordion.Body>
                 <span class="action-accordion-body">
-                            <p><a href="https://www.albanyny.gov/1986/Your-Rights-as-a-Renter">Know your rights as a renter.</a></p>
+                            <p><a href="https://albanyny.gov/2410/Tenant-Resources-Information">Know your rights as a renter.</a> (scroll down to 'Your Rights as a Renter'</p>
                             <p>For assistance or guidance in pursuing civil legal action against a landlord, visit <a href="https://nycourts.gov/courthelp/">New York State CourtHelp</a> for a variety of self-help resources.</p>
                             <p>You may also try contacting the <strong>Legal Aid Society of Northeastern New York</strong> at (833) 628-0087.</p>
                             <p>For tenant advocacy or mediation services, contact <strong>United Tenants of Albany </strong>at (518) 436-8997 x3.</p>
@@ -93,7 +93,7 @@ export default function TakeAction () {
                 <Accordion.Header><h5>I need help finding an apartment.</h5></Accordion.Header>
                 <Accordion.Body>
                 <span class="action-accordion-body">
-                                    <p>Finding &amp; Applying for Housing: This <em>Good Neighbor School </em>module covers tips for&nbsp; searching for housing and getting through the rental application process.&nbsp;&nbsp;</p>
+                                    <p>Finding &amp; Applying for Housing: This <em> <a href="https://www.youtube.com/watch?v=S1UKXz_3ocM">Good Neighbor School </a></em>module covers tips for&nbsp; searching for housing and getting through the rental application process.&nbsp;&nbsp;</p>
                                     <p>Capital Region Affordable Housing Directory: This guidebook includes many&nbsp; affordable housing developments in the region. <em>Note: Some may be on waitlists.&nbsp;</em></p>
                                     Affordable Rental Listing (ARL): This is a resource prepared by Fawn Dalton at the&nbsp; Albany Housing Coalition. To join the monthly distribution list, you can contact&nbsp; Fawn by emailing
                                     f.dalton@ahcvets.org.
