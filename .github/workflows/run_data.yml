@@ -25,7 +25,7 @@ jobs:
           echo "LANDLORD_DATABASE_URI=${{ secrets.LANDLORD_DATABASE_URI }}" >> $GITHUB_ENV
 
       - name: Debug DB URI
-	run: |
+        run: |
           echo "URI exists:"
           echo "${LANDLORD_DATABASE_URI}"
 
