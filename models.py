@@ -9,7 +9,7 @@ db = SQLAlchemy()
 
 
 class Alias(db.Model):
-    __tablename__ = "staging_alias"
+    __tablename__ = "alias"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     group_id = db.Column(db.String(256), unique=False, nullable=True)
@@ -59,7 +59,7 @@ class CodeViolation(db.Model):
 
 
 class Landlord(db.Model):
-    __tablename__ = "staging_landlord"
+    __tablename__ = "landlord"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     address = db.Column(db.String(250))
@@ -73,7 +73,7 @@ class Landlord(db.Model):
        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Property(db.Model):
-    __tablename__ = "staging_property"
+    __tablename__ = "property"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     parcel_id = db.Column(db.String(250), nullable=False)
     address = db.Column(db.String(250), nullable=False)

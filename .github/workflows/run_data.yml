@@ -1,0 +1,28 @@
+name: Pull Data
+
+on:
+  schedule:
+    - cron: "0 1 * * *"  # every day 1am
+  workflow_dispatch:      # optional manual trigger
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Set environment variables
+        run: |
+          echo "LANDLORD_DATABASE_URI=${{ secrets.LANDLORD_DATABASE_URI }}" >> $GITHUB_ENV
+
+      - name: Run data script
+        run: python extract-and-populate-code-cases.py
