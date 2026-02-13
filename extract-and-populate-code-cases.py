@@ -34,11 +34,11 @@ def get_custom_fields(rop_entity_id):
 		logging.error(r.json())
 		logging.error(rop_entity_id)
 		logging.error("Request failed. Waiting and trying again.")
-		time.sleep(30)
+		time.sleep(2)
 		r = requests.post(CUSTOM_FIELDS_URL, json=request_body, headers=HEADERS)
 
 	results = r.json()
-	time.sleep(2)
+	# time.sleep(2)
 	return results["Result"]["CustomGroups"][0]["CustomFields"]
 
 def get_results_one_year(year):
@@ -70,7 +70,7 @@ def build_full_code_case_results():
 		annualResults = get_results_one_year(year)
 		logging.error(f"Fetching year {year}. This year size is {len(annualResults)}, cumulative is {len(cumulativeResults)}")
 		cumulativeResults = cumulativeResults + annualResults
-		time.sleep(2)
+		# time.sleep(2)
 
 	return cumulativeResults
 
