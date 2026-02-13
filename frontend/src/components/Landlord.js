@@ -214,6 +214,50 @@ function PropertyList(props) {
     )
   }
 
+function LandlordViolationsTable({ violations }) {
+  if (!violations.length) return null;
+
+  return (
+    <div className="mt-3">
+      <Card>
+        <Card.Body>
+          <h5 className="property-label mb-3">Code Violations (Past Year)</h5>
+          <table className="table table-sm table-bordered table-hover">
+            <thead className="table-light">
+              <tr>
+                <th>Case</th>
+                <th>Code</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Issued</th>
+              </tr>
+            </thead>
+            <tbody>
+              {violations.map(v => (
+                <tr key={v.code_violation_id}>
+                  <td>
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={`https://albanyny-energovpub.tylerhost.net/Apps/SelfService#/code/${v.case_id}`}
+                    >
+                      {v.case_number}
+                    </a>
+                  </td>
+                  <td>{v.code_number}</td>
+                  <td>{v.code_description}</td>
+                  <td className={v.status === "Open" ? "text-danger" : ""}>{v.status}</td>
+                  <td>{v.issue_date && new Date(v.issue_date).toLocaleDateString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card.Body>
+      </Card>
+    </div>
+  );
+}
+
 export default function Landlord () {
     let { id } = useParams();
 
@@ -223,6 +267,7 @@ export default function Landlord () {
     const [properties, setProperties] = React.useState([])
     const [unsafeUnfit, setUnsafeUnfit] = React.useState([])
     const [evictions, setEvictions] = React.useState([])
+    const [violations, setViolations] = React.useState([]);
 
     React.useEffect(() => {
         axios.get("/api/landlords/" + id + "/grades").then((response) => {
@@ -261,6 +306,17 @@ export default function Landlord () {
         });
       }, []);
 
+    React.useEffect(() => {
+      axios.get(`/api/landlords/${id}/code_violations`).then((response) => {
+        const filtered = response.data.filter(violation =>
+          violation.code_number !== "* Initial Notice *" &&
+          violation.code_number !== "** Final Notice **"
+        );
+        setViolations(filtered); // use whatever state variable you have for violations
+      });
+    }, [id]);
+
+
     if (!landlord) return null;
 
     return (
@@ -280,10 +336,11 @@ export default function Landlord () {
              <br/>
 
             <Container className="container font-typewriter">
-              <Row className="row text-center">
+              <Row>
                 <PropertyList properties={properties} landlord={landlord} />
                 <Col sm>
-                    <MapWidget properties={properties} />
+                  <MapWidget properties={properties} />
+                  <LandlordViolationsTable violations={violations} />
                 </Col>
               </Row>
             </Container>

@@ -96,11 +96,45 @@ function PropertyInfo(props) {
     )
   }
 
+function PropertyViolationsTable({ violations }) {
+  if (!violations.length) return null;
+
+  return (
+    <div className="mt-3"> {/* adds space above the table */}
+        <table className="table table-sm table-bordered table-hover">
+        <thead className="table-light">
+          <tr>
+            <th>Case</th>
+            <th>Code</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Issued</th>
+          </tr>
+        </thead>
+        <tbody>
+          {violations.map(v => (
+            <tr key={v.code_violation_id}>
+              <td>
+                <a target="_blank" rel="noreferrer" href={`https://albanyny-energovpub.tylerhost.net/Apps/SelfService#/code/${v.case_id}`}>{v.case_number}</a>
+              </td>
+              <td>{v.code_number}</td>
+              <td>{v.code_description}</td>
+              <td className={v.status === "Open" ? "text-danger" : ""}>{v.status}</td>
+              <td>{v.issue_date && new Date(v.issue_date).toLocaleDateString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 
 export default function Property () {
     let { id } = useParams();
 
     const [property, setProperty] = React.useState(null)
+    const [violations, setViolations] = React.useState([])
 
     React.useEffect(() => {
       axios.get("/api/properties/" + id).then((response) => {
@@ -111,40 +145,63 @@ export default function Property () {
           propertyResponse["owner"] = response2.data;
           setProperty(propertyResponse);
         });
+
+        axios.get("/api/properties/" + id + "/violations").then((v) => {
+          // Filter out "* Initial Notice *" and "** Final Notice **"
+          const filtered = v.data.filter(violation =>
+            violation.code_number !== "* Initial Notice *" &&
+            violation.code_number !== "** Final Notice **"
+          );
+          setViolations(filtered);
+        });
       });
     }, [id]);
 
     if (!property) return null;
 
 
-    return (
-        <>
-          <PropertyUnsafeUnfitWarning property={property}/>
-          <PropertyNoROPWarning property={property}/>
-          <Container className="container font-typewriter">
-            <Row>
-              <Col sm>
-                <Card id="property-card">
+return (
+    <>
+      <PropertyUnsafeUnfitWarning property={property}/>
+      <PropertyNoROPWarning property={property}/>
+      <Container className="container font-typewriter">
+        <Row>
+          {/* Property info on the left */}
+          <Col sm>
+            <Card id="property-card">
+              <Card.Body>
+                <Row className="title-row text-center">
+                  <Col sm>
+                    <span className="property-label">Property Address</span><br />
+                    <span className="property-address font-handwritten">{property.address}</span>
+                  </Col>
+                </Row>
+                <div className="card-lines property-info">
+                  <PropertyInfo property={property}/>
+                </div>        
+              </Card.Body>
+            </Card>
+          </Col>
+
+          {/* Map + Code Violations on the right */}
+          <Col sm>
+            <MapWidget properties={[property]} />
+            
+            {violations.length > 0 && (
+              <div className="mt-3">
+                <Card>
                   <Card.Body>
-                    <Row className="title-row text-center">
-                      <Col sm>
-                        <span className="property-label">Property Address</span><br />
-                        <span className="property-address font-handwritten">{property.address}</span>
-                      </Col>
-                    </Row>
-                    <div className="card-lines property-info">
-                      <PropertyInfo property={property}/>
-                    </div>
+                    <span className="property-label">Code Violations (Past Year)</span>
+                    <PropertyViolationsTable violations={violations} />
                   </Card.Body>
                 </Card>
-              </Col>
-              <Col sm>
-                 <MapWidget properties={[property]} />
-              </Col>
-            </Row>
-          </Container>
-        </>
-    );
+              </div>
+            )}
+          </Col>
+        </Row>
+      </Container>
+    </>
+  );
 }
 
 
