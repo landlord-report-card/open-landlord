@@ -210,7 +210,7 @@ def populate_code_cases():
 
 def main():
 	populate_code_cases()
-	#populate_violations()
+	populate_violations()
 
 if __name__ == "__main__":
 	main()
