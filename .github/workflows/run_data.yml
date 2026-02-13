@@ -24,5 +24,10 @@ jobs:
         run: |
           echo "LANDLORD_DATABASE_URI=${{ secrets.LANDLORD_DATABASE_URI }}" >> $GITHUB_ENV
 
+      - name: Debug DB URI
+	  run: |
+            echo "URI exists:"
+            echo "${LANDLORD_DATABASE_URI}"
+
       - name: Run data script
         run: python extract-and-populate-code-cases.py
