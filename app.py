@@ -6,6 +6,8 @@ from models import db, Landlord, Property, Alias, CodeCase, Eviction
 from constants import SEARCH_DEFAULT_MAX_RESULTS
 from datetime import date, timedelta
 from werkzeug.middleware.proxy_fix import ProxyFix
+from datetime import date, timedelta
+from sqlalchemy.sql import func
 import os
 import utils
 import constants
@@ -23,8 +25,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 @app.before_request
 def force_https():
-    if request.headers.get('X-Forwarded-Proto', 'http') != 'https':
-        return redirect(request.url.replace('http://', 'https://'), code=301)
+    if not app.debug and not request.host.startswith("localhost"):
+        if request.headers.get('X-Forwarded-Proto', 'http') != 'https':
+            return redirect(request.url.replace('http://', 'https://'), code=301)
 
 # Schema API initializations 
 class LandlordSchema(ma.SQLAlchemySchema):
@@ -214,15 +217,64 @@ def get_search_results():
     return PROPERTIES_SCHEMA.jsonify(utils.perform_search(search_string, max_results).all())
     
 
+
 @app.route('/api/properties/<id>', methods=['GET'])
 @cross_origin()
 def get_property(id):
+
     property_obj = Property.query.get(id).as_dict()
-    one_year_ago = date.today() - timedelta(days=365) 
-    unsafe_unfit = CodeCase.query.filter(CodeCase.parcel_id == property_obj["parcel_id"])\
-        .filter(CodeCase.case_type == constants.UNSAFE_UNFIT_TYPE) \
-        .filter(CodeCase.apply_date >= one_year_ago) \
-        .first()
+
+    two_years_ago = date.today() - timedelta(days=730)
+    one_year_ago = date.today() - timedelta(days=365)
+
+    # MOST RECENT ROP (valid OR expired)
+    most_recent_rop = db.session.query(CodeCase).filter(
+        CodeCase.parcel_id == property_obj["parcel_id"],
+        CodeCase.case_type == constants.ROP_TYPE,
+        CodeCase.case_status == "Closed"
+    ).order_by(
+        CodeCase.apply_date.desc()
+    ).first()
+
+    # MOST RECENT VALID ROP
+    recent_rop = db.session.query(CodeCase).filter(
+        CodeCase.parcel_id == property_obj["parcel_id"],
+        CodeCase.case_type == constants.ROP_TYPE,
+        CodeCase.case_status == "Closed",
+        CodeCase.apply_date >= two_years_ago
+    ).order_by(
+        CodeCase.apply_date.desc()
+    ).first()
+
+    # Active / Expired Logic
+    property_obj["has_rop"] = recent_rop is not None
+
+    property_obj["expired_rop"] = (
+        most_recent_rop is not None and recent_rop is None
+    )
+
+    # Unit Count (VALID ROP ONLY)
+    if recent_rop and recent_rop.number_of_units_to_receive_rops:
+        property_obj["unit_count"] = int(recent_rop.number_of_units_to_receive_rops)
+    else:
+        property_obj["unit_count"] = 0
+
+    # ROP Fields (MOST RECENT ROP)
+    if most_recent_rop:
+        property_obj["rop_case_id"] = most_recent_rop.case_id
+        property_obj["rop_case_number"] = most_recent_rop.case_number
+        property_obj["rop_issue_date"] = most_recent_rop.final_date
+    else:
+        property_obj["rop_case_id"] = None
+        property_obj["rop_case_number"] = None
+        property_obj["rop_issue_date"] = None
+
+    # Unsafe / Unfit Case (unchanged)
+    unsafe_unfit = CodeCase.query.filter(
+        CodeCase.parcel_id == property_obj["parcel_id"],
+        CodeCase.case_type == constants.UNSAFE_UNFIT_TYPE,
+        CodeCase.apply_date >= one_year_ago
+    ).first()
 
     if unsafe_unfit:
         property_obj["unsafe_unfit_case_number"] = unsafe_unfit.case_number

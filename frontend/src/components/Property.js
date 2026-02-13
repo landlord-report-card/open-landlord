@@ -55,11 +55,42 @@ function PropertyInfo(props) {
     return (
         <>
           <span>Owner: </span> &nbsp;<a href={"/landlord/" + props.property.group_id}>{props.property.owner.name}</a><br />
-          <span>Has Residential Occupancy Permit (ROP): </span>{props.property.has_rop ? 'Yes' : 'No'}<br />
+          <span>Has Active Residential Occupancy Permit (ROP): </span>
+          {props.property.has_rop ? 'Yes' : 'No'}
+          <br />
+
+          {props.property.rop_case_id && (
+            <>
+              <span>ROP Case: </span>
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={"https://albanyny-energovpub.tylerhost.net/Apps/SelfService#/code/" + props.property.rop_case_id}
+              >
+                {props.property.rop_case_number}
+              </a>
+              <br />
+            </>
+          )}
+
+          {props.property.rop_issue_date && (
+            <>
+              <span>ROP Issue Date: </span>
+              {new Date(props.property.rop_issue_date).toLocaleDateString()}
+              <br />
+            </>
+          )}
+
+          {props.property.expired_rop && (
+            <>
+              <span>ROP Status: </span>
+              <span className="text-danger">
+                Expired
+              </span>
+              <br />
+            </>
+          )}
           <span>Number of Rental Units: </span>{props.property.unit_count}<br />
-          <span>Current Use: </span> &nbsp;{props.property.current_use}<br />
-          <span>Business Entity Type: </span>{props.property.business_entity_type}<br />
-          <span>Owner Occupied: </span>{props.property.owner_occupied}<br />
           <span>Parcel ID: </span>{props.property.parcel_id}<br />
         </>
     )
@@ -72,15 +103,16 @@ export default function Property () {
     const [property, setProperty] = React.useState(null)
 
     React.useEffect(() => {
-        axios.get("/api/properties/" + id).then((response) => {
-          const propertyResponse = response.data;
-          document.title = propertyResponse.address;
-          axios.get("/api/landlords/" + response.data.group_id).then((response2) => {
-            propertyResponse["owner"] = response2.data
-            setProperty(propertyResponse);
-          });
+      axios.get("/api/properties/" + id).then((response) => {
+        const propertyResponse = response.data;
+        document.title = propertyResponse.address;
+
+        axios.get("/api/landlords/" + response.data.group_id).then((response2) => {
+          propertyResponse["owner"] = response2.data;
+          setProperty(propertyResponse);
         });
-      }, []);
+      });
+    }, [id]);
 
     if (!property) return null;
 
