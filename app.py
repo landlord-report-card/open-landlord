@@ -2,10 +2,12 @@ from flask import Flask, render_template, flash, request, redirect, send_from_di
 from flask_marshmallow import Marshmallow
 from flask_cors import CORS, cross_origin
 from marshmallow import fields
-from models import db, Landlord, Property, Alias, CodeCase, Eviction
+from models import db, Landlord, Property, Alias, CodeCase, CodeViolation, Eviction
 from constants import SEARCH_DEFAULT_MAX_RESULTS
 from datetime import date, timedelta
 from werkzeug.middleware.proxy_fix import ProxyFix
+from datetime import date, timedelta
+from sqlalchemy.sql import func
 import os
 import utils
 import constants
@@ -23,8 +25,9 @@ app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 @app.before_request
 def force_https():
-    if request.headers.get('X-Forwarded-Proto', 'http') != 'https':
-        return redirect(request.url.replace('http://', 'https://'), code=301)
+    if not app.debug and not request.host.startswith("localhost"):
+        if request.headers.get('X-Forwarded-Proto', 'http') != 'https':
+            return redirect(request.url.replace('http://', 'https://'), code=301)
 
 # Schema API initializations 
 class LandlordSchema(ma.SQLAlchemySchema):
@@ -71,6 +74,20 @@ class CodeCaseSchema(ma.Schema):
             "case_type",
             )
 
+class CodeViolationSchema(ma.Schema):
+    class Meta:
+        fields = (
+            "code_violation_id",
+            "code_number",
+            "code_description",
+            "category_name",
+            "status",
+            "issue_date",
+            "resolve_date",
+            "case_number",
+            "case_id",
+        )
+
 class EvictionSchema(ma.Schema):
     class Meta:
         fields = (
@@ -84,6 +101,8 @@ LANDLORD_SCHEMA = LandlordSchema()
 LANDLORDS_SCHEMA = LandlordSchema(many=True)
 CODE_CASE_SCHEMA = CodeCaseSchema()
 CODE_CASES_SCHEMA = CodeCaseSchema(many=True)
+CODE_VIOLATION_SCHEMA = CodeViolationSchema()
+CODE_VIOLATIONS_SCHEMA = CodeViolationSchema(many=True)
 ALIAS_SCHEMA = AliasSchema()
 ALIASES_SCHEMA = AliasSchema(many=True)
 EVICTION_SCHEMA = EvictionSchema()
@@ -146,16 +165,79 @@ def get_landlord_aliases(group_id):
     return ALIASES_SCHEMA.jsonify(aliases)
 
 
+@app.route('/api/properties/<id>/violations', methods=['GET'])
+@cross_origin()
+def get_property_violations(id):
+    property_obj = Property.query.get(id)
+    if not property_obj:
+        return jsonify([])
+
+    one_year_ago = date.today() - timedelta(days=365)
+
+    # Join CodeViolation → CodeCase, filter by parcel_id and apply_date
+    violations = db.session.query(
+        CodeViolation,
+        CodeCase.case_number,
+        CodeCase.case_id,
+        CodeCase.apply_date
+    ).join(
+        CodeCase, CodeCase.case_id == CodeViolation.code_case_id
+    ).filter(
+        CodeCase.parcel_id == property_obj.parcel_id,
+        CodeCase.apply_date >= one_year_ago
+    ).all()
+
+    results = []
+    for violation, case_number, case_id, apply_date in violations:
+        v = violation.__dict__.copy()
+        v.pop("_sa_instance_state", None)
+
+        v["case_number"] = case_number
+        v["case_id"] = case_id
+        v["issue_date"] = apply_date  # Use apply_date as issued date
+
+        results.append(v)
+
+    return jsonify(results)
+
+
 @app.route('/api/landlords/<group_id>/code_violations', methods=['GET'])
 @cross_origin()
 def get_landlord_code_violations(group_id):
-    one_year_ago = date.today() - timedelta(days=365) 
-    code_cases = CodeCase.query.filter(CodeCase.case_type == constants.CODE_VIOLATIONS_TYPE)\
-        .filter(CodeCase.apply_date >= one_year_ago) \
-        .join(Property, Property.parcel_id==CodeCase.parcel_id)\
-        .filter(Property.group_id == group_id)\
-        .all()
-    return CODE_CASES_SCHEMA.jsonify(code_cases)
+    one_year_ago = date.today() - timedelta(days=365)
+
+    # Query all properties for this landlord
+    properties = Property.query.filter_by(group_id=group_id).all()
+    parcel_ids = [p.parcel_id for p in properties]
+
+    if not parcel_ids:
+        return jsonify([])
+
+    # Get CodeViolations joined with CodeCase, only past year
+    violations = db.session.query(
+        CodeViolation,
+        CodeCase.case_number,
+        CodeCase.case_id,
+        CodeCase.apply_date
+    ).join(
+        CodeCase, CodeCase.case_id == CodeViolation.code_case_id
+    ).filter(
+        CodeCase.parcel_id.in_(parcel_ids),
+        CodeCase.apply_date >= one_year_ago
+    ).all()
+
+    results = []
+    for violation, case_number, case_id, apply_date in violations:
+        v = violation.__dict__.copy()
+        v.pop("_sa_instance_state", None)
+
+        v["case_number"] = case_number
+        v["case_id"] = case_id
+        v["issue_date"] = apply_date
+
+        results.append(v)
+
+    return jsonify(results)
 
 
 @app.route('/api/landlords/<group_id>/evictions', methods=['GET'])
@@ -214,15 +296,66 @@ def get_search_results():
     return PROPERTIES_SCHEMA.jsonify(utils.perform_search(search_string, max_results).all())
     
 
+
 @app.route('/api/properties/<id>', methods=['GET'])
 @cross_origin()
 def get_property(id):
+
     property_obj = Property.query.get(id).as_dict()
-    one_year_ago = date.today() - timedelta(days=365) 
-    unsafe_unfit = CodeCase.query.filter(CodeCase.parcel_id == property_obj["parcel_id"])\
-        .filter(CodeCase.case_type == constants.UNSAFE_UNFIT_TYPE) \
-        .filter(CodeCase.apply_date >= one_year_ago) \
-        .first()
+
+    two_years_ago = date.today() - timedelta(days=730)
+    one_year_ago = date.today() - timedelta(days=365)
+
+    # MOST RECENT ROP (valid OR expired)
+    most_recent_rop = db.session.query(CodeCase).filter(
+        CodeCase.parcel_id == property_obj["parcel_id"],
+        CodeCase.case_type == constants.ROP_TYPE,
+        CodeCase.case_status == "Closed"
+    ).order_by(
+        CodeCase.final_date.desc()
+    ).first()
+
+    # MOST RECENT VALID ROP
+    recent_rop = db.session.query(CodeCase).filter(
+        CodeCase.parcel_id == property_obj["parcel_id"],
+        CodeCase.case_type == constants.ROP_TYPE,
+        CodeCase.case_status == "Closed",
+        CodeCase.final_date >= two_years_ago
+    ).order_by(
+        CodeCase.final_date.desc()
+    ).first()
+
+    print(recent_rop)
+
+    # Active / Expired Logic
+    property_obj["has_rop"] = recent_rop is not None
+
+    property_obj["expired_rop"] = (
+        most_recent_rop is not None and recent_rop is None
+    )
+
+    # Unit Count (VALID ROP ONLY)
+    if recent_rop and recent_rop.number_of_units_to_receive_rops:
+        property_obj["unit_count"] = int(recent_rop.number_of_units_to_receive_rops)
+    else:
+        property_obj["unit_count"] = 0
+
+    # ROP Fields (MOST RECENT ROP)
+    if most_recent_rop:
+        property_obj["rop_case_id"] = most_recent_rop.case_id
+        property_obj["rop_case_number"] = most_recent_rop.case_number
+        property_obj["rop_issue_date"] = most_recent_rop.final_date
+    else:
+        property_obj["rop_case_id"] = None
+        property_obj["rop_case_number"] = None
+        property_obj["rop_issue_date"] = None
+
+    # Unsafe / Unfit Case (unchanged)
+    unsafe_unfit = CodeCase.query.filter(
+        CodeCase.parcel_id == property_obj["parcel_id"],
+        CodeCase.case_type == constants.UNSAFE_UNFIT_TYPE,
+        CodeCase.apply_date >= one_year_ago
+    ).first()
 
     if unsafe_unfit:
         property_obj["unsafe_unfit_case_number"] = unsafe_unfit.case_number
