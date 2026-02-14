@@ -16,6 +16,13 @@ import constants
 app = Flask(__name__,static_folder='frontend/build',static_url_path='')
 ma = Marshmallow(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['LANDLORD_DATABASE_URI']
+
+# Fix for Github Actions
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+}
+
 db.init_app(app)
 CORS(app)
 
