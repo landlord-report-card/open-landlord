@@ -212,10 +212,8 @@ def get_landlord_stats(group_id):
 def get_city_average_stats():
     one_year_ago = date.today() - timedelta(days=365) 
     total_eviction_count = Eviction.query.filter(Eviction.case_date >= one_year_ago).count()
-    print(total_eviction_count)
     total_code_violation_count = CodeCase.query.filter(CodeCase.apply_date >= one_year_ago).filter(CodeCase.case_type == constants.CODE_VIOLATIONS_TYPE).count()
     landlords_with_counts = get_all_landlords_with_unit_count()
-    print(landlords_with_counts)
     total_unit_count = sum(landlords_with_counts.values())
 
     evictions_by_group = get_all_evictions_by_group_id()
