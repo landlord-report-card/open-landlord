@@ -1,6 +1,7 @@
 import csv
 from models import db, Eviction
 from app import app
+import argparse
 
 
 def create_evictions_table(filename):
@@ -36,7 +37,12 @@ def create_evictions_table(filename):
 
 
 def main():
-	create_evictions_table("/Users/akaier/Downloads/Albany Evictions Logger - Export Log.csv")
+	parser = argparse.ArgumentParser(description='Populate evictions from spreadsheet into DB')
+	parser.add_argument('--evictions', type=str)
+	args = parser.parse_args()
+
+	create_evictions_table(args.evictions)
 
 if __name__ == "__main__":
 	main()
+
