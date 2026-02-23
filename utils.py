@@ -143,6 +143,7 @@ def landlords_with_unit_count_query():
         .filter(CodeCase.case_type == constants.ROP_TYPE)\
         .filter(CodeCase.case_status == 'Closed')\
         .filter(CodeCase.number_of_units_to_receive_rops != None)\
+        .filter(CodeCase.number_of_units_to_receive_rops > 0)\
         .group_by(Property.group_id)
 
 
